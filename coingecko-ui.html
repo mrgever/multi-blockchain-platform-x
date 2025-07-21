@@ -193,6 +193,48 @@
             50% { transform: translateY(-10px); }
         }
         
+        /* Dark mode styles */
+        .dark {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        
+        .dark .bg-white {
+            background-color: #1e293b !important;
+        }
+        
+        .dark .bg-gray-50 {
+            background-color: #334155 !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background-color: #475569 !important;
+        }
+        
+        .dark .text-gray-900 {
+            color: #e2e8f0 !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #cbd5e1 !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #94a3b8 !important;
+        }
+        
+        .dark .border-gray-100 {
+            border-color: #475569 !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #64748b !important;
+        }
+        
+        .dark .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+        }
+        
         /* Chart animations */
         .chart-container {
             position: relative;
@@ -305,6 +347,26 @@
                             <span id="wallet-connect-text">Connect</span>
                         </button>
                         
+                        <!-- Theme Toggle -->
+                        <button onclick="toggleTheme()" id="theme-toggle" 
+                            class="p-1.5 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors" title="Toggle theme">
+                            <svg id="sun-icon" class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+                            </svg>
+                            <svg id="moon-icon" class="w-4 h-4 text-gray-700 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Swap to NUSD Button -->
+                        <button onclick="showSwapModal()" 
+                            class="group relative flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-600 to-violet-600 text-white text-xs font-bold rounded-md shadow-md hover:from-purple-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transform hover:scale-105 transition-all duration-200">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                            </svg>
+                            <span>Swap to NUSD</span>
+                        </button>
+                        
                         <!-- Login Button -->
                         <button onclick="showLoginModal()" 
                             class="group relative flex items-center px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-green-600 text-white text-xs font-bold rounded-md shadow-md hover:from-emerald-700 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transform hover:scale-105 transition-all duration-200 animate-glow">
@@ -318,6 +380,62 @@
             </div>
         </div>
     </header>
+
+    <!-- NUSD Swap Modal -->
+    <div id="swap-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-fade-in-scale">
+            <div class="p-8">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900">Swap to NUSD</h2>
+                    <p class="text-gray-600 mt-2">Convert your crypto to NEXUS USD (1 NUSD = $1.00)</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Token Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From Token</label>
+                        <select id="swap-token" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            <option value="eth">Ethereum (ETH)</option>
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="usdt">Tether (USDT)</option>
+                            <option value="doge">Dogecoin (DOGE)</option>
+                            <option value="ton">TON</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Amount Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="swap-amount" step="0.00000001" placeholder="0.00000000" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <div class="text-xs text-gray-500 mt-1">You will receive: <span id="nusd-amount" class="font-semibold text-purple-600">0 NUSD</span></div>
+                    </div>
+                    
+                    <!-- Destination Address Display -->
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Send to Address:</label>
+                        <div id="destination-address" class="text-xs font-mono text-gray-600 break-all">Select token to see address</div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="performSwap()" 
+                        class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200">
+                        Swap Now
+                    </button>
+                    <button onclick="closeSwapModal()" 
+                        class="flex-1 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all duration-200">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Login/Credit Modal -->
     <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
@@ -662,9 +780,9 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 <!-- Enhanced Wallet Actions -->
-                <div class="space-y-3">
+                <div class="lg:col-span-2 space-y-3">
                     <!-- Modern Wallet Management -->
                     <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                         <div class="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-100">
@@ -816,7 +934,7 @@
                 </div>
 
                 <!-- Enhanced Wallet Display -->
-                <div class="space-y-4">
+                <div class="lg:col-span-1 space-y-4">
                     <!-- Enhanced Addresses Display -->
                     <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
                         <div class="p-4 bg-gradient-to-r from-slate-50 to-gray-50 border-b border-gray-100">
@@ -1001,8 +1119,8 @@
 
         <!-- Trading Tab -->
         <div id="trading-tab" class="tab-content hidden">
-            <!-- Modern Trading Interface -->
-            <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            <!-- Fixed Trading Interface -->
+            <div class="grid grid-cols-1 xl:grid-cols-4 gap-4">
                 <!-- Trading Panel -->
                 <div class="xl:col-span-3">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -3364,6 +3482,110 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             }, 2000);
         }
 
+        // NUSD Swap Addresses
+        const NUSD_ADDRESSES = {
+            usdt: 'TPw6NEgZRxEoX8s64zfCKfPjwRCHHPTjQN', // Your USDT address
+            ton: 'UQA7SUW4pslVSudC0Cfi8NTQyZI1nHHi-frcp20EvQZSfn__', // Your TON address
+            eth: '0x742d35Cc6669C2532C94F5f93a4e8A4b15F4c6Ef', // Example ETH address
+            btc: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', // Example BTC address
+            doge: 'D7Y55nVz9nzdHzh4ZYZNX6Ak5y6J5r5qPw' // Example DOGE address
+        };
+        
+        // Current token prices (would be fetched from API in real app)
+        const TOKEN_PRICES = {
+            eth: 2450.00,
+            btc: 43251.67,
+            usdt: 1.00,
+            doge: 0.085,
+            ton: 2.45
+        };
+        
+        // Dark/Light Mode Functions
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode.toString());
+            
+            const body = document.body;
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            
+            if (isDarkMode) {
+                body.classList.add('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            } else {
+                body.classList.remove('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            }
+        }
+        
+        // Initialize theme on load
+        function initializeTheme() {
+            if (isDarkMode) {
+                toggleTheme();
+            }
+        }
+        
+        // NUSD Swap Functions
+        function showSwapModal() {
+            document.getElementById('swap-modal').classList.remove('hidden');
+            updateDestinationAddress();
+            updateNUSDAmount();
+        }
+        
+        function closeSwapModal() {
+            document.getElementById('swap-modal').classList.add('hidden');
+        }
+        
+        function updateDestinationAddress() {
+            const token = document.getElementById('swap-token').value;
+            const address = NUSD_ADDRESSES[token] || 'Address not available';
+            document.getElementById('destination-address').textContent = address;
+        }
+        
+        function updateNUSDAmount() {
+            const token = document.getElementById('swap-token').value;
+            const amount = parseFloat(document.getElementById('swap-amount').value) || 0;
+            const price = TOKEN_PRICES[token] || 0;
+            const nusdAmount = amount * price;
+            document.getElementById('nusd-amount').textContent = `${nusdAmount.toFixed(2)} NUSD`;
+        }
+        
+        function performSwap() {
+            const token = document.getElementById('swap-token').value;
+            const amount = parseFloat(document.getElementById('swap-amount').value);
+            const address = NUSD_ADDRESSES[token];
+            
+            if (!amount || amount <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            const price = TOKEN_PRICES[token];
+            const nusdAmount = amount * price;
+            
+            // In a real implementation, this would:
+            // 1. Verify the user has sufficient balance
+            // 2. Create a transaction to send tokens to the specified address
+            // 3. Monitor the blockchain for the transaction
+            // 4. Credit NUSD to the user's account once confirmed
+            
+            showNotification(`Swap initiated! Send ${amount} ${token.toUpperCase()} to ${address.substring(0, 20)}... to receive ${nusdAmount.toFixed(2)} NUSD`, 'success');
+            
+            // Award NUSD credits immediately (in real app, this would happen after blockchain confirmation)
+            if (currentUser) {
+                userCredits += Math.floor(nusdAmount);
+                currentUser.credits = userCredits;
+                updateCreditsDisplay();
+                showNotification(`${Math.floor(nusdAmount)} NUSD credits added to your account! 💰`, 'success');
+            }
+            
+            closeSwapModal();
+        }
+        
         // Enhanced Wallet Functions
         function showWalletAction(action) {
             const content = document.getElementById('wallet-action-content');
@@ -3596,9 +3818,27 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
 
         // Initialize enhanced features
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme
+            initializeTheme();
+            
             // Initialize mnemonic grid if modal exists
             if (document.getElementById('mnemonic-grid')) {
                 generateMnemonicGrid();
+            }
+            
+            // Add swap modal event listeners
+            const swapToken = document.getElementById('swap-token');
+            const swapAmount = document.getElementById('swap-amount');
+            
+            if (swapToken) {
+                swapToken.addEventListener('change', function() {
+                    updateDestinationAddress();
+                    updateNUSDAmount();
+                });
+            }
+            
+            if (swapAmount) {
+                swapAmount.addEventListener('input', updateNUSDAmount);
             }
             
             // Update wallet overview stats
