@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Blockchain Wallet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #374151;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .logo h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .status {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+        
+        .main {
+            padding: 2rem 0;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 2rem;
+        }
+        
+        .tab {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+        }
+        
+        .tab:hover {
+            color: #374151;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .button-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .button-secondary:hover {
+            background: #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .mnemonic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .mnemonic-word {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .mnemonic-word .number {
+            color: #9ca3af;
+            margin-right: 0.5rem;
+        }
+        
+        .blockchain-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .blockchain-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .blockchain-card:hover {
+            border-color: #d1d5db;
+        }
+        
+        .blockchain-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .blockchain-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .badge-ton { background: #dbeafe; color: #1d4ed8; }
+        .badge-ethereum { background: #e0e7ff; color: #5b21b6; }
+        .badge-bitcoin { background: #fed7aa; color: #ea580c; }
+        .badge-dogecoin { background: #fef3c7; color: #d97706; }
+        
+        .balance {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .address-display {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: #f9fafb;
+            border-radius: 0.25rem;
+        }
+        
+        .address-text {
+            flex: 1;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.875rem;
+            color: #4b5563;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: none;
+            border: 1px solid #d1d5db;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .copy-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background: white;
+            font-size: 1rem;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .alert-warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fed7aa;
+        }
+        
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .loading-dots {
+            display: inline-flex;
+            gap: 0.25rem;
+        }
+        
+        .loading-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            background: currentColor;
+            border-radius: 50%;
+            animation: pulse 1.4s infinite;
+        }
+        
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes pulse {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+        }
+        
+        .text-gray {
+            color: #6b7280;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        .w-full {
+            width: 100%;
+        }
+        
+        .footer {
+            margin-top: 4rem;
+            padding: 1.5rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .mnemonic-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .tabs {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🔐</div>
+                    <h1>Multi-Blockchain Wallet</h1>
+                </div>
+                <div class="status">
+                    <span id="connection-status">🟢 Connected</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('wallet')">Wallet</button>
+                <button class="tab" onclick="showTab('send')">Send</button>
+                <button class="tab" onclick="showTab('receive')">Receive</button>
+            </div>
+
+            <!-- Error Display -->
+            <div id="error-message" class="alert alert-error hidden"></div>
+
+            <!-- Wallet Tab -->
+            <div id="wallet-tab" class="tab-content">
+                <div id="no-wallet" class="card">
+                    <h2>Create or Import Wallet</h2>
+                    <div class="mb-4">
+                        <button class="button w-full" onclick="generateWallet()" id="generate-btn">
+                            🔑 Generate New Wallet
+                        </button>
+                    </div>
+                    
+                    <div class="text-center text-gray mb-4">or</div>
+                    
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            class="input" 
+                            placeholder="Enter your 24-word mnemonic phrase..." 
+                            id="import-mnemonic"
+                            onkeypress="handleImportKeyPress(event)"
+                        >
+                        <div class="text-sm text-gray mt-1">
+                            Enter your recovery phrase to import an existing wallet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mnemonic Display -->
+                <div id="mnemonic-display" class="card hidden">
+                    <div class="alert alert-warning">
+                        <h3 style="margin-bottom: 0.5rem;">⚠️ Save Your Recovery Phrase</h3>
+                        <p class="text-sm">Write down these words in order. You'll need them to recover your wallet.</p>
+                    </div>
+                    
+                    <div id="mnemonic-words" class="mnemonic-grid"></div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="button" onclick="confirmMnemonic()">I've Saved It</button>
+                        <button class="button-secondary button" onclick="copyMnemonic()">📋 Copy</button>
+                    </div>
+                </div>
+
+                <!-- Wallet Display -->
+                <div id="wallet-display" class="hidden">
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h2>Your Addresses</h2>
+                            <button class="button button-secondary" onclick="refreshBalances()">
+                                🔄 Refresh
+                            </button>
+                        </div>
+
+                        <div id="addresses-container" class="blockchain-grid">
+                            <!-- Addresses will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Tab -->
+            <div id="send-tab" class="tab-content hidden">
+                <div class="card">
+                    <h2>Send Transaction</h2>
+                    
+                    <div id="no-wallet-send" class="text-center text-gray">
+                        Please create or import a wallet first
+                    </div>
+
+                    <div id="send-form" class="hidden">
+                        <div class="form-group">
+                            <label class="label">Blockchain</label>
+                            <select class="select" id="send-blockchain">
+                                <option value="">Select blockchain</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">From</label>
+                            <div class="address-display">
+                                <span id="send-from-address" class="address-text"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">To</label>
+                            <input type="text" class="input" id="send-to" placeholder="Recipient address">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="label">Amount</label>
+                            <input type="number" class="input" id="send-amount" placeholder="0.0" step="0.000001">
+                        </div>
+
+                        <div id="fee-estimate" class="alert alert-success hidden">
+                            <div class="text-sm">Estimated Fee: <span id="estimated-fee">-</span></div>
+                        </div>
+
+                        <button class="button w-full" onclick="sendTransaction()" id="send-btn" disabled>
+                            📤 Send Transaction
+                        </button>
+
+                        <div class="text-sm text-gray text-center mt-4">
+                            Transaction signing uses secure client-side cryptography
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receive Tab -->
+            <div id="receive-tab" class="tab-content hidden">
+                <div class="card">
+                    <h2>Receive Funds</h2>
+                    
+                    <div id="no-wallet-receive" class="text-center text-gray">
+                        Please create or import a wallet first
+                    </div>
+
+                    <div id="receive-form" class="hidden">
+                        <div class="form-group">
+                            <label class="label">Select Blockchain</label>
+                            <select class="select" id="receive-blockchain">
+                                <option value="">Select blockchain</option>
+                            </select>
+                        </div>
+
+                        <div id="receive-address-display" class="text-center" style="margin: 2rem 0;">
+                            <div class="text-sm text-gray mb-2">Your <span id="receive-blockchain-name"></span> Address</div>
+                            <div class="address-display" style="justify-content: center;">
+                                <span id="receive-address" class="address-text"></span>
+                                <button class="copy-btn" onclick="copyReceiveAddress()">📋</button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <div class="text-sm">
+                                💡 Share this address to receive funds. Always verify the address before sending large amounts.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            Multi-Blockchain Wallet • Supporting TON, Ethereum, Bitcoin & Dogecoin
+        </div>
+    </footer>
+
+    <script>
+        // Global state
+        let currentMnemonic = '';
+        let addresses = {};
+        let balances = {};
+        let activeTab = 'wallet';
+
+        // API functions
+        const api = {
+            baseUrl: 'http://localhost:3001/api/v1',
+            
+            async generateMnemonic() {
+                const res = await fetch(`${this.baseUrl}/wallet/generate-mnemonic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                return res.json();
+            },
+            
+            async deriveAllAddresses(mnemonic) {
+                const res = await fetch(`${this.baseUrl}/wallet/derive-all-addresses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mnemonic, count: 1 })
+                });
+                return res.json();
+            },
+            
+            async getBalance(blockchain, address) {
+                const res = await fetch(`${this.baseUrl}/blockchain/balance/${blockchain}/${address}`);
+                return res.json();
+            }
+        };
+
+        // UI functions
+        function showTab(tabName) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            activeTab = tabName;
+            updateTabContent();
+        }
+
+        function updateTabContent() {
+            const hasWallet = !!currentMnemonic;
+            
+            // Update send tab
+            const noWalletSend = document.getElementById('no-wallet-send');
+            const sendForm = document.getElementById('send-form');
+            if (hasWallet) {
+                noWalletSend.classList.add('hidden');
+                sendForm.classList.remove('hidden');
+                populateSendBlockchains();
+            } else {
+                noWalletSend.classList.remove('hidden');
+                sendForm.classList.add('hidden');
+            }
+
+            // Update receive tab
+            const noWalletReceive = document.getElementById('no-wallet-receive');
+            const receiveForm = document.getElementById('receive-form');
+            if (hasWallet) {
+                noWalletReceive.classList.add('hidden');
+                receiveForm.classList.remove('hidden');
+                populateReceiveBlockchains();
+            } else {
+                noWalletReceive.classList.remove('hidden');
+                receiveForm.classList.add('hidden');
+            }
+        }
+
+        function populateSendBlockchains() {
+            const select = document.getElementById('send-blockchain');
+            select.innerHTML = '<option value="">Select blockchain</option>';
+            
+            Object.keys(addresses).forEach(blockchain => {
+                const option = document.createElement('option');
+                option.value = blockchain;
+                option.textContent = blockchain;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', function() {
+                const fromAddress = document.getElementById('send-from-address');
+                if (this.value && addresses[this.value] && addresses[this.value][0]) {
+                    fromAddress.textContent = addresses[this.value][0].address;
+                    document.getElementById('send-btn').disabled = false;
+                } else {
+                    fromAddress.textContent = '';
+                    document.getElementById('send-btn').disabled = true;
+                }
+            });
+        }
+
+        function populateReceiveBlockchains() {
+            const select = document.getElementById('receive-blockchain');
+            select.innerHTML = '<option value="">Select blockchain</option>';
+            
+            Object.keys(addresses).forEach(blockchain => {
+                const option = document.createElement('option');
+                option.value = blockchain;
+                option.textContent = blockchain;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', function() {
+                const addressSpan = document.getElementById('receive-address');
+                const blockchainName = document.getElementById('receive-blockchain-name');
+                
+                if (this.value && addresses[this.value] && addresses[this.value][0]) {
+                    addressSpan.textContent = addresses[this.value][0].address;
+                    blockchainName.textContent = this.value;
+                    document.getElementById('receive-address-display').style.display = 'block';
+                } else {
+                    document.getElementById('receive-address-display').style.display = 'none';
+                }
+            });
+        }
+
+        async function generateWallet() {
+            const btn = document.getElementById('generate-btn');
+            btn.innerHTML = '<span class="loading-dots"><span class="loading-dot"></span><span class="loading-dot"></span><span class="loading-dot"></span></span> Generating...';
+            btn.disabled = true;
+
+            try {
+                const mnemonicRes = await api.generateMnemonic();
+                if (mnemonicRes.success) {
+                    currentMnemonic = mnemonicRes.data.mnemonic;
+                    displayMnemonic(currentMnemonic);
+                    
+                    const addressesRes = await api.deriveAllAddresses(currentMnemonic);
+                    if (addressesRes.success) {
+                        addresses = addressesRes.data.addresses;
+                    }
+                }
+            } catch (error) {
+                showError('Failed to generate wallet');
+            } finally {
+                btn.innerHTML = '🔑 Generate New Wallet';
+                btn.disabled = false;
+            }
+        }
+
+        function displayMnemonic(mnemonic) {
+            const words = mnemonic.split(' ');
+            const container = document.getElementById('mnemonic-words');
+            container.innerHTML = '';
+            
+            words.forEach((word, index) => {
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'mnemonic-word';
+                wordDiv.innerHTML = `<span class="number">${index + 1}.</span><strong>${word}</strong>`;
+                container.appendChild(wordDiv);
+            });
+
+            document.getElementById('no-wallet').classList.add('hidden');
+            document.getElementById('mnemonic-display').classList.remove('hidden');
+        }
+
+        function confirmMnemonic() {
+            document.getElementById('mnemonic-display').classList.add('hidden');
+            document.getElementById('wallet-display').classList.remove('hidden');
+            displayAddresses();
+            updateTabContent();
+        }
+
+        function copyMnemonic() {
+            navigator.clipboard.writeText(currentMnemonic);
+            // Could add a toast notification here
+        }
+
+        function displayAddresses() {
+            const container = document.getElementById('addresses-container');
+            container.innerHTML = '';
+
+            const blockchainColors = {
+                'TON': 'badge-ton',
+                'ETHEREUM': 'badge-ethereum', 
+                'BITCOIN': 'badge-bitcoin',
+                'DOGECOIN': 'badge-dogecoin'
+            };
+
+            const symbols = {
+                'TON': 'TON',
+                'ETHEREUM': 'ETH',
+                'BITCOIN': 'BTC',
+                'DOGECOIN': 'DOGE'
+            };
+
+            Object.entries(addresses).forEach(([blockchain, addrs]) => {
+                if (!addrs || !addrs[0]) return;
+                
+                const address = addrs[0].address;
+                const balance = balances[blockchain];
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'blockchain-card';
+                cardDiv.innerHTML = `
+                    <div class="blockchain-header">
+                        <span class="blockchain-badge ${blockchainColors[blockchain] || 'badge-ton'}">${blockchain}</span>
+                        <span class="balance">${balance ? balance.formattedBalance + ' ' + symbols[blockchain] : '0.0 ' + symbols[blockchain]}</span>
+                    </div>
+                    <div class="address-display">
+                        <span class="address-text">${address}</span>
+                        <button class="copy-btn" onclick="copyAddress('${address}')">📋</button>
+                    </div>
+                `;
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function copyAddress(address) {
+            navigator.clipboard.writeText(address);
+        }
+
+        function copyReceiveAddress() {
+            const address = document.getElementById('receive-address').textContent;
+            navigator.clipboard.writeText(address);
+        }
+
+        function handleImportKeyPress(event) {
+            if (event.key === 'Enter') {
+                importWallet(event.target.value);
+            }
+        }
+
+        async function importWallet(mnemonic) {
+            if (!mnemonic.trim()) return;
+
+            try {
+                const addressesRes = await api.deriveAllAddresses(mnemonic);
+                if (addressesRes.success) {
+                    currentMnemonic = mnemonic;
+                    addresses = addressesRes.data.addresses;
+                    
+                    document.getElementById('no-wallet').classList.add('hidden');
+                    document.getElementById('wallet-display').classList.remove('hidden');
+                    displayAddresses();
+                    updateTabContent();
+                } else {
+                    showError('Invalid mnemonic phrase');
+                }
+            } catch (error) {
+                showError('Failed to import wallet');
+            }
+        }
+
+        async function refreshBalances() {
+            // This would normally fetch real balances
+            // For demo purposes, we'll show placeholder data
+        }
+
+        function sendTransaction() {
+            // This would implement transaction creation and signing
+            alert('Transaction functionality would be implemented with secure client-side signing');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check API health on load
+            fetch('http://localhost:3001/health')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('connection-status').textContent = '🟢 Connected';
+                })
+                .catch(() => {
+                    document.getElementById('connection-status').textContent = '🔴 Disconnected';
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Wallet</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="nexus-wallet">
+    <div class="wallet-container">
+        <!-- Header -->
+        <header class="wallet-header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">N</div>
+                    <span class="logo-text">NEXUS</span>
+                </div>
+                <div class="network-selector">
+                    <select id="network-select" class="network-dropdown">
+                        <option value="ethereum">Ethereum</option>
+                        <option value="bitcoin">Bitcoin</option>
+                        <option value="ton">TON</option>
+                        <option value="dogecoin">Dogecoin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="wallet-status">
+                <div class="status-indicator" id="connection-status"></div>
+                <span class="status-text" id="status-text">Disconnected</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="wallet-main">
+            <!-- Unlock Screen -->
+            <div id="unlock-screen" class="unlock-screen">
+                <div class="unlock-content">
+                    <div class="unlock-icon">🔐</div>
+                    <h2>Unlock NEXUS</h2>
+                    <p>Enter your password to access your wallet</p>
+                    <form id="unlock-form" class="unlock-form">
+                        <input type="password" id="password-input" class="password-input" 
+                               placeholder="Enter password" required>
+                        <button type="submit" class="unlock-button">Unlock Wallet</button>
+                    </form>
+                    <div class="unlock-actions">
+                        <button id="create-wallet-btn" class="link-button">Create New Wallet</button>
+                        <button id="import-wallet-btn" class="link-button">Import Wallet</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Screen -->
+            <div id="wallet-screen" class="wallet-screen hidden">
+                <!-- Balance Section -->
+                <div class="balance-section">
+                    <div class="balance-header">
+                        <h3>Total Balance</h3>
+                        <button id="refresh-balance" class="refresh-btn">🔄</button>
+                    </div>
+                    <div class="balance-amount" id="total-balance">$0.00</div>
+                    <div class="balance-change" id="balance-change">+0.00%</div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tab-nav">
+                    <button class="tab-button active" data-tab="assets">Assets</button>
+                    <button class="tab-button" data-tab="activity">Activity</button>
+                    <button class="tab-button" data-tab="crypto">Crypto</button>
+                    <button class="tab-button" data-tab="settings">Settings</button>
+                </div>
+
+                <!-- Assets Tab -->
+                <div id="assets-tab" class="tab-content">
+                    <div class="assets-actions">
+                        <button id="send-btn" class="action-button primary">
+                            <span class="button-icon">📤</span>
+                            Send
+                        </button>
+                        <button id="receive-btn" class="action-button secondary">
+                            <span class="button-icon">📥</span>
+                            Receive
+                        </button>
+                        <button id="swap-btn" class="action-button secondary">
+                            <span class="button-icon">🔄</span>
+                            Swap
+                        </button>
+                    </div>
+                    
+                    <div class="assets-list" id="assets-list">
+                        <div class="asset-item loading">
+                            <div class="asset-info">
+                                <div class="asset-icon skeleton"></div>
+                                <div class="asset-details">
+                                    <div class="asset-name skeleton-text"></div>
+                                    <div class="asset-symbol skeleton-text"></div>
+                                </div>
+                            </div>
+                            <div class="asset-balance">
+                                <div class="balance-amount skeleton-text"></div>
+                                <div class="balance-value skeleton-text"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div id="activity-tab" class="tab-content hidden">
+                    <div class="activity-list" id="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">📤</div>
+                            <div class="activity-details">
+                                <div class="activity-title">No transactions yet</div>
+                                <div class="activity-subtitle">Your activity will appear here</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crypto Tab -->
+                <div id="crypto-tab" class="tab-content hidden">
+                    <div class="crypto-tools">
+                        <h3>Encryption Tools</h3>
+                        <div class="tool-section">
+                            <h4>Message Encryption</h4>
+                            <textarea id="encrypt-input" class="crypto-input" placeholder="Enter message to encrypt..."></textarea>
+                            <div class="tool-actions">
+                                <button id="encrypt-btn" class="tool-button">🔐 Encrypt</button>
+                                <button id="decrypt-btn" class="tool-button">🔓 Decrypt</button>
+                            </div>
+                            <textarea id="encrypt-output" class="crypto-output" placeholder="Encrypted/Decrypted output..." readonly></textarea>
+                        </div>
+                        
+                        <div class="tool-section">
+                            <h4>Key Generation</h4>
+                            <div class="key-generation">
+                                <button id="generate-key-btn" class="tool-button primary">🔑 Generate Keys</button>
+                                <button id="export-keys-btn" class="tool-button">📤 Export Keys</button>
+                            </div>
+                            <div class="key-display" id="key-display">
+                                <div class="key-item">
+                                    <label>Public Key:</label>
+                                    <input type="text" id="public-key" class="key-input" readonly>
+                                </div>
+                                <div class="key-item">
+                                    <label>Private Key:</label>
+                                    <input type="password" id="private-key" class="key-input" readonly>
+                                    <button id="toggle-private-key" class="key-toggle">👁️</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="tool-section">
+                            <h4>Digital Signatures</h4>
+                            <textarea id="sign-input" class="crypto-input" placeholder="Enter message to sign..."></textarea>
+                            <div class="tool-actions">
+                                <button id="sign-btn" class="tool-button">✍️ Sign</button>
+                                <button id="verify-btn" class="tool-button">✅ Verify</button>
+                            </div>
+                            <textarea id="signature-output" class="crypto-output" placeholder="Signature output..." readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings-tab" class="tab-content hidden">
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Security</div>
+                                <div class="setting-subtitle">Change password, backup</div>
+                            </div>
+                            <button class="setting-action">🔒</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Networks</div>
+                                <div class="setting-subtitle">Manage blockchain networks</div>
+                            </div>
+                            <button class="setting-action">🌐</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">Connected Sites</div>
+                                <div class="setting-subtitle">Manage site permissions</div>
+                            </div>
+                            <button class="setting-action">🔗</button>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">About</div>
+                                <div class="setting-subtitle">Version 1.0.0</div>
+                            </div>
+                            <button class="setting-action">ℹ️</button>
+                        </div>
+
+                        <div class="setting-item danger">
+                            <div class="setting-info">
+                                <div class="setting-title">Lock Wallet</div>
+                                <div class="setting-subtitle">Lock and secure wallet</div>
+                            </div>
+                            <button id="lock-wallet-btn" class="setting-action danger">🔐</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

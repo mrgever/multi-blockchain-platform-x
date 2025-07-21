@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String
+  isActive        Boolean   @default(true)
+  isMfaEnabled    Boolean   @default(false)
+  mfaSecret       String?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  wallets         Wallet[]
+  sessions        Session[]
+  auditLogs       AuditLog[]
+}
+
+model Session {
+  id              String    @id @default(cuid())
+  userId          String
+  refreshToken    String    @unique
+  expiresAt       DateTime
+  createdAt       DateTime  @default(now())
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([refreshToken])
+}
+
+model Wallet {
+  id              String    @id @default(cuid())
+  userId          String
+  name            String
+  encryptedSeed   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses       Address[]
+  transactions    Transaction[]
+  
+  @@index([userId])
+}
+
+model Address {
+  id              String    @id @default(cuid())
+  walletId        String
+  blockchain      String
+  address         String
+  derivationPath  String
+  index           Int
+  createdAt       DateTime  @default(now())
+  
+  wallet          Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  sentTxs         Transaction[] @relation("FromAddress")
+  receivedTxs     Transaction[] @relation("ToAddress")
+  balances        Balance[]
+  
+  @@unique([walletId, blockchain, index])
+  @@index([address])
+  @@index([walletId])
+}
+
+model Balance {
+  id              String    @id @default(cuid())
+  addressId       String
+  tokenAddress    String?
+  balance         String
+  lastUpdated     DateTime  @default(now())
+  
+  address         Address   @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  
+  @@unique([addressId, tokenAddress])
+  @@index([addressId])
+}
+
+model Transaction {
+  id              String    @id @default(cuid())
+  blockchain      String
+  hash            String
+  fromAddressId   String?
+  toAddressId     String?
+  fromAddress     String
+  toAddress       String
+  value           String
+  fee             String
+  timestamp       DateTime
+  blockNumber     Int?
+  blockHash       String?
+  confirmations   Int       @default(0)
+  status          String
+  tokenAddress    String?
+  rawData         String?
+  createdAt       DateTime  @default(now())
+  walletId        String?
+  
+  wallet          Wallet?   @relation(fields: [walletId], references: [id], onDelete: SetNull)
+  from            Address?  @relation("FromAddress", fields: [fromAddressId], references: [id], onDelete: SetNull)
+  to              Address?  @relation("ToAddress", fields: [toAddressId], references: [id], onDelete: SetNull)
+  
+  @@unique([blockchain, hash])
+  @@index([fromAddress])
+  @@index([toAddress])
+  @@index([walletId])
+  @@index([timestamp])
+}
+
+model Block {
+  id              String    @id @default(cuid())
+  blockchain      String
+  number          Int
+  hash            String
+  parentHash      String
+  timestamp       DateTime
+  miner           String?
+  txCount         Int
+  createdAt       DateTime  @default(now())
+  
+  @@unique([blockchain, number])
+  @@unique([blockchain, hash])
+  @@index([timestamp])
+}
+
+model AuditLog {
+  id              String    @id @default(cuid())
+  userId          String?
+  action          String
+  details         String?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime  @default(now())
+  
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model PriceCache {
+  id              String    @id @default(cuid())
+  symbol          String    @unique
+  priceUsd        Float
+  lastUpdated     DateTime  @default(now())
+  
+  @@index([symbol])
+}

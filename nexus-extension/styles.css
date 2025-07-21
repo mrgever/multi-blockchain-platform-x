@@ -1,0 +1,685 @@
+/* NEXUS Wallet Extension Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.nexus-wallet {
+    width: 360px;
+    height: 600px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow: hidden;
+}
+
+.wallet-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #ffffff;
+    border-radius: 12px;
+    margin: 8px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Header */
+.wallet-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px;
+    border-radius: 12px 12px 0 0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.logo-text {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.network-selector {
+    position: relative;
+}
+
+.network-dropdown {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.network-dropdown option {
+    background: #333;
+    color: white;
+}
+
+.wallet-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff4757;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.connected {
+    background: #2ed573;
+}
+
+/* Main Content */
+.wallet-main {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Unlock Screen */
+.unlock-screen {
+    position: absolute;
+    inset: 0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+}
+
+.unlock-content {
+    text-align: center;
+    width: 100%;
+}
+
+.unlock-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.unlock-content h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.unlock-content p {
+    color: #7f8c8d;
+    margin-bottom: 24px;
+    font-size: 14px;
+}
+
+.unlock-form {
+    margin-bottom: 24px;
+}
+
+.password-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+}
+
+.password-input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.unlock-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.unlock-button:hover {
+    transform: translateY(-1px);
+}
+
+.unlock-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    color: #667eea;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Wallet Screen */
+.wallet-screen {
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Balance Section */
+.balance-section {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+}
+
+.balance-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.balance-header h3 {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.balance-amount {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.balance-change {
+    font-size: 14px;
+    color: #27ae60;
+    font-weight: 500;
+}
+
+.balance-change.negative {
+    color: #e74c3c;
+}
+
+/* Tabs */
+.tab-nav {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 8px 12px;
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6c757d;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.tab-button.active {
+    background: white;
+    color: #667eea;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tab Content */
+.tab-content {
+    flex: 1;
+}
+
+/* Assets Tab */
+.assets-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.action-button {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.action-button.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-button.secondary {
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #e9ecef;
+}
+
+.action-button:hover {
+    transform: translateY(-1px);
+}
+
+.button-icon {
+    font-size: 16px;
+}
+
+/* Assets List */
+.assets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.asset-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.asset-item:hover {
+    background: #f8f9fa;
+    transform: translateY(-1px);
+}
+
+.asset-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.asset-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e9ecef;
+}
+
+.asset-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.asset-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.asset-symbol {
+    font-size: 12px;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.asset-balance {
+    text-align: right;
+}
+
+.asset-balance .balance-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.asset-balance .balance-value {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Activity Tab */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.activity-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.activity-subtitle {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+/* Crypto Tools */
+.crypto-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.crypto-tools h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+}
+
+.tool-section {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.tool-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 12px;
+}
+
+.crypto-input, .crypto-output {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: monospace;
+    resize: vertical;
+    margin-bottom: 8px;
+}
+
+.crypto-output {
+    background: #f8f9fa;
+    color: #495057;
+}
+
+.tool-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tool-button {
+    flex: 1;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tool-button:hover {
+    background: #e9ecef;
+}
+
+.tool-button.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.tool-button.primary:hover {
+    transform: translateY(-1px);
+}
+
+/* Key Generation */
+.key-generation {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.key-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.key-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.key-item label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #495057;
+}
+
+.key-input {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.key-input input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: monospace;
+    background: #f8f9fa;
+}
+
+.key-toggle {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px;
+}
+
+/* Settings */
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.setting-item:hover {
+    background: #f8f9fa;
+}
+
+.setting-item.danger {
+    border-color: #dc3545;
+}
+
+.setting-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.setting-subtitle {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.setting-action {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.setting-action:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.setting-action.danger {
+    color: #dc3545;
+}
+
+/* Loading States */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-text {
+    height: 12px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Scrollbar */
+.wallet-screen::-webkit-scrollbar {
+    width: 4px;
+}
+
+.wallet-screen::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.wallet-screen::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.wallet-screen::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Platform Demo</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+        .demo-box {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .url {
+            font-size: 24px;
+            color: #4F46E5;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .url:hover {
+            text-decoration: underline;
+        }
+        .feature {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status.running {
+            background: #10B981;
+            color: white;
+        }
+        h1 {
+            color: #1F2937;
+        }
+        .screenshot {
+            width: 100%;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Your Multi-Blockchain Platform is Live!</h1>
+    
+    <div class="demo-box">
+        <p><strong>Access your platform here:</strong></p>
+        <a href="http://localhost:3001" target="_blank" class="url">http://localhost:3001</a>
+        <p style="margin-top: 10px;">
+            <span class="status running">✓ RUNNING</span>
+        </p>
+    </div>
+
+    <h2>✨ Features Available:</h2>
+    <div class="demo-box">
+        <div class="feature">• <strong>Create New Wallet</strong> - Generate HD wallet with mnemonic</div>
+        <div class="feature">• <strong>Import Wallet</strong> - Use existing mnemonic phrase</div>
+        <div class="feature">• <strong>Multi-Blockchain</strong> - TON, Ethereum, Bitcoin, Dogecoin</div>
+        <div class="feature">• <strong>USDT Support</strong> - ERC-20 token on Ethereum</div>
+        <div class="feature">• <strong>Send & Receive</strong> - Full transaction interface</div>
+        <div class="feature">• <strong>Balance Checking</strong> - Real-time updates</div>
+    </div>
+
+    <h2>🎨 UI Preview:</h2>
+    <div class="demo-box">
+        <p>The platform features:</p>
+        <ul>
+            <li>Modern gradient design (purple/indigo theme)</li>
+            <li>Glass morphism effects</li>
+            <li>Smooth animations</li>
+            <li>Responsive layout</li>
+            <li>One-click copy buttons</li>
+            <li>Tab-based navigation</li>
+        </ul>
+    </div>
+
+    <h2>🔧 Quick Test:</h2>
+    <div class="demo-box">
+        <ol>
+            <li>Open <a href="http://localhost:3001" target="_blank">http://localhost:3001</a></li>
+            <li>Click "Generate New Wallet"</li>
+            <li>Save the mnemonic phrase shown</li>
+            <li>See your addresses for all blockchains</li>
+            <li>Try the Send and Receive tabs</li>
+        </ol>
+    </div>
+
+    <script>
+        // Auto-refresh status
+        async function checkStatus() {
+            try {
+                const response = await fetch('http://localhost:3001/health');
+                if (response.ok) {
+                    document.querySelector('.status').textContent = '✓ RUNNING';
+                    document.querySelector('.status').className = 'status running';
+                }
+            } catch (e) {
+                document.querySelector('.status').textContent = '✗ NOT RUNNING';
+                document.querySelector('.status').className = 'status';
+                document.querySelector('.status').style.background = '#EF4444';
+            }
+        }
+        
+        checkStatus();
+        setInterval(checkStatus, 5000);
+    </script>
+</body>
+</html>

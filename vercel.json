@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "name": "nexus-blockchain-platform",
+  "builds": [
+    {
+      "src": "backend/package.json",
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    },
+    {
+      "src": "coingecko-ui.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/src/server.js"
+    },
+    {
+      "src": "/",
+      "dest": "/coingecko-ui.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/coingecko-ui.html"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "backend/src/server.js": {
+      "maxDuration": 30
+    }
+  }
+}
