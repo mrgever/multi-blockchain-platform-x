@@ -1,0 +1,9 @@
+
+> @multi-blockchain/frontend@1.0.0 dev
+> next dev
+
+   ▲ Next.js 14.1.4
+   - Local:        http://localhost:3000
+   - Environments: .env.local
+
+npm WARN config This command does not support workspaces.

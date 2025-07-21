@@ -183,4 +183,69 @@ router.get('/revenue-stats', async (req, res) => {
   }
 });
 
+// NUSD (Nexus USD) swap routes
+router.post('/to-nusd', async (req, res) => {
+  try {
+    const { fromToken, amount, blockchain = 'ETHEREUM', userAddress } = req.body;
+    
+    if (!fromToken || !amount || !userAddress) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required parameters: fromToken, amount, userAddress'
+      });
+    }
+
+    const result = await swapService.swapToNUSD(fromToken, amount, blockchain, userAddress);
+    
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error: any) {
+    console.error('NUSD swap error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get NUSD balance for user
+router.get('/nusd/balance/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const balance = await swapService.getNUSDBalance(userAddress);
+    
+    res.json({
+      success: true,
+      data: { balance }
+    });
+  } catch (error: any) {
+    console.error('NUSD balance error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Get NUSD transaction history
+router.get('/nusd/history/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    const history = await swapService.getNUSDTransactionHistory(userAddress);
+    
+    res.json({
+      success: true,
+      data: history
+    });
+  } catch (error: any) {
+    console.error('NUSD history error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 export default router;

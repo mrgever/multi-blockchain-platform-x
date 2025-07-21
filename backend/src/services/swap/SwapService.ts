@@ -319,6 +319,111 @@ export class SwapService {
     return opportunities;
   }
 
+  // NUSD (Nexus USD) swap functionality
+  async swapToNUSD(
+    fromToken: string,
+    amount: string,
+    blockchain: string,
+    userAddress: string
+  ): Promise<any> {
+    try {
+      // Get current exchange rate for the token
+      const exchangeRate = this.getNUSDExchangeRate(fromToken);
+      const numericAmount = parseFloat(amount);
+      
+      // Calculate NUSD amount (1 NUSD = 1 USD)
+      const nusdAmount = (numericAmount * exchangeRate).toFixed(6);
+      
+      // Generate transaction for user to send tokens to our address
+      const result = {
+        success: true,
+        fromToken,
+        toToken: 'NUSD',
+        fromAmount: amount,
+        nusdAmount,
+        exchangeRate,
+        instructions: {
+          step1: `Send ${amount} ${fromToken} to the appropriate address below`,
+          step2: `You will receive ${nusdAmount} NUSD credited to your account`,
+          step3: `Each NUSD is worth exactly $1 USD`
+        },
+        depositAddresses: {
+          ETH: '0x742d35Cc6634C0532925a3b8D4B7ed8ecDbC2C2c', // Example ETH address
+          BTC: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', // Example BTC address
+          DOGE: 'DH5yaieqoZN36fDVciNyRueRGvGLR3mr7L', // Example DOGE address
+          USDT: process.env.USDT_ADDRESS || 'TPw6NEgZRxEoX8s64zfCKfPjwRCHHPTjQN', // User's USDT address
+          TON: process.env.TON_ADDRESS || 'UQA7SUW4pslVSudC0Cfi8NTQyZI1nHHi-frcp20EvQZSfn__', // User's TON address
+        },
+        estimatedConfirmationTime: this.getConfirmationTime(fromToken),
+        transactionId: 'nusd_' + Math.random().toString(36).substr(2, 9)
+      };
+
+      return result;
+    } catch (error) {
+      console.error('NUSD swap error:', error);
+      throw error;
+    }
+  }
+
+  private getNUSDExchangeRate(token: string): number {
+    // Exchange rates to USD (1 NUSD = 1 USD)
+    const rates = {
+      ETH: 2650,
+      BTC: 43250,
+      USDT: 1.0,
+      DOGE: 0.087,
+      TON: 3.45,
+      SHIB: 0.000024,
+      PEPE: 0.0000012
+    };
+    
+    return rates[token.toUpperCase()] || 1;
+  }
+
+  private getConfirmationTime(token: string): string {
+    const times = {
+      ETH: '2-5 minutes',
+      BTC: '30-60 minutes',
+      USDT: '2-5 minutes',
+      DOGE: '5-15 minutes',
+      TON: '1-3 minutes'
+    };
+    
+    return times[token.toUpperCase()] || '5-10 minutes';
+  }
+
+  async getNUSDBalance(userAddress: string): Promise<number> {
+    // In production, this would query the user's NUSD balance from database
+    // For now, return a mock balance
+    return Math.floor(Math.random() * 1000) + 100;
+  }
+
+  async getNUSDTransactionHistory(userAddress: string): Promise<any[]> {
+    // Mock NUSD transaction history
+    return [
+      {
+        id: 'nusd_tx_001',
+        type: 'swap_in',
+        fromToken: 'ETH',
+        fromAmount: '0.5',
+        nusdAmount: '1325.00',
+        status: 'completed',
+        timestamp: Date.now() - 3600000,
+        txHash: '0xabcd1234...'
+      },
+      {
+        id: 'nusd_tx_002',
+        type: 'swap_in',
+        fromToken: 'DOGE',
+        fromAmount: '1000',
+        nusdAmount: '87.00',
+        status: 'completed',
+        timestamp: Date.now() - 7200000,
+        txHash: '0xefgh5678...'
+      }
+    ];
+  }
+
   // Revenue generation methods
   async getAffiliateLinks(): Promise<any> {
     return {

@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Admin Panel - User Insights & Monitoring</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .metric-card {
+            transition: transform 0.2s ease-in-out;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Dark Mode */
+        .dark {
+            background-color: #1a1a1a;
+            color: #e5e5e5;
+        }
+        .dark .bg-white {
+            background-color: #2d2d2d !important;
+        }
+        .dark .bg-gray-50 {
+            background-color: #1a1a1a !important;
+        }
+        .dark .text-gray-900 {
+            color: #e5e5e5 !important;
+        }
+        .dark .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        .dark .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+        
+        /* Animations */
+        @keyframes pulse-green {
+            0%, 100% { background-color: #10b981; }
+            50% { background-color: #059669; }
+        }
+        
+        .animate-pulse-green {
+            animation: pulse-green 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">NEXUS Admin Panel</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button id="dark-mode-toggle" onclick="toggleDarkMode()" 
+                        class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200" 
+                        title="Toggle dark mode">
+                        <span id="dark-mode-icon" class="text-lg">🌙</span>
+                    </button>
+                    
+                    <!-- Live Status -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse-green"></div>
+                        <span class="text-sm text-gray-600 font-medium">Live Monitoring</span>
+                    </div>
+                    
+                    <!-- Admin Profile -->
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-bold text-blue-600">A</span>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Key Metrics Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="metric-card bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Users</p>
+                        <p id="total-users" class="text-3xl font-bold text-gray-900">1,247</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">👥</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-sm text-green-600 font-semibold">+12% from last week</span>
+                </div>
+            </div>
+
+            <div class="metric-card bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Active Sessions</p>
+                        <p id="active-sessions" class="text-3xl font-bold text-gray-900">89</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">🟢</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-sm text-blue-600 font-semibold">Real-time count</span>
+                </div>
+            </div>
+
+            <div class="metric-card bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Total Transactions</p>
+                        <p id="total-transactions" class="text-3xl font-bold text-gray-900">5,892</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-sm text-green-600 font-semibold">+3.2% today</span>
+                </div>
+            </div>
+
+            <div class="metric-card bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">NUSD Swaps</p>
+                        <p id="nusd-swaps" class="text-3xl font-bold text-gray-900">342</p>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl">🪙</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <span class="text-sm text-green-600 font-semibold">+8.7% today</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts & Analytics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- User Activity Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">User Activity (24h)</h3>
+                <div class="h-64">
+                    <canvas id="userActivityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Transaction Volume Chart -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Transaction Volume</h3>
+                <div class="h-64">
+                    <canvas id="transactionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Activity & Monitoring -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Real-time User Activity -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Live User Activity</h3>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span class="text-sm text-gray-600">Live</span>
+                    </div>
+                </div>
+                
+                <div id="live-activity" class="space-y-3 max-h-80 overflow-y-auto">
+                    <!-- Live activity items will be populated here -->
+                </div>
+            </div>
+
+            <!-- Geographic Distribution -->
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">User Locations</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🇺🇸</span>
+                            <span class="text-sm font-medium text-gray-700">United States</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 45%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600">45%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🇪🇺</span>
+                            <span class="text-sm font-medium text-gray-700">Europe</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 32%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600">32%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-lg">🇦🇸</span>
+                            <span class="text-sm font-medium text-gray-700">Asia</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-20 bg-gray-200 rounded-full h-2">
+                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 23%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600">23%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management Table -->
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Users</h3>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="refreshUserData()" class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-lg hover:bg-blue-200 transition-colors">
+                            🔄 Refresh
+                        </button>
+                        <button onclick="exportUserData()" class="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-lg hover:bg-green-200 transition-colors">
+                            📥 Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Activity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- User rows will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Dark mode functionality
+        function toggleDarkMode() {
+            const body = document.body;
+            const darkModeIcon = document.getElementById('dark-mode-icon');
+            
+            if (body.classList.contains('dark')) {
+                body.classList.remove('dark');
+                darkModeIcon.textContent = '🌙';
+                localStorage.setItem('adminDarkMode', 'false');
+            } else {
+                body.classList.add('dark');
+                darkModeIcon.textContent = '☀️';
+                localStorage.setItem('adminDarkMode', 'true');
+            }
+        }
+
+        // Initialize dark mode
+        function initializeDarkMode() {
+            const savedDarkMode = localStorage.getItem('adminDarkMode');
+            const body = document.body;
+            const darkModeIcon = document.getElementById('dark-mode-icon');
+            
+            if (savedDarkMode === 'true') {
+                body.classList.add('dark');
+                if (darkModeIcon) darkModeIcon.textContent = '☀️';
+            }
+        }
+
+        // Mock data generation
+        function generateMockUsers() {
+            const users = [
+                {
+                    id: 'user_001',
+                    email: 'john.doe@example.com',
+                    ip: '192.168.1.100',
+                    location: 'New York, USA',
+                    lastActivity: new Date(Date.now() - 300000),
+                    status: 'online',
+                    walletBalance: '$2,450.32',
+                    transactions: 47
+                },
+                {
+                    id: 'user_002',
+                    email: 'alice.smith@example.com',
+                    ip: '10.0.0.25',
+                    location: 'London, UK',
+                    lastActivity: new Date(Date.now() - 600000),
+                    status: 'online',
+                    walletBalance: '$890.15',
+                    transactions: 23
+                },
+                {
+                    id: 'user_003',
+                    email: 'bob.wilson@example.com',
+                    ip: '172.16.0.45',
+                    location: 'Tokyo, Japan',
+                    lastActivity: new Date(Date.now() - 1800000),
+                    status: 'away',
+                    walletBalance: '$5,230.89',
+                    transactions: 89
+                },
+                {
+                    id: 'user_004',
+                    email: 'maria.garcia@example.com',
+                    ip: '203.0.113.15',
+                    location: 'Madrid, Spain',
+                    lastActivity: new Date(Date.now() - 120000),
+                    status: 'online',
+                    walletBalance: '$1,675.44',
+                    transactions: 34
+                },
+                {
+                    id: 'user_005',
+                    email: 'chen.li@example.com',
+                    ip: '198.51.100.30',
+                    location: 'Singapore',
+                    lastActivity: new Date(Date.now() - 900000),
+                    status: 'offline',
+                    walletBalance: '$3,120.67',
+                    transactions: 56
+                }
+            ];
+            return users;
+        }
+
+        // Populate users table
+        function populateUsersTable() {
+            const users = generateMockUsers();
+            const tableBody = document.getElementById('users-table-body');
+            
+            tableBody.innerHTML = users.map(user => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <span class="text-xs font-bold text-blue-600">${user.email.charAt(0).toUpperCase()}</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${user.email}</div>
+                                <div class="text-sm text-gray-500">ID: ${user.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">${user.ip}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${user.location}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${formatTimeAgo(user.lastActivity)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(user.status)}">
+                            ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex space-x-2">
+                            <button onclick="viewUser('${user.id}')" class="text-blue-600 hover:text-blue-900">View</button>
+                            <button onclick="blockUser('${user.id}')" class="text-red-600 hover:text-red-900">Block</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Generate live activity
+        function generateLiveActivity() {
+            const activities = [
+                { user: 'john.doe@example.com', action: 'Generated new wallet', time: new Date(Date.now() - 30000), type: 'wallet' },
+                { user: 'alice.smith@example.com', action: 'Swapped ETH to NUSD', time: new Date(Date.now() - 45000), type: 'swap' },
+                { user: 'bob.wilson@example.com', action: 'Connected external wallet', time: new Date(Date.now() - 60000), type: 'connect' },
+                { user: 'maria.garcia@example.com', action: 'Viewed portfolio', time: new Date(Date.now() - 90000), type: 'view' },
+                { user: 'chen.li@example.com', action: 'Logged in', time: new Date(Date.now() - 120000), type: 'auth' }
+            ];
+            
+            return activities.sort((a, b) => b.time - a.time);
+        }
+
+        // Populate live activity
+        function populateLiveActivity() {
+            const activities = generateLiveActivity();
+            const container = document.getElementById('live-activity');
+            
+            container.innerHTML = activities.map(activity => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-2 h-2 ${getActivityColor(activity.type)} rounded-full"></div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${activity.user}</div>
+                            <div class="text-xs text-gray-600">${activity.action}</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-500">${formatTimeAgo(activity.time)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Helper functions
+        function getStatusColor(status) {
+            switch(status) {
+                case 'online': return 'bg-green-100 text-green-800';
+                case 'away': return 'bg-yellow-100 text-yellow-800';
+                case 'offline': return 'bg-gray-100 text-gray-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getActivityColor(type) {
+            switch(type) {
+                case 'wallet': return 'bg-blue-500';
+                case 'swap': return 'bg-green-500';
+                case 'connect': return 'bg-purple-500';
+                case 'view': return 'bg-yellow-500';
+                case 'auth': return 'bg-red-500';
+                default: return 'bg-gray-500';
+            }
+        }
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes}m ago`;
+            
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Chart initialization
+        function initializeCharts() {
+            // User Activity Chart
+            const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+            new Chart(userActivityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'],
+                    datasets: [{
+                        label: 'Active Users',
+                        data: [12, 8, 25, 45, 67, 89, 72],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Transaction Chart
+            const transactionCtx = document.getElementById('transactionChart').getContext('2d');
+            new Chart(transactionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Transactions',
+                        data: [65, 85, 70, 90, 120, 95, 110],
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // User actions
+        function viewUser(userId) {
+            alert(`Viewing user: ${userId}`);
+        }
+
+        function blockUser(userId) {
+            if (confirm(`Are you sure you want to block user ${userId}?`)) {
+                alert(`User ${userId} has been blocked.`);
+                refreshUserData();
+            }
+        }
+
+        function refreshUserData() {
+            populateUsersTable();
+            populateLiveActivity();
+            updateMetrics();
+        }
+
+        function exportUserData() {
+            alert('User data export feature coming soon!');
+        }
+
+        // Update metrics with animation
+        function updateMetrics() {
+            const metrics = {
+                'total-users': Math.floor(Math.random() * 100) + 1200,
+                'active-sessions': Math.floor(Math.random() * 30) + 70,
+                'total-transactions': Math.floor(Math.random() * 500) + 5500,
+                'nusd-swaps': Math.floor(Math.random() * 50) + 320
+            };
+
+            Object.keys(metrics).forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = metrics[id].toLocaleString();
+                }
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDarkMode();
+            populateUsersTable();
+            populateLiveActivity();
+            initializeCharts();
+            
+            // Auto-refresh live data every 30 seconds
+            setInterval(() => {
+                populateLiveActivity();
+                updateMetrics();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -82,6 +82,11 @@ app.get('/wallet-center', (req, res) => {
   res.sendFile(path.join(__dirname, '../../wallet-center.html'));
 });
 
+// Admin Panel page
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../admin-panel.html'));
+});
+
 // API Routes
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/blockchain', blockchainRoutes);
