@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Wallet Generation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-4">Wallet Generation Test</h1>
+        
+        <button id="generateBtn" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-4">
+            Generate Wallet
+        </button>
+        
+        <div id="result" class="hidden">
+            <h2 class="text-lg font-semibold mb-2">Generated Mnemonic:</h2>
+            <div id="mnemonic" class="p-4 bg-gray-100 rounded text-sm font-mono break-words"></div>
+        </div>
+        
+        <div id="error" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded"></div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            const mnemonicDiv = document.getElementById('mnemonic');
+            
+            // Hide previous results
+            resultDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            
+            try {
+                console.log('Calling API endpoint:', `${API_BASE}/wallet/generate-mnemonic`);
+                
+                const response = await fetch(`${API_BASE}/wallet/generate-mnemonic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const result = await response.json();
+                console.log('API Response:', result);
+                
+                if (result.success) {
+                    const mnemonic = result.data?.mnemonic || result.mnemonic;
+                    mnemonicDiv.textContent = mnemonic;
+                    resultDiv.classList.remove('hidden');
+                } else {
+                    throw new Error(result.error || 'Failed to generate wallet');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

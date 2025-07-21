@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS Wallet Center - Your Multi-Chain Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes slide-up {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        .slide-up { animation: slide-up 0.5s ease-out; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nusdt-glow {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            animation: pulse-glow 1.5s infinite;
+        }
+        
+        .network-card {
+            transition: all 0.3s ease;
+        }
+        
+        .network-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .copy-feedback {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .copy-feedback.show {
+            transform: translateX(0);
+        }
+
+        /* Compact toolbar */
+        .compact-toolbar {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Compact Header Toolbar -->
+    <header class="compact-toolbar sticky top-0 z-50 border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-14">
+                <!-- Logo and Navigation -->
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">N</span>
+                        </div>
+                        <span class="font-bold text-lg gradient-text">NEXUS</span>
+                    </div>
+                    <nav class="hidden md:flex space-x-4">
+                        <a href="/" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">Dashboard</a>
+                        <a href="/wallet-center" class="text-sm text-blue-600 font-semibold">Wallet Center</a>
+                        <a href="#" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">Trading</a>
+                        <a href="#" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">DeFi</a>
+                    </nav>
+                </div>
+                
+                <!-- NUSDT Promotion -->
+                <div class="flex items-center space-x-4">
+                    <div class="nusdt-glow px-4 py-2 rounded-full flex items-center space-x-2 cursor-pointer" onclick="showNusdtModal()">
+                        <div class="float-animation">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                        <span class="text-white font-bold text-sm">Get NUSDT</span>
+                        <span class="text-white text-xs bg-white/20 px-2 py-0.5 rounded-full">50% Bonus</span>
+                    </div>
+                    
+                    <button onclick="connectWallet()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Copy Feedback -->
+    <div id="copyFeedback" class="copy-feedback">Copied to clipboard!</div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Wallet Overview Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Total Balance Card -->
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl p-4 text-white">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium opacity-90">Total Balance</h3>
+                    <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold mb-1">$0.00</div>
+                <div class="text-xs opacity-80">≈ 0.00 BTC</div>
+            </div>
+            
+            <!-- Networks Active -->
+            <div class="bg-white rounded-xl p-4 border border-gray-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Active Networks</h3>
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                    </svg>
+                </div>
+                <div class="text-2xl font-bold text-gray-900 mb-1">4</div>
+                <div class="text-xs text-gray-500">BTC, ETH, TON, DOGE</div>
+            </div>
+            
+            <!-- Wallet Status -->
+            <div class="bg-white rounded-xl p-4 border border-gray-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-sm font-medium text-gray-600">Wallet Status</h3>
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                </div>
+                <div class="text-lg font-bold text-gray-900 mb-1">Secure</div>
+                <div class="text-xs text-gray-500">HD Wallet (BIP39)</div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-4 text-white">
+                <h3 class="text-sm font-medium opacity-90 mb-3">Quick Actions</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="showReceiveModal()" class="bg-white/20 backdrop-blur rounded-lg p-2 hover:bg-white/30 transition-colors">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"></path>
+                        </svg>
+                        <span class="text-xs mt-1 block">Receive</span>
+                    </button>
+                    <button onclick="showSendModal()" class="bg-white/20 backdrop-blur rounded-lg p-2 hover:bg-white/30 transition-colors">
+                        <svg class="w-4 h-4 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                        </svg>
+                        <span class="text-xs mt-1 block">Send</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Generation Section -->
+        <div id="walletGeneration" class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-900">Wallet Management</h2>
+                <div class="flex space-x-2">
+                    <button onclick="generateNewWallet()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Generate New</span>
+                    </button>
+                    <button onclick="showImportModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">
+                        Import Wallet
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mnemonic Display -->
+            <div id="mnemonicSection" class="hidden">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start space-x-3">
+                        <svg class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-semibold">Important: Save your recovery phrase</p>
+                            <p>Write down these words in order. This is the only way to recover your wallet.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="grid grid-cols-3 md:grid-cols-4 gap-2" id="mnemonicWords"></div>
+                </div>
+                
+                <button onclick="copyMnemonic()" class="w-full py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>Copy Recovery Phrase</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Network Addresses Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Bitcoin -->
+            <div class="network-card bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                            <span class="text-orange-600 font-bold text-lg">₿</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Bitcoin</h3>
+                            <p class="text-xs text-gray-500">Native SegWit (bc1)</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-900">0.00 BTC</div>
+                        <div class="text-xs text-gray-500">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-600">Address</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly class="flex-1 text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1" id="btcAddress" value="Not generated">
+                            <button onclick="copyAddress('btcAddress')" class="p-1 hover:bg-gray-100 rounded">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="showQRCode('btcAddress')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            QR Code
+                        </button>
+                        <button onclick="showPrivateKey('bitcoin')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            Private Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ethereum -->
+            <div class="network-card bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 font-bold text-lg">Ξ</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Ethereum</h3>
+                            <p class="text-xs text-gray-500">ERC-20 Compatible</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-900">0.00 ETH</div>
+                        <div class="text-xs text-gray-500">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-600">Address</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly class="flex-1 text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1" id="ethAddress" value="Not generated">
+                            <button onclick="copyAddress('ethAddress')" class="p-1 hover:bg-gray-100 rounded">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="showQRCode('ethAddress')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            QR Code
+                        </button>
+                        <button onclick="showPrivateKey('ethereum')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            Private Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TON -->
+            <div class="network-card bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">
+                            <span class="text-cyan-600 font-bold text-lg">💎</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">TON</h3>
+                            <p class="text-xs text-gray-500">The Open Network</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-900">0.00 TON</div>
+                        <div class="text-xs text-gray-500">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-600">Address</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly class="flex-1 text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1" id="tonAddress" value="Not generated">
+                            <button onclick="copyAddress('tonAddress')" class="p-1 hover:bg-gray-100 rounded">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="showQRCode('tonAddress')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            QR Code
+                        </button>
+                        <button onclick="showPrivateKey('ton')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            Private Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dogecoin -->
+            <div class="network-card bg-white rounded-xl border border-gray-200 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <span class="text-yellow-600 font-bold text-lg">Ð</span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Dogecoin</h3>
+                            <p class="text-xs text-gray-500">Much wow!</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-semibold text-gray-900">0.00 DOGE</div>
+                        <div class="text-xs text-gray-500">$0.00</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-xs text-gray-600">Address</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" readonly class="flex-1 text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1" id="dogeAddress" value="Not generated">
+                            <button onclick="copyAddress('dogeAddress')" class="p-1 hover:bg-gray-100 rounded">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="showQRCode('dogeAddress')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            QR Code
+                        </button>
+                        <button onclick="showPrivateKey('dogecoin')" class="flex-1 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium hover:bg-gray-200 transition-colors">
+                            Private Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- NUSDT Modal -->
+    <div id="nusdtModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 slide-up">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 float-animation">
+                    <span class="text-white text-3xl font-bold">N</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Get NUSDT Today!</h2>
+                <p class="text-gray-600">Join thousands earning with NEXUS USD Tether</p>
+            </div>
+            
+            <div class="space-y-4 mb-6">
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-semibold text-gray-700">Limited Time Offer</span>
+                        <span class="text-xs bg-green-600 text-white px-2 py-1 rounded-full">50% Bonus</span>
+                    </div>
+                    <p class="text-sm text-gray-600">Buy 100 NUSDT, get 150 NUSDT!</p>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600">1.2%</div>
+                        <div class="text-xs text-gray-500">Daily Returns</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600">$1.00</div>
+                        <div class="text-xs text-gray-500">Stable Value</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">24/7</div>
+                        <div class="text-xs text-gray-500">Liquidity</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-[1.02] pulse-glow">
+                Buy NUSDT Now
+            </button>
+            
+            <button onclick="closeNusdtModal()" class="w-full mt-3 py-2 text-gray-600 text-sm hover:text-gray-800">
+                Maybe Later
+            </button>
+        </div>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 text-center">Scan QR Code</h3>
+            <div id="qrcode" class="flex justify-center mb-4"></div>
+            <p class="text-xs text-gray-600 text-center mb-4" id="qrAddress"></p>
+            <button onclick="closeQRModal()" class="w-full py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Private Key Modal -->
+    <div id="privateKeyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 15.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <div class="text-sm text-red-800">
+                        <p class="font-semibold">Warning: Private Key</p>
+                        <p>Never share this key. Anyone with this key has full control of your funds.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <p class="text-xs font-mono break-all" id="privateKeyDisplay">Loading...</p>
+            </div>
+            
+            <div class="flex space-x-3">
+                <button onclick="copyPrivateKey()" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    <span>Copy</span>
+                </button>
+                <button onclick="closePrivateKeyModal()" class="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = '/api/v1';
+        let currentMnemonic = '';
+        let walletAddresses = {};
+        let currentPrivateKey = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingWallet();
+            startAnimations();
+        });
+
+        // Animation controller
+        function startAnimations() {
+            // Add staggered animations to network cards
+            const cards = document.querySelectorAll('.network-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('slide-up');
+                }, index * 100);
+            });
+        }
+
+        // Wallet Generation
+        async function generateNewWallet() {
+            try {
+                const response = await fetch(`${API_BASE}/wallet/generate-mnemonic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentMnemonic = result.data?.mnemonic || result.mnemonic;
+                    displayMnemonic(currentMnemonic);
+                    await deriveAllAddresses();
+                    showNotification('New wallet generated successfully!', 'success');
+                } else {
+                    throw new Error(result.error || 'Failed to generate wallet');
+                }
+            } catch (error) {
+                console.error('Generate wallet error:', error);
+                showNotification('Failed to generate wallet: ' + error.message, 'error');
+            }
+        }
+
+        // Display mnemonic words
+        function displayMnemonic(mnemonic) {
+            const words = mnemonic.split(' ');
+            const container = document.getElementById('mnemonicWords');
+            container.innerHTML = '';
+            
+            words.forEach((word, index) => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'bg-white border border-gray-200 rounded px-3 py-2 text-sm';
+                wordElement.innerHTML = `
+                    <span class="text-gray-500 text-xs">${index + 1}.</span>
+                    <span class="font-medium">${word}</span>
+                `;
+                container.appendChild(wordElement);
+            });
+            
+            document.getElementById('mnemonicSection').classList.remove('hidden');
+        }
+
+        // Derive addresses for all networks
+        async function deriveAllAddresses() {
+            if (!currentMnemonic) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/wallet/derive-all-addresses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mnemonic: currentMnemonic, count: 1 })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    walletAddresses = result.data.addresses;
+                    updateAddressDisplay();
+                } else {
+                    throw new Error(result.error || 'Failed to derive addresses');
+                }
+            } catch (error) {
+                console.error('Derive addresses error:', error);
+                showNotification('Failed to derive addresses: ' + error.message, 'error');
+            }
+        }
+
+        // Update address display
+        function updateAddressDisplay() {
+            if (walletAddresses.BITCOIN && walletAddresses.BITCOIN[0]) {
+                document.getElementById('btcAddress').value = walletAddresses.BITCOIN[0].address;
+            }
+            if (walletAddresses.ETHEREUM && walletAddresses.ETHEREUM[0]) {
+                document.getElementById('ethAddress').value = walletAddresses.ETHEREUM[0].address;
+            }
+            if (walletAddresses.TON && walletAddresses.TON[0]) {
+                document.getElementById('tonAddress').value = walletAddresses.TON[0].address;
+            }
+            if (walletAddresses.DOGECOIN && walletAddresses.DOGECOIN[0]) {
+                document.getElementById('dogeAddress').value = walletAddresses.DOGECOIN[0].address;
+            }
+        }
+
+        // Copy functions
+        function copyAddress(elementId) {
+            const input = document.getElementById(elementId);
+            navigator.clipboard.writeText(input.value).then(() => {
+                showCopyFeedback();
+            });
+        }
+
+        function copyMnemonic() {
+            navigator.clipboard.writeText(currentMnemonic).then(() => {
+                showCopyFeedback();
+            });
+        }
+
+        function copyPrivateKey() {
+            navigator.clipboard.writeText(currentPrivateKey).then(() => {
+                showCopyFeedback();
+                closePrivateKeyModal();
+            });
+        }
+
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+
+        // QR Code functions
+        function showQRCode(addressElementId) {
+            const address = document.getElementById(addressElementId).value;
+            if (address === 'Not generated') {
+                showNotification('Please generate a wallet first', 'error');
+                return;
+            }
+            
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            new QRCode(qrContainer, {
+                text: address,
+                width: 200,
+                height: 200,
+            });
+            
+            document.getElementById('qrAddress').textContent = address;
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+
+        // Private Key functions
+        async function showPrivateKey(blockchain) {
+            if (!currentMnemonic) {
+                showNotification('Please generate or import a wallet first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/wallet/get-private-key`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mnemonic: currentMnemonic,
+                        blockchain: blockchain.toUpperCase(),
+                        index: 0
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentPrivateKey = result.data.privateKey;
+                    document.getElementById('privateKeyDisplay').textContent = currentPrivateKey;
+                    document.getElementById('privateKeyModal').classList.remove('hidden');
+                } else {
+                    throw new Error(result.error || 'Failed to get private key');
+                }
+            } catch (error) {
+                console.error('Get private key error:', error);
+                showNotification('Failed to get private key: ' + error.message, 'error');
+            }
+        }
+
+        function closePrivateKeyModal() {
+            document.getElementById('privateKeyModal').classList.add('hidden');
+            currentPrivateKey = '';
+            document.getElementById('privateKeyDisplay').textContent = 'Loading...';
+        }
+
+        // NUSDT Modal
+        function showNusdtModal() {
+            document.getElementById('nusdtModal').classList.remove('hidden');
+        }
+
+        function closeNusdtModal() {
+            document.getElementById('nusdtModal').classList.add('hidden');
+        }
+
+        // Notification
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-20 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Check for existing wallet
+        function checkExistingWallet() {
+            const savedMnemonic = localStorage.getItem('nexus_mnemonic');
+            if (savedMnemonic) {
+                currentMnemonic = savedMnemonic;
+                deriveAllAddresses();
+            }
+        }
+
+        // Placeholder functions
+        function connectWallet() {
+            showNotification('Wallet connection coming soon!', 'info');
+        }
+
+        function showImportModal() {
+            showNotification('Import wallet feature coming soon!', 'info');
+        }
+
+        function showReceiveModal() {
+            showNotification('Receive feature coming soon!', 'info');
+        }
+
+        function showSendModal() {
+            showNotification('Send feature coming soon!', 'info');
+        }
+    </script>
+</body>
+</html>

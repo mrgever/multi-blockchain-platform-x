@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Multi-Blockchain Trading Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/chart.js"></script>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.8); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow { animation: pulse-glow 2s infinite; }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nusdt-banner {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            animation: pulse-glow 1.5s infinite;
+        }
+        
+        .compact-card {
+            transition: all 0.3s ease;
+        }
+        
+        .compact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Compact toolbar */
+        .compact-toolbar {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Grid layout for better space utilization */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Notification toast */
+        .notification-toast {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- NUSDT Promotion Banner -->
+    <div class="nusdt-banner text-white text-center py-2 px-4 text-sm">
+        <div class="container mx-auto flex items-center justify-center space-x-4">
+            <span class="font-semibold">🎉 Limited Time: Get 50% Bonus on NUSDT!</span>
+            <button onclick="showNusdtModal()" class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs font-bold hover:bg-white/30 transition-colors">
+                Claim Now →
+            </button>
+        </div>
+    </div>
+
+    <!-- Compact Header -->
+    <header class="compact-toolbar sticky top-0 z-50 border-b border-gray-200 shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-12">
+                <!-- Logo and Navigation -->
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-7 h-7 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-xs">N</span>
+                        </div>
+                        <span class="font-bold text-base gradient-text">NEXUS</span>
+                    </div>
+                    <nav class="hidden md:flex space-x-4">
+                        <a href="/" class="text-sm text-blue-600 font-semibold">Dashboard</a>
+                        <a href="/wallet-center" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">Wallet Center</a>
+                        <a href="#trading" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">Trading</a>
+                        <a href="#defi" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">DeFi</a>
+                    </nav>
+                </div>
+                
+                <!-- Account Section -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center space-x-2 text-sm">
+                        <span class="text-gray-600">NUSDT Balance:</span>
+                        <span class="font-bold text-green-600">0.00</span>
+                    </div>
+                    <button onclick="connectWallet()" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">
+                        Connect
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Toast -->
+    <div id="notificationToast" class="notification-toast"></div>
+
+    <!-- Main Dashboard -->
+    <main class="container mx-auto px-4 py-4">
+        <!-- Quick Stats Bar -->
+        <div class="bg-white rounded-lg border border-gray-200 p-3 mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="text-xs text-gray-500">Total Balance</div>
+                    <div class="text-lg font-bold text-gray-900">$0.00</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-gray-500">24h Change</div>
+                    <div class="text-lg font-bold text-green-600">+0.00%</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-gray-500">Active Positions</div>
+                    <div class="text-lg font-bold text-gray-900">0</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xs text-gray-500">Total P&L</div>
+                    <div class="text-lg font-bold text-gray-900">$0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Left Column - Wallet & Quick Actions -->
+            <div class="space-y-4">
+                <!-- Wallet Card -->
+                <div class="compact-card bg-white rounded-lg border border-gray-200 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-semibold text-gray-900">Multi-Chain Wallet</h3>
+                        <a href="/wallet-center" class="text-xs text-blue-600 hover:underline">Manage →</a>
+                    </div>
+                    
+                    <div id="walletStatus" class="space-y-2">
+                        <!-- No Wallet State -->
+                        <div id="noWalletState" class="text-center py-4">
+                            <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            <p class="text-sm text-gray-600 mb-2">No wallet connected</p>
+                            <button onclick="showWalletModal()" class="px-3 py-1.5 bg-blue-600 text-white rounded text-xs font-semibold hover:bg-blue-700 transition-colors">
+                                Create Wallet
+                            </button>
+                        </div>
+                        
+                        <!-- Wallet Connected State (Hidden by default) -->
+                        <div id="walletConnectedState" class="hidden space-y-2">
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-orange-50 rounded p-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-orange-600 font-bold">BTC</span>
+                                        <span class="text-gray-600">0.00</span>
+                                    </div>
+                                </div>
+                                <div class="bg-blue-50 rounded p-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-blue-600 font-bold">ETH</span>
+                                        <span class="text-gray-600">0.00</span>
+                                    </div>
+                                </div>
+                                <div class="bg-cyan-50 rounded p-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-cyan-600 font-bold">TON</span>
+                                        <span class="text-gray-600">0.00</span>
+                                    </div>
+                                </div>
+                                <div class="bg-yellow-50 rounded p-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-yellow-600 font-bold">DOGE</span>
+                                        <span class="text-gray-600">0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Trade Card -->
+                <div class="compact-card bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Quick Trade</h3>
+                    <div class="space-y-2">
+                        <select class="w-full text-sm border border-gray-300 rounded px-2 py-1.5">
+                            <option>BTC/USDT</option>
+                            <option>ETH/USDT</option>
+                            <option>TON/USDT</option>
+                            <option>DOGE/USDT</option>
+                        </select>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" placeholder="Amount" class="text-sm border border-gray-300 rounded px-2 py-1.5">
+                            <input type="number" placeholder="Price" class="text-sm border border-gray-300 rounded px-2 py-1.5">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="bg-green-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-green-700 transition-colors">Buy</button>
+                            <button class="bg-red-600 text-white py-1.5 rounded text-sm font-semibold hover:bg-red-700 transition-colors">Sell</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NUSDT Promotion Card -->
+                <div class="compact-card bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg p-4 text-white">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-semibold">NUSDT Staking</h3>
+                        <span class="text-xs bg-white/20 px-2 py-0.5 rounded-full">APY 36.5%</span>
+                    </div>
+                    <p class="text-xs opacity-90 mb-3">Earn daily rewards with NEXUS USD Tether</p>
+                    <button onclick="showNusdtModal()" class="w-full bg-white/20 backdrop-blur py-1.5 rounded text-sm font-semibold hover:bg-white/30 transition-colors">
+                        Start Earning →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Middle Column - Price Chart -->
+            <div class="compact-card bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-semibold text-gray-900">Price Chart</h3>
+                    <div class="flex space-x-1">
+                        <button class="px-2 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200">1H</button>
+                        <button class="px-2 py-0.5 text-xs bg-blue-600 text-white rounded">1D</button>
+                        <button class="px-2 py-0.5 text-xs bg-gray-100 rounded hover:bg-gray-200">1W</button>
+                    </div>
+                </div>
+                <div id="priceChart" class="h-64 bg-gray-50 rounded flex items-center justify-center">
+                    <span class="text-sm text-gray-500">Chart Loading...</span>
+                </div>
+            </div>
+
+            <!-- Right Column - Market Overview -->
+            <div class="space-y-4">
+                <!-- Top Movers -->
+                <div class="compact-card bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Top Movers</h3>
+                    <div class="space-y-2" id="topMovers">
+                        <div class="flex items-center justify-between py-1">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+                                <span class="text-sm font-medium">Loading...</span>
+                            </div>
+                            <span class="text-xs text-gray-500">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Book -->
+                <div class="compact-card bg-white rounded-lg border border-gray-200 p-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Order Book</h3>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <div class="text-green-600 font-semibold mb-1">Bids</div>
+                            <div class="space-y-0.5" id="bids">
+                                <div class="bg-green-50 px-1 py-0.5 rounded">0.00000</div>
+                                <div class="bg-green-50 px-1 py-0.5 rounded">0.00000</div>
+                                <div class="bg-green-50 px-1 py-0.5 rounded">0.00000</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-red-600 font-semibold mb-1">Asks</div>
+                            <div class="space-y-0.5" id="asks">
+                                <div class="bg-red-50 px-1 py-0.5 rounded">0.00000</div>
+                                <div class="bg-red-50 px-1 py-0.5 rounded">0.00000</div>
+                                <div class="bg-red-50 px-1 py-0.5 rounded">0.00000</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Table (Compact) -->
+        <div class="mt-4 bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div class="p-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-900">Market Overview</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="text-left px-3 py-2 font-medium text-gray-700">#</th>
+                            <th class="text-left px-3 py-2 font-medium text-gray-700">Name</th>
+                            <th class="text-right px-3 py-2 font-medium text-gray-700">Price</th>
+                            <th class="text-right px-3 py-2 font-medium text-gray-700">24h</th>
+                            <th class="text-right px-3 py-2 font-medium text-gray-700">Market Cap</th>
+                            <th class="text-center px-3 py-2 font-medium text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marketTable" class="divide-y divide-gray-200">
+                        <!-- Market data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Wallet Modal -->
+    <div id="walletModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Create Wallet</h2>
+            
+            <div class="space-y-4">
+                <button onclick="generateNewWallet()" class="w-full p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Generate New Wallet</div>
+                            <div class="text-xs text-gray-600">Create a new secure multi-chain wallet</div>
+                        </div>
+                    </div>
+                </button>
+                
+                <button onclick="showImportModal()" class="w-full p-4 border border-gray-200 rounded-lg hover:border-blue-500 transition-colors">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <div class="font-semibold text-gray-900">Import Existing</div>
+                            <div class="text-xs text-gray-600">Restore wallet from recovery phrase</div>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            
+            <button onclick="closeWalletModal()" class="w-full mt-4 py-2 text-gray-600 text-sm hover:text-gray-800">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- NUSDT Modal -->
+    <div id="nusdtModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 float-animation">
+                    <span class="text-white text-2xl font-bold">N</span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">NUSDT - Your Gateway to DeFi</h2>
+                <p class="text-gray-600">Stable returns, instant liquidity, zero complexity</p>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 mb-6">
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div>
+                        <div class="text-xl font-bold text-green-600">36.5%</div>
+                        <div class="text-xs text-gray-600">APY</div>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold text-blue-600">$1.00</div>
+                        <div class="text-xs text-gray-600">Stable</div>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold text-purple-600">24/7</div>
+                        <div class="text-xs text-gray-600">Trading</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm text-gray-700">Daily compound interest payments</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm text-gray-700">No lock-up period - withdraw anytime</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm text-gray-700">50% bonus on first purchase (limited time)</span>
+                </div>
+            </div>
+            
+            <button class="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 transform hover:scale-[1.02] pulse-glow">
+                Get Started with NUSDT
+            </button>
+            
+            <button onclick="closeNusdtModal()" class="w-full mt-3 py-2 text-gray-600 text-sm hover:text-gray-800">
+                Learn More Later
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE = '/api/v1';
+        let currentMnemonic = '';
+        let walletAddresses = {};
+        let marketData = [];
+        let chart = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkExistingWallet();
+            loadMarketData();
+            initializeChart();
+            // Show NUSDT modal after 5 seconds
+            setTimeout(() => {
+                if (Math.random() > 0.5) { // 50% chance to show
+                    showNusdtModal();
+                }
+            }, 5000);
+        });
+
+        // Wallet Functions
+        async function generateNewWallet() {
+            try {
+                const response = await fetch(`${API_BASE}/wallet/generate-mnemonic`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentMnemonic = result.data?.mnemonic || result.mnemonic;
+                    localStorage.setItem('nexus_mnemonic', currentMnemonic);
+                    await deriveAllAddresses();
+                    closeWalletModal();
+                    showNotification('Wallet created successfully!', 'success');
+                    updateWalletUI(true);
+                } else {
+                    throw new Error(result.error || 'Failed to generate wallet');
+                }
+            } catch (error) {
+                console.error('Generate wallet error:', error);
+                showNotification('Failed to generate wallet: ' + error.message, 'error');
+            }
+        }
+
+        async function deriveAllAddresses() {
+            if (!currentMnemonic) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/wallet/derive-all-addresses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mnemonic: currentMnemonic, count: 1 })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    walletAddresses = result.data.addresses;
+                } else {
+                    throw new Error(result.error || 'Failed to derive addresses');
+                }
+            } catch (error) {
+                console.error('Derive addresses error:', error);
+                showNotification('Failed to derive addresses: ' + error.message, 'error');
+            }
+        }
+
+        function checkExistingWallet() {
+            const savedMnemonic = localStorage.getItem('nexus_mnemonic');
+            if (savedMnemonic) {
+                currentMnemonic = savedMnemonic;
+                deriveAllAddresses().then(() => {
+                    updateWalletUI(true);
+                });
+            }
+        }
+
+        function updateWalletUI(connected) {
+            const noWalletState = document.getElementById('noWalletState');
+            const walletConnectedState = document.getElementById('walletConnectedState');
+            
+            if (connected) {
+                noWalletState.classList.add('hidden');
+                walletConnectedState.classList.remove('hidden');
+            } else {
+                noWalletState.classList.remove('hidden');
+                walletConnectedState.classList.add('hidden');
+            }
+        }
+
+        // Market Data
+        async function loadMarketData() {
+            try {
+                const response = await fetch(`${API_BASE}/market/coins`);
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    marketData = data;
+                    updateMarketTable(data.slice(0, 10)); // Show top 10
+                    updateTopMovers(data.slice(0, 5)); // Show top 5 movers
+                }
+            } catch (error) {
+                console.error('Failed to load market data:', error);
+            }
+        }
+
+        function updateMarketTable(coins) {
+            const tableBody = document.getElementById('marketTable');
+            tableBody.innerHTML = coins.map((coin, index) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2">${index + 1}</td>
+                    <td class="px-3 py-2">
+                        <div class="flex items-center space-x-2">
+                            <img src="${coin.image}" alt="${coin.name}" class="w-5 h-5 rounded-full">
+                            <div>
+                                <div class="font-medium text-gray-900">${coin.symbol.toUpperCase()}</div>
+                                <div class="text-gray-500">${coin.name}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-3 py-2 text-right font-medium">$${coin.current_price.toLocaleString()}</td>
+                    <td class="px-3 py-2 text-right">
+                        <span class="${coin.price_change_percentage_24h >= 0 ? 'text-green-600' : 'text-red-600'}">
+                            ${coin.price_change_percentage_24h >= 0 ? '+' : ''}${coin.price_change_percentage_24h.toFixed(2)}%
+                        </span>
+                    </td>
+                    <td class="px-3 py-2 text-right text-gray-600">$${(coin.market_cap / 1e9).toFixed(2)}B</td>
+                    <td class="px-3 py-2 text-center">
+                        <button class="text-blue-600 hover:text-blue-800 text-xs font-medium">Trade</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateTopMovers(coins) {
+            const topMovers = coins.sort((a, b) => 
+                Math.abs(b.price_change_percentage_24h) - Math.abs(a.price_change_percentage_24h)
+            );
+            
+            const container = document.getElementById('topMovers');
+            container.innerHTML = topMovers.map(coin => `
+                <div class="flex items-center justify-between py-1">
+                    <div class="flex items-center space-x-2">
+                        <img src="${coin.image}" alt="${coin.name}" class="w-5 h-5 rounded-full">
+                        <span class="text-sm font-medium">${coin.symbol.toUpperCase()}</span>
+                    </div>
+                    <span class="text-xs ${coin.price_change_percentage_24h >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${coin.price_change_percentage_24h >= 0 ? '+' : ''}${coin.price_change_percentage_24h.toFixed(2)}%
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Chart
+        function initializeChart() {
+            const chartContainer = document.getElementById('priceChart');
+            chart = LightweightCharts.createChart(chartContainer, {
+                width: chartContainer.offsetWidth,
+                height: 256,
+                layout: {
+                    background: { type: 'solid', color: '#ffffff' },
+                    textColor: '#333',
+                },
+                grid: {
+                    vertLines: { color: '#f0f0f0' },
+                    horzLines: { color: '#f0f0f0' },
+                },
+            });
+
+            const candlestickSeries = chart.addCandlestickSeries();
+            
+            // Generate dummy data
+            const data = generateDummyData();
+            candlestickSeries.setData(data);
+            
+            chart.timeScale().fitContent();
+        }
+
+        function generateDummyData() {
+            const data = [];
+            const basePrice = 50000;
+            let time = Math.floor(Date.now() / 1000) - 86400 * 30;
+            
+            for (let i = 0; i < 100; i++) {
+                const volatility = 0.02;
+                const trend = Math.sin(i / 10) * 1000;
+                const open = basePrice + trend + (Math.random() - 0.5) * basePrice * volatility;
+                const close = open + (Math.random() - 0.5) * basePrice * volatility;
+                const high = Math.max(open, close) + Math.random() * basePrice * volatility * 0.5;
+                const low = Math.min(open, close) - Math.random() * basePrice * volatility * 0.5;
+                
+                data.push({
+                    time: time + i * 86400,
+                    open,
+                    high,
+                    low,
+                    close
+                });
+            }
+            
+            return data;
+        }
+
+        // Modal Functions
+        function showWalletModal() {
+            document.getElementById('walletModal').classList.remove('hidden');
+        }
+
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.add('hidden');
+        }
+
+        function showNusdtModal() {
+            document.getElementById('nusdtModal').classList.remove('hidden');
+        }
+
+        function closeNusdtModal() {
+            document.getElementById('nusdtModal').classList.add('hidden');
+        }
+
+        function showImportModal() {
+            showNotification('Import wallet feature coming soon!', 'info');
+            closeWalletModal();
+        }
+
+        // Notification
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const toast = document.getElementById('notificationToast');
+            toast.className = `notification-toast ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg`;
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Placeholder
+        function connectWallet() {
+            showWalletModal();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (chart) {
+                chart.applyOptions({
+                    width: document.getElementById('priceChart').offsetWidth
+                });
+            }
+        });
+    </script>
+</body>
+</html>

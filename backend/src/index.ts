@@ -72,6 +72,16 @@ app.get('/tech', (req, res) => {
   res.sendFile(path.join(__dirname, '../../tech-ui.html'));
 });
 
+// Test page for wallet generation
+app.get('/test-wallet', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../test-wallet-generation.html'));
+});
+
+// Wallet Center page
+app.get('/wallet-center', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../wallet-center.html'));
+});
+
 // API Routes
 app.use('/api/v1/wallet', walletRoutes);
 app.use('/api/v1/blockchain', blockchainRoutes);
