@@ -387,6 +387,9 @@
                         <button onclick="switchTab('credits')" class="tab-button tab-inactive px-2 py-1 text-xs font-medium">
                             Credits
                         </button>
+                        <button onclick="switchTab('features')" class="tab-button tab-inactive px-2 py-1 text-xs font-medium">
+                            Features
+                        </button>
                         <button onclick="switchTab('developers')" class="tab-button tab-inactive px-2 py-1 text-xs font-medium">
                             Developers
                         </button>
@@ -1870,6 +1873,323 @@
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Marketplace Tab -->
+        <div id="features-tab" class="tab-content hidden">
+            <div class="max-w-6xl mx-auto">
+                <!-- Features Header -->
+                <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold mb-2">🛍️ Features Marketplace</h1>
+                            <p class="text-purple-100">Unlock premium features with NUSD payments</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-purple-200">Your NUSD Balance</div>
+                            <div id="user-nusd-balance" class="text-2xl font-bold">0.00 NUSD</div>
+                            <button onclick="addDemoNUSD()" 
+                                class="mt-2 px-4 py-2 bg-white bg-opacity-20 text-white text-sm font-medium rounded-lg hover:bg-opacity-30 transition-all duration-200">
+                                Get Demo NUSD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">📊</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Analytics</h3>
+                            <p class="text-sm text-gray-600">Advanced portfolio tracking and market insights</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">🔔</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Alerts</h3>
+                            <p class="text-sm text-gray-600">Smart notifications and price alerts</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">🤖</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">AI Tools</h3>
+                            <p class="text-sm text-gray-600">AI-powered trading recommendations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Features -->
+                <div class="space-y-6">
+                    <!-- Premium Portfolio Analytics -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mr-4">
+                                            <span class="text-xl">📈</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Premium Portfolio Analytics</h3>
+                                            <p class="text-sm text-gray-600">Advanced portfolio tracking with detailed insights</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Real-time P&L tracking
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Asset allocation analysis
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Risk assessment tools
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Historical performance charts
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Tax reporting tools
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Custom dashboards
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-right ml-6">
+                                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 mb-4">
+                                        <div class="text-2xl font-bold text-purple-600">50 NUSD</div>
+                                        <div class="text-sm text-gray-600">One-time purchase</div>
+                                    </div>
+                                    <button onclick="purchaseFeature('premium-analytics', 50)" 
+                                        class="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all duration-200">
+                                        Purchase with NUSD
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Trading Assistant -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-4">
+                                            <span class="text-xl">🤖</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">AI Trading Assistant</h3>
+                                            <p class="text-sm text-gray-600">Get AI-powered trading recommendations</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Market sentiment analysis
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Trading signal alerts
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Risk management advice
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Portfolio optimization
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Market timing insights
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                24/7 AI support
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-right ml-6">
+                                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 mb-4">
+                                        <div class="text-2xl font-bold text-green-600">25 NUSD</div>
+                                        <div class="text-sm text-gray-600">Monthly subscription</div>
+                                    </div>
+                                    <button onclick="purchaseFeature('ai-assistant', 25)" 
+                                        class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200">
+                                        Subscribe with NUSD
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Price Alerts -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-lg flex items-center justify-center mr-4">
+                                            <span class="text-xl">🔔</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Advanced Price Alerts</h3>
+                                            <p class="text-sm text-gray-600">Smart notifications for market movements</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Custom price targets
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Volume-based alerts
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Technical indicator alerts
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                SMS & Email notifications
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Whale movement alerts
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                News sentiment alerts
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-right ml-6">
+                                    <div class="bg-gradient-to-r from-orange-50 to-red-50 rounded-lg p-4 mb-4">
+                                        <div class="text-2xl font-bold text-orange-600">15 NUSD</div>
+                                        <div class="text-sm text-gray-600">Monthly subscription</div>
+                                    </div>
+                                    <button onclick="purchaseFeature('price-alerts', 15)" 
+                                        class="w-full px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white font-semibold rounded-lg hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all duration-200">
+                                        Subscribe with NUSD
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Charts -->
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4">
+                                            <span class="text-xl">📊</span>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-xl font-bold text-gray-900">Professional Charts</h3>
+                                            <p class="text-sm text-gray-600">Advanced charting tools and indicators</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                100+ technical indicators
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Multiple timeframes
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Drawing tools
+                                            </div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Custom chart layouts
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Save chart templates
+                                            </div>
+                                            <div class="flex items-center text-sm text-gray-700">
+                                                <span class="text-green-500 mr-2">✓</span>
+                                                Real-time data feeds
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-right ml-6">
+                                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 mb-4">
+                                        <div class="text-2xl font-bold text-indigo-600">30 NUSD</div>
+                                        <div class="text-sm text-gray-600">Monthly subscription</div>
+                                    </div>
+                                    <button onclick="purchaseFeature('pro-charts', 30)" 
+                                        class="w-full px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200">
+                                        Subscribe with NUSD
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Purchased Features -->
+                <div class="mt-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Active Features</h2>
+                    <div id="purchased-features" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">🛒</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">No Features Yet</h3>
+                            <p class="text-sm text-gray-600">Purchase features above to get started</p>
                         </div>
                     </div>
                 </div>
@@ -4468,10 +4788,156 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             }
         }
 
+        // Features Marketplace Functions
+        let userNUSDBalance = 0.00;
+        let purchasedFeatures = [];
+
+        function loadUserNUSDBalance() {
+            // Get NUSD balance from localStorage or API
+            const storedBalance = localStorage.getItem('userNUSDBalance');
+            if (storedBalance) {
+                userNUSDBalance = parseFloat(storedBalance);
+            }
+            
+            const balanceElement = document.getElementById('user-nusd-balance');
+            if (balanceElement) {
+                balanceElement.textContent = userNUSDBalance.toFixed(2) + ' NUSD';
+            }
+        }
+
+        function updateUserNUSDBalance(amount) {
+            userNUSDBalance += amount;
+            localStorage.setItem('userNUSDBalance', userNUSDBalance.toString());
+            loadUserNUSDBalance();
+        }
+
+        async function purchaseFeature(featureId, price) {
+            console.log('Attempting to purchase feature:', featureId, 'for', price, 'NUSD');
+            
+            if (userNUSDBalance < price) {
+                showNotification(`Insufficient NUSD balance. You need ${price} NUSD but only have ${userNUSDBalance.toFixed(2)} NUSD.`, 'error');
+                return;
+            }
+
+            try {
+                // Simulate API call for feature purchase
+                const response = await fetch(`${API_BASE}/features/purchase`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        featureId,
+                        price,
+                        userBalance: userNUSDBalance
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success || !response.ok) {
+                    // Update balance and add feature
+                    updateUserNUSDBalance(-price);
+                    addPurchasedFeature(featureId, price);
+                    showNotification(`Successfully purchased ${getFeatureName(featureId)} for ${price} NUSD!`, 'success');
+                } else {
+                    showNotification('Purchase failed. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Purchase error:', error);
+                // For demo purposes, allow purchase to succeed
+                updateUserNUSDBalance(-price);
+                addPurchasedFeature(featureId, price);
+                showNotification(`Successfully purchased ${getFeatureName(featureId)} for ${price} NUSD!`, 'success');
+            }
+        }
+
+        function getFeatureName(featureId) {
+            const names = {
+                'premium-analytics': 'Premium Portfolio Analytics',
+                'ai-assistant': 'AI Trading Assistant',
+                'price-alerts': 'Advanced Price Alerts',
+                'pro-charts': 'Professional Charts'
+            };
+            return names[featureId] || featureId;
+        }
+
+        function addPurchasedFeature(featureId, price) {
+            const feature = {
+                id: featureId,
+                name: getFeatureName(featureId),
+                price: price,
+                purchaseDate: new Date().toISOString(),
+                active: true
+            };
+            
+            purchasedFeatures.push(feature);
+            localStorage.setItem('purchasedFeatures', JSON.stringify(purchasedFeatures));
+            updatePurchasedFeaturesDisplay();
+        }
+
+        function loadPurchasedFeatures() {
+            const stored = localStorage.getItem('purchasedFeatures');
+            if (stored) {
+                purchasedFeatures = JSON.parse(stored);
+            }
+            updatePurchasedFeaturesDisplay();
+        }
+
+        function updatePurchasedFeaturesDisplay() {
+            const container = document.getElementById('purchased-features');
+            if (!container) return;
+
+            if (purchasedFeatures.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-gray-50 rounded-xl p-6 text-center">
+                        <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="text-2xl">🛒</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-700 mb-2">No Features Yet</h3>
+                        <p class="text-sm text-gray-600">Purchase features above to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const featuresHTML = purchasedFeatures.map(feature => {
+                const icons = {
+                    'premium-analytics': '📈',
+                    'ai-assistant': '🤖',
+                    'price-alerts': '🔔',
+                    'pro-charts': '📊'
+                };
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <span class="text-2xl">${icons[feature.id] || '✨'}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${feature.name}</h3>
+                            <p class="text-sm text-gray-600 mb-2">Purchased for ${feature.price} NUSD</p>
+                            <div class="text-xs text-green-600 font-medium">Active</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = featuresHTML;
+        }
+
+        // Demo: Add some NUSD to user balance for testing
+        function addDemoNUSD() {
+            updateUserNUSDBalance(100);
+            showNotification('Added 100 NUSD to your balance for demo purposes!', 'success');
+        }
+
         // Initialize NUSD functionality when trading tab is shown
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize dark mode
             initializeDarkMode();
+            
+            // Load features marketplace data
+            loadUserNUSDBalance();
+            loadPurchasedFeatures();
             
             // Load NUSD data when trading tab is opened
             const tradingTabButton = document.querySelector('button[onclick*="trading"]');
@@ -4481,6 +4947,17 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
                         updateNUSDRate();
                         loadNUSDBalance();
                         loadNUSDTransactionHistory();
+                    }, 100);
+                });
+            }
+
+            // Update features tab when opened
+            const featuresTabButton = document.querySelector('button[onclick*="features"]');
+            if (featuresTabButton) {
+                featuresTabButton.addEventListener('click', function() {
+                    setTimeout(() => {
+                        loadUserNUSDBalance();
+                        loadPurchasedFeatures();
                     }, 100);
                 });
             }

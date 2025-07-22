@@ -142,6 +142,42 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Features purchase endpoint
+    if (path === '/api/v1/features/purchase' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { featureId, price, userBalance } = body;
+      
+      console.log('Feature purchase request:', { featureId, price, userBalance });
+      
+      if (userBalance < price) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({
+            success: false,
+            error: 'Insufficient NUSD balance',
+            required: price,
+            available: userBalance
+          })
+        };
+      }
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            featureId,
+            price,
+            transactionId: 'feat_' + Math.random().toString(36).substr(2, 9),
+            purchaseDate: new Date().toISOString(),
+            newBalance: userBalance - price
+          }
+        })
+      };
+    }
+
     // NUSD swap endpoint
     if (path === '/api/v1/swap/to-nusd' && event.httpMethod === 'POST') {
       const body = JSON.parse(event.body || '{}');
@@ -277,6 +313,7 @@ exports.handler = async (event, context) => {
           '/api/v1/wallet/derive-all-addresses',
           '/api/v1/market/overview',
           '/api/v1/swap/to-nusd',
+          '/api/v1/features/purchase',
           '/health'
         ]
       })
