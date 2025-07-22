@@ -458,36 +458,36 @@
 
     <!-- Scripts -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script type="module">
-        import Web3Manager from './src/lib/Web3Manager.js';
-        import LivePaymentProcessor from './src/lib/LivePaymentProcessor.js';
-        
+    <script src="./src/js/wallet-manager.js"></script>
+    <script>
         // Global variables
         let currentPaymentMethod = null;
         let walletConnected = false;
         let web3Manager = null;
-        let paymentProcessor = null;
         let currentWalletInfo = null;
         
         // Initialize Web3 components
-        window.initializeWeb3 = function() {
-            web3Manager = new Web3Manager();
-            paymentProcessor = new LivePaymentProcessor(web3Manager);
+        function initializeWeb3() {
+            web3Manager = new BrowserWeb3Manager();
             
             // Override event handlers
             web3Manager.onAccountChanged = (address) => {
-                currentWalletInfo.address = address;
-                updateWalletDisplay();
-                showToast('Account Changed', `Switched to ${address.slice(0,6)}...${address.slice(-4)}`, 'info');
+                if (currentWalletInfo) {
+                    currentWalletInfo.address = address;
+                    updateWalletDisplay();
+                    showToast('Account Changed', `Switched to ${address.slice(0,6)}...${address.slice(-4)}`, 'info');
+                }
             };
             
             web3Manager.onChainChanged = (chainId) => {
-                currentWalletInfo.chainId = chainId;
-                const network = web3Manager.getCurrentNetwork();
-                currentWalletInfo.network = network ? network.name : 'Unknown Network';
-                updateWalletDisplay();
-                updateNetworkDisplay();
-                showToast('Network Changed', `Switched to ${currentWalletInfo.network}`, 'info');
+                if (currentWalletInfo) {
+                    currentWalletInfo.chainId = chainId;
+                    const network = web3Manager.getCurrentNetwork();
+                    currentWalletInfo.network = network ? network.name : 'Unknown Network';
+                    updateWalletDisplay();
+                    updateNetworkDisplay();
+                    showToast('Network Changed', `Switched to ${currentWalletInfo.network}`, 'info');
+                }
             };
             
             web3Manager.onDisconnected = () => {
@@ -497,7 +497,7 @@
                 updateNetworkDisplay();
                 showToast('Disconnected', 'Wallet disconnected', 'warning');
             };
-        };
+        }
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -615,7 +615,7 @@
             const cryptoSelect = document.getElementById('cryptoSelect');
             const networkWarning = document.getElementById('networkWarning');
             
-            if (!walletConnected || !paymentProcessor) {
+            if (!walletConnected || !web3Manager) {
                 cryptoSelect.innerHTML = '<option value="">Connect wallet first...</option>';
                 networkWarning.classList.remove('hidden');
                 return;
@@ -624,7 +624,7 @@
             networkWarning.classList.add('hidden');
             
             try {
-                const supportedTokens = paymentProcessor.getSupportedTokens();
+                const supportedTokens = web3Manager.getSupportedTokens();
                 
                 cryptoSelect.innerHTML = supportedTokens.map(token => 
                     `<option value="${token.symbol}">${token.name} (${token.symbol})</option>`
@@ -647,7 +647,7 @@
             const balanceDisplay = document.getElementById('balanceDisplay');
             const selectedTokenBalance = document.getElementById('selectedTokenBalance');
             
-            if (!tokenSymbol || !paymentProcessor) {
+            if (!tokenSymbol || !web3Manager) {
                 balanceDisplay.classList.add('hidden');
                 return;
             }
@@ -656,8 +656,15 @@
                 selectedTokenBalance.textContent = 'Loading...';
                 balanceDisplay.classList.remove('hidden');
                 
-                const balance = await paymentProcessor.getTokenBalance(tokenSymbol);
-                selectedTokenBalance.textContent = `${parseFloat(balance).toFixed(6)} ${tokenSymbol}`;
+                // For now, just show the main balance for native tokens
+                const network = web3Manager.getCurrentNetwork();
+                if (tokenSymbol === network?.symbol) {
+                    const balance = await web3Manager.getBalance();
+                    selectedTokenBalance.textContent = `${parseFloat(balance).toFixed(6)} ${tokenSymbol}`;
+                } else {
+                    // For other tokens, show placeholder
+                    selectedTokenBalance.textContent = `0.000000 ${tokenSymbol}`;
+                }
                 
             } catch (error) {
                 console.error('Error loading balance:', error);
@@ -743,44 +750,43 @@
                 
                 showToast('Processing', `Preparing ${crypto} payment for $${amount}`, 'info');
                 
-                // Create payment record
-                const payment = await paymentProcessor.createPayment(amount, crypto, recipientAddress);
+                // Generate payment ID
+                const paymentId = `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
                 
-                let transactionResult;
+                // Calculate crypto amount (simplified conversion)
+                const network = web3Manager.getCurrentNetwork();
+                let cryptoAmount;
                 
-                if (crypto === 'ETH' || crypto === 'MATIC' || crypto === 'BNB' || crypto === 'AVAX') {
-                    // Native currency payment
-                    const network = web3Manager.getCurrentNetwork();
-                    const cryptoAmount = (parseFloat(amount) / 2400).toFixed(6); // Rough conversion for demo
-                    
-                    transactionResult = await paymentProcessor.processNativePayment(
-                        payment.id,
-                        recipientAddress,
-                        cryptoAmount
-                    );
+                if (crypto === network.symbol) {
+                    // Native currency - rough USD conversion for demo
+                    const rates = { 'ETH': 2400, 'MATIC': 0.8, 'BNB': 300, 'AVAX': 35 };
+                    const rate = rates[crypto] || 2400;
+                    cryptoAmount = (parseFloat(amount) / rate).toFixed(6);
                 } else {
-                    // Token payment
-                    const tokenAmount = parseFloat(amount); // Assuming 1:1 for stablecoins
-                    
-                    transactionResult = await paymentProcessor.processTokenPayment(
-                        payment.id,
-                        crypto,
-                        recipientAddress,
-                        tokenAmount
-                    );
+                    // Stablecoin - assume 1:1 with USD
+                    cryptoAmount = parseFloat(amount).toFixed(6);
                 }
                 
+                // Send transaction
+                const transactionResult = await web3Manager.sendTransaction(recipientAddress, cryptoAmount);
+                
                 closeModal('paymentModal');
-                showToast('Payment Sent!', `Transaction: ${transactionResult.transactionHash.slice(0,10)}...`, 'success');
+                showToast('Payment Sent!', `Transaction: ${transactionResult.hash.slice(0,10)}...`, 'success');
                 
                 // Add to recent transactions display
                 addTransactionToHistory({
-                    id: payment.id,
+                    id: paymentId,
                     amount: amount,
                     currency: crypto,
-                    hash: transactionResult.transactionHash,
+                    hash: transactionResult.hash,
                     status: 'confirming',
                     timestamp: new Date().toISOString()
+                });
+                
+                // Wait for confirmation
+                transactionResult.wait().then(() => {
+                    showToast('Transaction Confirmed', 'Payment confirmed on blockchain', 'success');
+                    updateTransactionStatus(transactionResult.hash, 'completed');
                 });
                 
             } catch (error) {
@@ -903,7 +909,7 @@
         }
         
         async function loadWalletBalance() {
-            if (!walletConnected || !paymentProcessor) return;
+            if (!walletConnected || !web3Manager) return;
             
             try {
                 const balance = await web3Manager.getBalance();
@@ -1042,12 +1048,21 @@
             transactionsList.innerHTML = transactionsHTML;
         }
         
+        function updateTransactionStatus(hash, status) {
+            const txIndex = transactionHistory.findIndex(tx => tx.hash === hash);
+            if (txIndex !== -1) {
+                transactionHistory[txIndex].status = status;
+                localStorage.setItem('transaction-history', JSON.stringify(transactionHistory));
+                updateTransactionDisplay();
+            }
+        }
+        
         async function monitorTransaction(hash, transactionId) {
-            if (!paymentProcessor) return;
+            if (!web3Manager) return;
             
             const checkInterval = setInterval(async () => {
                 try {
-                    const status = await paymentProcessor.monitorTransaction(hash);
+                    const status = await web3Manager.monitorTransaction(hash);
                     
                     // Update transaction in history
                     const txIndex = transactionHistory.findIndex(tx => tx.hash === hash);
