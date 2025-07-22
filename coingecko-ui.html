@@ -952,7 +952,7 @@
                                     <div class="text-xs font-semibold text-gray-900">Send</div>
                                 </button>
                                 
-                                <button onclick="showReceiveModal()" 
+                                <button onclick="showReceiveModal('ethereum')" 
                                     class="group relative flex flex-col items-center justify-center p-3 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 hover:border-emerald-300 rounded-lg transition-all duration-200 hover:shadow-lg">
                                     <div class="w-8 h-8 bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
                                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4500,10 +4500,6 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             showNotification('Send functionality - Coming soon!', 'info');
         }
         
-        function showReceiveModal() {
-            // Create and show receive modal with QR code
-            showNotification('Receive functionality - Coming soon!', 'info');
-        }
         
         function refreshWallets() {
             showNotification('Refreshing wallets...', 'info');
@@ -5202,13 +5198,17 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
 
         async function generateReceiveAddress(blockchain) {
             try {
+                console.log('Generating receive address for blockchain:', blockchain);
+                
                 const response = await fetch(`${API_BASE}/wallet/receive`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ blockchain })
                 });
                 
+                console.log('Receive address response status:', response.status);
                 const result = await response.json();
+                console.log('Receive address result:', result);
                 
                 if (result.success) {
                     displayReceiveAddress(result.data);
@@ -5225,21 +5225,28 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             const container = document.getElementById('receive-content');
             if (!container) return;
 
+            console.log('Displaying receive address data:', data);
+            
+            const blockchainName = (data.blockchain || data.network || 'CRYPTO').toUpperCase();
+            const address = data.address || 'No address generated';
+            const qrCode = data.qrCode || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y3ZjdmNyIvPjx0ZXh0IHg9IjUwIiB5PSI1NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5RUjwvdGV4dD48L3N2Zz4=';
+
             container.innerHTML = `
                 <div class="space-y-4">
                     <div class="text-center">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Your ${data.blockchain.toUpperCase()} Address</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Your ${blockchainName} Address</h3>
                         <div class="w-32 h-32 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                            <img src="${data.qrCode}" alt="QR Code" class="w-full h-full rounded-lg">
+                            <img src="${qrCode}" alt="QR Code" class="w-full h-full rounded-lg" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                            <div style="display:none" class="text-gray-400 text-xs text-center">QR Code</div>
                         </div>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
                         <div class="flex">
-                            <input type="text" value="${data.address}" readonly 
+                            <input type="text" value="${address}" readonly 
                                 class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-gray-600 text-sm font-mono">
-                            <button onclick="copyToClipboard('${data.address}')" 
+                            <button onclick="copyToClipboard('${address}')" 
                                 class="px-4 py-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 transition-colors">
                                 Copy
                             </button>
@@ -5263,7 +5270,7 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
                     
                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                         <p class="text-xs text-yellow-800">
-                            ⚠️ Only send ${data.blockchain.toUpperCase()} to this address. Sending other cryptocurrencies may result in permanent loss.
+                            ⚠️ Only send ${blockchainName} to this address. Sending other cryptocurrencies may result in permanent loss.
                         </p>
                     </div>
                     
