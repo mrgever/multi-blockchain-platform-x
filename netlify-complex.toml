@@ -1,0 +1,165 @@
+[build]
+  # Base directory for the build
+  base = "."
+  
+  # Build command - skip complex build, use static files directly
+  command = "echo 'Using static files directly'"
+  
+  # Directory to deploy (static files)
+  publish = "."
+  
+  # Functions directory
+  functions = "netlify/functions"
+  
+  # Ignore Next.js detection
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF frontend/"
+
+[build.environment]
+  # Node version for building
+  NODE_VERSION = "18"
+  
+  # Build-time environment variables
+  NPM_FLAGS = "--prefix backend"
+  
+  # Disable Next.js plugin
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[dev]
+  # Local development settings
+  command = "npm run dev"
+  port = 8888
+  targetPort = 3001
+  autoLaunch = false
+
+# Explicitly disable plugins that auto-detect
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+  [plugins.inputs]
+    disabled = true
+
+[functions]
+  # Node.js runtime for all functions
+  node_bundler = "esbuild"
+  
+  # Include files in function bundles
+  included_files = ["backend/prisma/**"]
+
+# Headers for security and caching
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, X-Requested-With, Accept, Origin"
+    Access-Control-Max-Age = "86400"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Redirects for clean URLs
+[[redirects]]
+  from = "/"
+  to = "/coingecko-ui.html"
+  status = 200
+
+[[redirects]]
+  from = "/index.html"
+  to = "/coingecko-ui.html"
+  status = 301
+
+# Static page routes
+[[redirects]]
+  from = "/admin"
+  to = "/admin-panel.html"
+  status = 200
+
+[[redirects]]
+  from = "/wallet-center"
+  to = "/wallet-center.html"
+  status = 200
+
+[[redirects]]
+  from = "/modern"
+  to = "/modern-ui.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo"
+  to = "/quick-demo.html"
+  status = 200
+
+[[redirects]]
+  from = "/tech"
+  to = "/tech-ui.html"
+  status = 200
+
+[[redirects]]
+  from = "/simple"
+  to = "/self-contained-ui.html"
+  status = 200
+
+[[redirects]]
+  from = "/test-wallet"
+  to = "/test-wallet-generation.html"
+  status = 200
+
+# API redirects to serverless functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api-simple"
+  status = 200
+
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/api-simple"
+  status = 200
+
+# Fallback for any unmatched routes to main page
+[[redirects]]
+  from = "/*"
+  to = "/coingecko-ui.html"
+  status = 200
+
+# Environment variable configuration
+[context.production.environment]
+  NODE_ENV = "production"
+  CORS_ORIGIN = "https://your-site.netlify.app"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "development"
+  CORS_ORIGIN = "*"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "development"
+  CORS_ORIGIN = "*"

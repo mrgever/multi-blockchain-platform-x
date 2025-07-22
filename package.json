@@ -1,23 +1,13 @@
 {
-  "name": "multi-blockchain-platform",
+  "name": "nexus-blockchain-platform-static",
   "version": "1.0.0",
-  "description": "Multi-blockchain management platform for TON, Ethereum, Bitcoin, Dogecoin, and USDT",
+  "description": "NEXUS Multi-Blockchain Platform - Static deployment",
   "private": true,
   "scripts": {
-    "dev": "cd backend && npm run dev",
-    "start": "cd backend && npm run dev",
-    "build": "echo 'Using static HTML files - no build needed'",
-    "deploy:netlify": "echo 'Deploying static files to Netlify'",
-    "deploy:render": "cd backend && npm install && npm run dev"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "build": "echo 'Static site - no build needed'",
+    "start": "echo 'Static deployment'"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  },
-  "dependencies": {
-    "axios": "^1.10.0"
+    "node": ">=18.0.0"
   }
 }
