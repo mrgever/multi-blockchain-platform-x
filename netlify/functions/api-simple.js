@@ -34,7 +34,7 @@ exports.handler = async (event, context) => {
     }
 
     // Wallet generation endpoints
-    if (path === '/api/v1/wallet/generate' && event.httpMethod === 'POST') {
+    if ((path === '/api/v1/wallet/generate' || path === '/api/v1/wallet/generate-mnemonic') && event.httpMethod === 'POST') {
       const mnemonic = generateMnemonic();
       return {
         statusCode: 200,
@@ -72,6 +72,66 @@ exports.handler = async (event, context) => {
               dogecoin: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
               ton: 'UQ' + Math.random().toString(36).substring(2, 40) + '__'
             }
+          }
+        })
+      };
+    }
+
+    // Derive all addresses endpoint
+    if (path === '/api/v1/wallet/derive-all-addresses' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { mnemonic } = body;
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            addresses: {
+              ethereum: '0x' + Math.random().toString(36).substring(2, 42),
+              bitcoin: '1' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+              dogecoin: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+              ton: 'UQ' + Math.random().toString(36).substring(2, 40) + '__',
+              usdt: '0x' + Math.random().toString(36).substring(2, 42)
+            }
+          }
+        })
+      };
+    }
+
+    // Generate network wallet endpoint
+    if (path === '/api/v1/wallet/generate-network-wallet' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { blockchain } = body;
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            blockchain,
+            mnemonic: generateMnemonic(),
+            address: '0x' + Math.random().toString(36).substring(2, 42),
+            networkInfo: {
+              name: blockchain + ' Network',
+              symbol: blockchain.substring(0, 3).toUpperCase()
+            }
+          }
+        })
+      };
+    }
+
+    // Get private key endpoint
+    if (path === '/api/v1/wallet/get-private-key' && event.httpMethod === 'POST') {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            privateKey: '0x' + Math.random().toString(36).substring(2, 64)
           }
         })
       };
