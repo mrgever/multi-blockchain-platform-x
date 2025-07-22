@@ -2972,15 +2972,19 @@
         }
 
         function updateMarketDataWithAnimations(newData, oldData) {
-            newData.forEach(newCoin => {
-                const oldCoin = oldData.find(c => c.id === newCoin.id);
+            // Convert object to array if needed
+            const newDataArray = Array.isArray(newData) ? newData : Object.values(newData);
+            const oldDataArray = Array.isArray(oldData) ? oldData : Object.values(oldData);
+            
+            newDataArray.forEach(newCoin => {
+                const oldCoin = oldDataArray.find(c => c.id === newCoin.id);
                 if (oldCoin) {
                     // Track price changes for animation
-                    if (newCoin.current_price !== oldCoin.current_price) {
+                    if (newCoin.price !== oldCoin.price) {
                         priceHistory.set(newCoin.id, {
-                            old: oldCoin.current_price,
-                            new: newCoin.current_price,
-                            change: newCoin.current_price > oldCoin.current_price ? 'increase' : 'decrease',
+                            old: oldCoin.price,
+                            new: newCoin.price,
+                            change: newCoin.price > oldCoin.price ? 'increase' : 'decrease',
                             timestamp: Date.now()
                         });
                     }
@@ -3184,31 +3188,59 @@
             const stats = globalStats?.data || globalStats;
             if (!stats) return;
 
-            if (stats.active_cryptocurrencies) {
-                document.getElementById('active-cryptos').textContent = stats.active_cryptocurrencies.toLocaleString();
+            // Update total market cap
+            if (stats.totalMarketCap || stats.total_market_cap?.usd) {
+                const marketCapEl = document.getElementById('total-market-cap');
+                if (marketCapEl) {
+                    marketCapEl.textContent = formatLargeNumber(stats.totalMarketCap || stats.total_market_cap.usd);
+                }
             }
-            if (stats.total_volume?.usd) {
-                document.getElementById('total-volume').textContent = formatLargeNumber(stats.total_volume.usd);
+
+            // Update total volume
+            if (stats.totalVolume || stats.total_volume?.usd) {
+                const volumeEl = document.getElementById('total-volume-header');
+                if (volumeEl) {
+                    volumeEl.textContent = formatLargeNumber(stats.totalVolume || stats.total_volume.usd);
+                }
             }
-            if (stats.market_cap_percentage?.btc) {
-                document.getElementById('btc-dominance').textContent = `${stats.market_cap_percentage.btc.toFixed(1)}%`;
+
+            // Update market change
+            if (stats.avgChange !== undefined || stats.market_cap_change_percentage_24h_usd) {
+                const changeEl = document.getElementById('market-change');
+                if (changeEl) {
+                    const change = stats.avgChange || stats.market_cap_change_percentage_24h_usd;
+                    changeEl.textContent = `${change > 0 ? '+' : ''}${change.toFixed(2)}%`;
+                    changeEl.className = change > 0 ? 'ml-1 price-up px-1 py-0.5 rounded text-xs' : 'ml-1 price-down px-1 py-0.5 rounded text-xs';
+                }
             }
-            if (stats.market_cap_change_percentage_24h_usd) {
-                const changeEl = document.getElementById('market-cap-change');
-                const change = stats.market_cap_change_percentage_24h_usd;
-                changeEl.textContent = `${change > 0 ? '+' : ''}${change.toFixed(2)}%`;
-                changeEl.className = change > 0 ? 'text-2xl font-bold green-text' : 'text-2xl font-bold red-text';
-            }
-            if (stats.total_market_cap?.usd) {
-                document.getElementById('total-market-cap').textContent = formatLargeNumber(stats.total_market_cap.usd);
+
+            // Update Fear & Greed Index if available
+            if (stats.fearGreedIndex) {
+                const fearGreedEl = document.getElementById('fear-greed-index');
+                if (fearGreedEl) {
+                    const index = stats.fearGreedIndex;
+                    let sentiment = 'Neutral';
+                    if (index > 75) sentiment = 'Extreme Greed';
+                    else if (index > 55) sentiment = 'Greed';
+                    else if (index > 45) sentiment = 'Neutral';
+                    else if (index > 25) sentiment = 'Fear';
+                    else sentiment = 'Extreme Fear';
+                    
+                    fearGreedEl.textContent = `${index} - ${sentiment}`;
+                }
             }
         }
 
         function updateCoinsTable(coins) {
             const tbody = document.getElementById('coins-table');
+            if (!tbody) return;
+            
             tbody.innerHTML = '';
 
-            coins.forEach(coin => {
+            // Convert object to array if needed
+            const coinsArray = Array.isArray(coins) ? coins : Object.values(coins);
+            
+            coinsArray.forEach(coin => {
                 const row = createCoinRow(coin);
                 tbody.appendChild(row);
             });
@@ -3218,9 +3250,13 @@
             const row = document.createElement('tr');
             row.className = 'coin-row hover:bg-gray-50 cursor-pointer';
             
-            const price24h = coin.price_change_percentage_24h || 0;
+            // Handle both API format and our mock format
+            const price = coin.current_price || coin.price;
+            const price24h = coin.price_change_percentage_24h || coin.change_24h || 0;
             const price7d = coin.price_change_percentage_7d_in_currency || 0;
             const price1h = (Math.random() - 0.5) * 5; // Mock 1h data
+            const marketCap = coin.market_cap;
+            const volume = coin.total_volume || coin.volume_24h;
             
             row.innerHTML = `
                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-900 font-medium">
@@ -3237,7 +3273,7 @@
                     </div>
                 </td>
                 <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-bold text-gray-900">
-                    ${formatPrice(coin.current_price)}
+                    ${formatPrice(price)}
                 </td>
                 <td class="px-2 py-2 whitespace-nowrap text-right text-xs">
                     <span class="px-1.5 py-0.5 rounded text-xs font-medium ${price1h >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
@@ -3255,10 +3291,10 @@
                     </span>
                 </td>
                 <td class="px-3 py-2 whitespace-nowrap text-right text-sm text-gray-700 font-semibold">
-                    ${formatLargeNumber(coin.market_cap)}
+                    ${formatLargeNumber(marketCap)}
                 </td>
                 <td class="px-3 py-2 whitespace-nowrap text-right text-sm text-gray-600">
-                    ${formatLargeNumber(coin.total_volume)}
+                    ${formatLargeNumber(volume)}
                 </td>
                 <td class="px-3 py-2 whitespace-nowrap text-center">
                     <div class="sparkline-container mx-auto">
@@ -3573,6 +3609,66 @@
             }).catch(() => {
                 showNotification('Failed to copy', 'error');
             });
+        }
+
+        function toggleMobileMenu() {
+            // Create or toggle mobile menu overlay
+            let mobileMenu = document.getElementById('mobile-menu-overlay');
+            
+            if (mobileMenu) {
+                mobileMenu.remove();
+                return;
+            }
+            
+            mobileMenu = document.createElement('div');
+            mobileMenu.id = 'mobile-menu-overlay';
+            mobileMenu.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 sm:hidden';
+            mobileMenu.innerHTML = `
+                <div class="fixed top-0 right-0 w-64 h-full bg-white shadow-lg">
+                    <div class="p-4 border-b">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-bold">NEXUS</h2>
+                            <button onclick="toggleMobileMenu()" class="p-2 rounded-md hover:bg-gray-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <nav class="p-4 space-y-2">
+                        <button onclick="switchTab('overview'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            📊 <span class="ml-3">Markets</span>
+                        </button>
+                        <button onclick="switchTab('wallet'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            💼 <span class="ml-3">Wallet</span>
+                        </button>
+                        <button onclick="switchTab('portfolio'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            📈 <span class="ml-3">Portfolio</span>
+                        </button>
+                        <button onclick="switchTab('trading'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            🔄 <span class="ml-3">Trading</span>
+                        </button>
+                        <button onclick="switchTab('credits'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            🪙 <span class="ml-3">Credits</span>
+                        </button>
+                        <button onclick="switchTab('features'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            ⚡ <span class="ml-3">Features</span>
+                        </button>
+                        <button onclick="switchTab('developers'); toggleMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-100 flex items-center">
+                            🔧 <span class="ml-3">API</span>
+                        </button>
+                    </nav>
+                </div>
+            `;
+            
+            // Close menu when clicking outside
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    toggleMobileMenu();
+                }
+            });
+            
+            document.body.appendChild(mobileMenu);
         }
 
         function showNotification(message, type) {
