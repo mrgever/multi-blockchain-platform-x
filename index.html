@@ -96,7 +96,7 @@
                         <i class="fas fa-coins text-yellow-300"></i>
                         NEXUS
                     </div>
-                    <div class="bg-purple-600 px-2 py-1 rounded-full text-xs font-semibold">v2.0</div>
+                    <div class="bg-orange-500 px-3 py-1 rounded-full text-xs font-semibold animate-pulse">BETA</div>
                     <div id="networkStatus" class="hidden md:flex items-center space-x-2 ml-4">
                         <div class="w-2 h-2 bg-green-400 rounded-full pulse"></div>
                         <span class="text-sm opacity-90" id="networkName">Ethereum</span>
@@ -172,6 +172,68 @@
                 <button onclick="showWalletModal()" class="border-2 border-purple-600 text-purple-600 px-8 py-4 rounded-xl font-semibold hover:bg-purple-50 transition">
                     <i class="fas fa-wallet mr-2"></i>Connect Wallet
                 </button>
+            </div>
+        </div>
+
+        <!-- Beta Release Notice -->
+        <div class="mb-12 fade-in-up">
+            <div class="max-w-4xl mx-auto bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-400 rounded-xl p-6 shadow-sm">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-flask text-orange-600 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4 flex-1">
+                        <div class="flex items-center mb-2">
+                            <h3 class="text-xl font-bold text-orange-800">🚀 Beta Version - Something Awesome is Coming!</h3>
+                            <span class="ml-3 bg-orange-200 text-orange-800 px-2 py-1 rounded-full text-xs font-semibold animate-bounce">BETA</span>
+                        </div>
+                        <p class="text-orange-700 mb-4 leading-relaxed">
+                            You're experiencing the <strong>future of cryptocurrency payments</strong>! 
+                            We're currently building something incredible - a next-generation platform that will revolutionize how you handle digital transactions.
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white bg-opacity-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-orange-800 mb-2 flex items-center">
+                                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                    Currently Available
+                                </h4>
+                                <ul class="text-sm text-orange-700 space-y-1">
+                                    <li>• 29+ cryptocurrencies across 6 networks</li>
+                                    <li>• Real wallet connections (MetaMask, Trust, etc.)</li>
+                                    <li>• Live price feeds & real transactions</li>
+                                    <li>• Multi-chain payment processing</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white bg-opacity-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-orange-800 mb-2 flex items-center">
+                                    <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                    Coming in Full Release
+                                </h4>
+                                <ul class="text-sm text-orange-700 space-y-1">
+                                    <li>• Advanced DeFi integrations</li>
+                                    <li>• Enterprise-grade security features</li>
+                                    <li>• API access & developer tools</li>
+                                    <li>• Enhanced analytics & reporting</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-center justify-between bg-orange-100 rounded-lg p-4">
+                            <div class="text-sm text-orange-800 mb-2 sm:mb-0">
+                                <strong>Want to be notified when we launch?</strong> Join our beta community!
+                            </div>
+                            <div class="flex space-x-3">
+                                <button onclick="showBetaSignup()" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600 transition">
+                                    <i class="fas fa-bell mr-2"></i>Get Notified
+                                </button>
+                                <button onclick="showFeedback()" class="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-50 transition border border-orange-200">
+                                    <i class="fas fa-comment mr-2"></i>Give Feedback
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -408,6 +470,75 @@
             <i class="fas fa-plus text-xl"></i>
         </button>
     </div>
+
+    <!-- Beta Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-coins text-yellow-400 text-2xl mr-3"></i>
+                        <span class="text-xl font-bold">NEXUS</span>
+                        <span class="ml-2 bg-orange-500 px-2 py-1 rounded-full text-xs">BETA</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        The future of cryptocurrency payments. Currently in beta - building something awesome for you!
+                    </p>
+                    <div class="flex space-x-4">
+                        <button onclick="showBetaSignup()" class="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-rocket mr-2"></i>Join Beta
+                        </button>
+                        <button onclick="showFeedback()" class="border border-gray-600 hover:border-gray-500 px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-comment mr-2"></i>Feedback
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Beta Features</h4>
+                    <ul class="text-gray-400 space-y-2 text-sm">
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>29+ Cryptocurrencies</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>6 Blockchain Networks</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Real Wallet Connections</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Live Price Feeds</li>
+                        <li><i class="fas fa-check text-green-500 mr-2"></i>Multi-chain Payments</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Coming Soon</h4>
+                    <ul class="text-gray-400 space-y-2 text-sm">
+                        <li><i class="fas fa-star text-yellow-500 mr-2"></i>DeFi Integrations</li>
+                        <li><i class="fas fa-star text-yellow-500 mr-2"></i>Enterprise APIs</li>
+                        <li><i class="fas fa-star text-yellow-500 mr-2"></i>Advanced Analytics</li>
+                        <li><i class="fas fa-star text-yellow-500 mr-2"></i>White-label Solutions</li>
+                        <li><i class="fas fa-star text-yellow-500 mr-2"></i>Mobile Apps</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-sm text-gray-400 mb-4 md:mb-0">
+                        <p class="mb-2">
+                            <strong class="text-orange-400">⚠️ BETA DISCLAIMER:</strong> 
+                            This is a beta version for testing purposes. Features may change before final release.
+                        </p>
+                        <p>
+                            © 2024 NEXUS Payment Platform - Currently in Beta Development
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-4 text-sm text-gray-400">
+                        <span>Made with ❤️ for the crypto community</span>
+                        <div class="flex space-x-2">
+                            <span class="bg-gray-800 px-2 py-1 rounded text-xs">v2.0-beta</span>
+                            <span class="bg-green-800 px-2 py-1 rounded text-xs">Live</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Toast Notifications -->
     <div id="toast" class="fixed top-4 right-4 z-50 hidden">
@@ -1422,6 +1553,84 @@
         function refreshTransactions() {
             updateTransactionDisplay();
             showToast('Refreshed', 'Transaction history updated', 'success');
+        }
+        
+        // Beta-specific functions
+        function showBetaSignup() {
+            showToast('Coming Soon', 'Beta signup will be available soon! Follow us for updates.', 'info');
+            
+            // Create signup modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 modal z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-rocket text-orange-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Join the NEXUS Beta Community!</h3>
+                        <p class="text-gray-600 mb-6">
+                            Be the first to know when our full platform launches with advanced features, 
+                            enterprise tools, and enhanced security.
+                        </p>
+                        <div class="space-y-4">
+                            <input type="email" placeholder="Enter your email" 
+                                   class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none">
+                            <button class="w-full bg-orange-500 text-white py-4 rounded-xl font-semibold hover:bg-orange-600 transition">
+                                <i class="fas fa-bell mr-2"></i>Notify Me at Launch
+                            </button>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                class="mt-4 text-gray-500 hover:text-gray-700 text-sm">Maybe later</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function showFeedback() {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 modal z-50 flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-comment text-blue-500 text-2xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4">Your Feedback Matters!</h3>
+                        <p class="text-gray-600 mb-6">
+                            Help us build the ultimate cryptocurrency payment platform. 
+                            What features would you love to see?
+                        </p>
+                        <div class="space-y-4">
+                            <textarea placeholder="Share your thoughts, feature requests, or report bugs..." 
+                                     class="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none h-32 resize-none"></textarea>
+                            <button class="w-full bg-blue-500 text-white py-4 rounded-xl font-semibold hover:bg-blue-600 transition"
+                                    onclick="submitFeedback(this)">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Feedback
+                            </button>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" 
+                                class="mt-4 text-gray-500 hover:text-gray-700 text-sm">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function submitFeedback(button) {
+            const textarea = button.parentElement.querySelector('textarea');
+            const feedback = textarea.value.trim();
+            
+            if (feedback) {
+                showToast('Thank You!', 'Your feedback has been received and will help improve NEXUS!', 'success');
+                button.parentElement.parentElement.parentElement.remove();
+                
+                // In production, you would send this to your backend
+                console.log('Beta Feedback:', feedback);
+            } else {
+                showToast('Empty Feedback', 'Please share your thoughts before submitting', 'warning');
+            }
         }
         
         // Close modals when clicking outside
