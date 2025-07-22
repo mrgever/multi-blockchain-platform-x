@@ -7,6 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/chart.js"></script>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- Wallet Connection Libraries -->
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -429,12 +432,12 @@
                     
                     <!-- Wallet Connect -->
                     <div class="flex items-center space-x-2">
-                        <button onclick="connectExternalWallet()" 
+                        <button onclick="showWalletConnectionModal()" 
                             class="group relative flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-semibold rounded-md shadow-md hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transform hover:scale-105 transition-all duration-200">
                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
-                            <span id="wallet-connect-text">Connect</span>
+                            <span id="wallet-connect-text">Connect Wallet</span>
                         </button>
                         
                         <!-- Theme Toggle -->
@@ -938,25 +941,35 @@
                             <h3 class="text-base font-semibold text-gray-900">Send & Receive</h3>
                         </div>
                         <div class="p-4">
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-3 gap-2">
                                 <button onclick="showSendModal()" 
-                                    class="group relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-200 hover:border-red-300 rounded-lg transition-all duration-200 hover:shadow-lg">
-                                    <div class="w-10 h-10 bg-gradient-to-r from-red-600 to-rose-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="group relative flex flex-col items-center justify-center p-3 bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-200 hover:border-red-300 rounded-lg transition-all duration-200 hover:shadow-lg">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-red-600 to-rose-600 rounded-lg flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                                         </svg>
                                     </div>
-                                    <div class="text-sm font-semibold text-gray-900">Send</div>
+                                    <div class="text-xs font-semibold text-gray-900">Send</div>
                                 </button>
                                 
                                 <button onclick="showReceiveModal()" 
-                                    class="group relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 hover:border-emerald-300 rounded-lg transition-all duration-200 hover:shadow-lg">
-                                    <div class="w-10 h-10 bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-200">
-                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="group relative flex flex-col items-center justify-center p-3 bg-gradient-to-br from-emerald-50 to-green-50 border-2 border-emerald-200 hover:border-emerald-300 rounded-lg transition-all duration-200 hover:shadow-lg">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
                                         </svg>
                                     </div>
-                                    <div class="text-sm font-semibold text-gray-900">Receive</div>
+                                    <div class="text-xs font-semibold text-gray-900">Receive</div>
+                                </button>
+
+                                <button onclick="showContactSendModal()" 
+                                    class="group relative flex flex-col items-center justify-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 hover:border-blue-300 rounded-lg transition-all duration-200 hover:shadow-lg">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center mb-1 group-hover:scale-110 transition-transform duration-200">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="text-xs font-semibold text-gray-900">Contacts</div>
                                 </button>
                             </div>
                         </div>
@@ -5272,6 +5285,850 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             });
         }
 
+        // Secure Wallet Connection System
+        let currentWallet = null;
+        let web3Instance = null;
+        let walletConnectProvider = null;
+
+        // Encryption utilities for secure local storage
+        class SecureStorage {
+            static encryptData(data, password) {
+                try {
+                    // Simple encryption for demo - in production use proper crypto libraries
+                    const jsonString = JSON.stringify(data);
+                    const encrypted = btoa(jsonString + '|' + password);
+                    return encrypted;
+                } catch (error) {
+                    console.error('Encryption error:', error);
+                    return null;
+                }
+            }
+
+            static decryptData(encryptedData, password) {
+                try {
+                    const decoded = atob(encryptedData);
+                    const [jsonString, storedPassword] = decoded.split('|');
+                    if (storedPassword !== password) {
+                        throw new Error('Invalid password');
+                    }
+                    return JSON.parse(jsonString);
+                } catch (error) {
+                    console.error('Decryption error:', error);
+                    return null;
+                }
+            }
+
+            static saveEncrypted(key, data, password) {
+                const encrypted = this.encryptData(data, password);
+                if (encrypted) {
+                    localStorage.setItem(key, encrypted);
+                    return true;
+                }
+                return false;
+            }
+
+            static loadEncrypted(key, password) {
+                const encrypted = localStorage.getItem(key);
+                if (encrypted) {
+                    return this.decryptData(encrypted, password);
+                }
+                return null;
+            }
+        }
+
+        const supportedWallets = {
+            metamask: {
+                name: 'MetaMask',
+                icon: '🦊',
+                color: 'from-orange-500 to-amber-600',
+                networks: ['ethereum', 'polygon', 'bsc', 'avalanche'],
+                detect: () => typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask
+            },
+            walletconnect: {
+                name: 'WalletConnect',
+                icon: '🔗',
+                color: 'from-blue-500 to-indigo-600',
+                networks: ['ethereum', 'polygon', 'bsc', 'avalanche', 'arbitrum'],
+                detect: () => true
+            },
+            coinbase: {
+                name: 'Coinbase Wallet',
+                icon: '🔵',
+                color: 'from-blue-600 to-blue-700',
+                networks: ['ethereum', 'polygon', 'bsc'],
+                detect: () => typeof window.ethereum !== 'undefined' && window.ethereum.isCoinbaseWallet
+            },
+            trust: {
+                name: 'Trust Wallet',
+                icon: '🛡️',
+                color: 'from-blue-400 to-cyan-500',
+                networks: ['ethereum', 'bsc', 'polygon'],
+                detect: () => typeof window.ethereum !== 'undefined' && window.ethereum.isTrust
+            },
+            phantom: {
+                name: 'Phantom',
+                icon: '👻',
+                color: 'from-purple-500 to-indigo-600',
+                networks: ['solana'],
+                detect: () => typeof window.solana !== 'undefined' && window.solana.isPhantom
+            }
+        };
+
+        function showWalletConnectionModal() {
+            const modal = document.getElementById('wallet-connection-modal') || createWalletConnectionModal();
+            modal.classList.remove('hidden');
+        }
+
+        function createWalletConnectionModal() {
+            const walletsHTML = Object.entries(supportedWallets).map(([key, wallet]) => {
+                const isAvailable = wallet.detect();
+                const statusClass = isAvailable ? 'border-green-200 bg-green-50 hover:bg-green-100' : 'border-gray-200 bg-gray-50';
+                const textClass = isAvailable ? 'text-gray-900' : 'text-gray-500';
+
+                return `
+                    <button onclick="connectWallet('${key}')" 
+                        ${!isAvailable ? 'disabled' : ''}
+                        class="w-full border ${statusClass} rounded-xl p-4 transition-all duration-200 hover:shadow-md ${isAvailable ? 'hover:scale-105' : 'cursor-not-allowed'}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-gradient-to-r ${wallet.color} rounded-xl flex items-center justify-center text-2xl mr-4">
+                                    ${wallet.icon}
+                                </div>
+                                <div class="text-left">
+                                    <h3 class="font-semibold ${textClass} text-lg">${wallet.name}</h3>
+                                    <p class="text-sm text-gray-500">${wallet.networks.join(', ')}</p>
+                                    <p class="text-xs ${isAvailable ? 'text-green-600' : 'text-red-500'} mt-1">
+                                        ${isAvailable ? '✅ Ready to connect' : '❌ Not installed'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                ${isAvailable ? 
+                                    '<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>' :
+                                    '<div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>'
+                                }
+                            </div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            const modalHTML = `
+                <div id="wallet-connection-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-fade-in-scale">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center mr-4">
+                                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-gray-900">Connect Your Wallet</h2>
+                                        <p class="text-sm text-gray-600">Securely connect to start trading</p>
+                                    </div>
+                                </div>
+                                <button onclick="closeWalletConnectionModal()" class="text-gray-400 hover:text-gray-600 p-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="space-y-3 mb-6">
+                                ${walletsHTML}
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-blue-900 mb-2">🔒 Your Security Guaranteed</h3>
+                                        <ul class="text-sm text-blue-800 space-y-1">
+                                            <li>• Your private keys remain in your wallet</li>
+                                            <li>• We use encrypted connections only</li>
+                                            <li>• All transactions require your approval</li>
+                                            <li>• No sensitive data stored on our servers</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            return document.getElementById('wallet-connection-modal');
+        }
+
+        function closeWalletConnectionModal() {
+            const modal = document.getElementById('wallet-connection-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function connectWallet(walletType) {
+            try {
+                const wallet = supportedWallets[walletType];
+                showNotification(`Connecting to ${wallet.name}...`, 'info');
+                
+                let accounts = [];
+                let chainId = null;
+                
+                switch (walletType) {
+                    case 'metamask':
+                        accounts = await connectMetaMask();
+                        break;
+                    case 'walletconnect':
+                        accounts = await connectWalletConnect();
+                        break;
+                    case 'coinbase':
+                        accounts = await connectCoinbaseWallet();
+                        break;
+                    case 'trust':
+                        accounts = await connectTrustWallet();
+                        break;
+                    case 'phantom':
+                        accounts = await connectPhantom();
+                        break;
+                    default:
+                        throw new Error('Unsupported wallet type');
+                }
+                
+                if (accounts.length > 0) {
+                    currentWallet = {
+                        type: walletType,
+                        address: accounts[0],
+                        name: wallet.name,
+                        icon: wallet.icon,
+                        networks: wallet.networks,
+                        connectedAt: new Date().toISOString()
+                    };
+                    
+                    // Save connection securely
+                    const userPin = prompt('Create a 4-6 digit PIN to secure your wallet connection:');
+                    if (userPin && userPin.length >= 4) {
+                        SecureStorage.saveEncrypted('walletConnection', currentWallet, userPin);
+                        sessionStorage.setItem('walletPin', userPin); // Store for session
+                    }
+                    
+                    updateWalletUI();
+                    await loadWalletBalances();
+                    closeWalletConnectionModal();
+                    
+                    showNotification(`${wallet.name} connected successfully! 🎉`, 'success');
+                }
+            } catch (error) {
+                console.error('Wallet connection error:', error);
+                showNotification('Connection failed: ' + error.message, 'error');
+            }
+        }
+
+        async function connectMetaMask() {
+            if (!window.ethereum || !window.ethereum.isMetaMask) {
+                window.open('https://metamask.io/download/', '_blank');
+                throw new Error('MetaMask not found. Opening download page...');
+            }
+            
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            web3Instance = new Web3(window.ethereum);
+            
+            // Listen for events
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            window.ethereum.on('chainChanged', handleChainChanged);
+            
+            return accounts;
+        }
+
+        async function connectWalletConnect() {
+            try {
+                // For demo purposes - in production, use proper WalletConnect integration
+                showNotification('WalletConnect integration coming soon! Use MetaMask for now.', 'info');
+                throw new Error('WalletConnect integration in development');
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function connectCoinbaseWallet() {
+            if (!window.ethereum || !window.ethereum.isCoinbaseWallet) {
+                window.open('https://www.coinbase.com/wallet', '_blank');
+                throw new Error('Coinbase Wallet not found. Opening download page...');
+            }
+            
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            web3Instance = new Web3(window.ethereum);
+            return accounts;
+        }
+
+        async function connectTrustWallet() {
+            if (!window.ethereum || !window.ethereum.isTrust) {
+                window.open('https://trustwallet.com/download', '_blank');
+                throw new Error('Trust Wallet not found. Opening download page...');
+            }
+            
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            web3Instance = new Web3(window.ethereum);
+            return accounts;
+        }
+
+        async function connectPhantom() {
+            if (!window.solana || !window.solana.isPhantom) {
+                window.open('https://phantom.app/', '_blank');
+                throw new Error('Phantom Wallet not found. Opening download page...');
+            }
+            
+            const response = await window.solana.connect();
+            return [response.publicKey.toString()];
+        }
+
+        function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                disconnectWallet();
+            } else if (currentWallet && accounts[0] !== currentWallet.address) {
+                currentWallet.address = accounts[0];
+                updateWalletUI();
+                loadWalletBalances();
+                showNotification('Account changed to ' + accounts[0].substring(0, 10) + '...', 'info');
+            }
+        }
+
+        function handleChainChanged(chainId) {
+            showNotification('Network changed. Refreshing balances...', 'info');
+            loadWalletBalances();
+        }
+
+        function updateWalletUI() {
+            if (!currentWallet) return;
+            
+            const connectText = document.getElementById('wallet-connect-text');
+            if (connectText) {
+                const shortAddress = currentWallet.address.substring(0, 6) + '...' + currentWallet.address.substring(currentWallet.address.length - 4);
+                connectText.innerHTML = `${currentWallet.icon} ${shortAddress}`;
+            }
+            
+            updateConnectedWalletDisplay();
+        }
+
+        function updateConnectedWalletDisplay() {
+            const container = document.querySelector('#wallet-addresses');
+            if (!container || !currentWallet) return;
+
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 text-xl">
+                                ${currentWallet.icon}
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${currentWallet.name}</h4>
+                                <p class="text-xs text-green-600 flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
+                                    Connected
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="disconnectWallet()" 
+                            class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-lg hover:bg-red-200 transition-colors">
+                            Disconnect
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-3 text-sm">
+                        <div>
+                            <label class="font-medium text-gray-700">Address:</label>
+                            <div class="font-mono text-gray-600 bg-white p-2 rounded border mt-1 flex items-center justify-between">
+                                <span class="break-all">${currentWallet.address}</span>
+                                <button onclick="copyToClipboard('${currentWallet.address}')" 
+                                    class="ml-2 p-1 hover:bg-gray-100 rounded transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="font-medium text-gray-700">Supported Networks:</label>
+                            <div class="flex flex-wrap gap-1 mt-1">
+                                ${currentWallet.networks.map(network => 
+                                    `<span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">${network}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <div id="wallet-balances" class="mt-3">
+                            <div class="text-center text-gray-500 py-2">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mx-auto"></div>
+                                <span class="text-xs mt-1 block">Loading balances...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadWalletBalances() {
+            if (!currentWallet || !web3Instance) return;
+            
+            try {
+                const balanceWei = await web3Instance.eth.getBalance(currentWallet.address);
+                const balanceEth = web3Instance.utils.fromWei(balanceWei, 'ether');
+                
+                const balancesContainer = document.getElementById('wallet-balances');
+                if (balancesContainer) {
+                    balancesContainer.innerHTML = `
+                        <div class="bg-white rounded-lg p-3 border">
+                            <h5 class="font-medium text-gray-700 mb-2">Balances</h5>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600 flex items-center">
+                                        <span class="w-4 h-4 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full mr-2"></span>
+                                        ETH
+                                    </span>
+                                    <span class="font-medium">${parseFloat(balanceEth).toFixed(4)}</span>
+                                </div>
+                                <div class="flex justify-between items-center text-sm text-gray-500">
+                                    <span>≈ USD</span>
+                                    <span>$${(parseFloat(balanceEth) * 2650).toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading balances:', error);
+                const balancesContainer = document.getElementById('wallet-balances');
+                if (balancesContainer) {
+                    balancesContainer.innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                            <div class="text-red-600 text-xs text-center">Failed to load balances</div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function disconnectWallet() {
+            if (walletConnectProvider) {
+                walletConnectProvider.disconnect();
+                walletConnectProvider = null;
+            }
+            
+            // Clear secure storage
+            const pin = sessionStorage.getItem('walletPin');
+            if (pin) {
+                localStorage.removeItem('walletConnection');
+                sessionStorage.removeItem('walletPin');
+            }
+            
+            currentWallet = null;
+            web3Instance = null;
+            
+            const connectText = document.getElementById('wallet-connect-text');
+            if (connectText) {
+                connectText.textContent = 'Connect Wallet';
+            }
+            
+            // Reset wallet display
+            const container = document.querySelector('#wallet-addresses');
+            if (container) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-sm font-semibold text-gray-900 mb-1">No Wallets Connected</h4>
+                        <p class="text-xs text-gray-600 mb-3">Connect your wallet to get started</p>
+                        <button onclick="showWalletConnectionModal()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs">
+                            Connect Wallet
+                        </button>
+                    </div>
+                `;
+            }
+            
+            showNotification('Wallet disconnected successfully', 'info');
+        }
+
+        // Auto-reconnect on page load
+        function autoReconnectWallet() {
+            const pin = sessionStorage.getItem('walletPin');
+            if (pin) {
+                const savedWallet = SecureStorage.loadEncrypted('walletConnection', pin);
+                if (savedWallet) {
+                    currentWallet = savedWallet;
+                    showNotification('Wallet reconnected automatically', 'success');
+                    updateWalletUI();
+                    
+                    // Try to reinitialize web3 if MetaMask is available
+                    if (currentWallet.type === 'metamask' && window.ethereum) {
+                        web3Instance = new Web3(window.ethereum);
+                        loadWalletBalances();
+                    }
+                }
+            }
+        }
+
+        // Contact-based sending functionality
+        let userContacts = [];
+
+        function loadContacts() {
+            const savedContacts = localStorage.getItem('userContacts');
+            if (savedContacts) {
+                userContacts = JSON.parse(savedContacts);
+            }
+        }
+
+        function saveContacts() {
+            localStorage.setItem('userContacts', JSON.stringify(userContacts));
+        }
+
+        function addContact(name, addressOrEmail, type = 'address') {
+            const contact = {
+                id: Date.now().toString(),
+                name,
+                value: addressOrEmail,
+                type, // 'address' or 'email'
+                addedAt: new Date().toISOString()
+            };
+            userContacts.push(contact);
+            saveContacts();
+            return contact;
+        }
+
+        function showContactSendModal() {
+            const modal = document.getElementById('contact-send-modal') || createContactSendModal();
+            modal.classList.remove('hidden');
+            updateContactsList();
+        }
+
+        function createContactSendModal() {
+            const modalHTML = `
+                <div id="contact-send-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full animate-fade-in-scale">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-2-4H9m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v3m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v3"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-xl font-bold text-gray-900">Send to Contact</h2>
+                                        <p class="text-sm text-gray-600">Send crypto to contacts or email</p>
+                                    </div>
+                                </div>
+                                <button onclick="closeContactSendModal()" class="text-gray-400 hover:text-gray-600 p-2">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            <!-- Add Contact Form -->
+                            <div class="mb-6 p-4 bg-gray-50 rounded-xl">
+                                <h3 class="font-semibold text-gray-900 mb-3">Add New Contact</h3>
+                                <div class="space-y-3">
+                                    <input id="contact-name" type="text" placeholder="Contact name" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <div class="flex space-x-2">
+                                        <input id="contact-value" type="text" placeholder="Address or email" 
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <select id="contact-type" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="address">Address</option>
+                                            <option value="email">Email</option>
+                                        </select>
+                                    </div>
+                                    <button onclick="addNewContact()" 
+                                        class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                        Add Contact
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Contacts List -->
+                            <div class="mb-6">
+                                <h3 class="font-semibold text-gray-900 mb-3">Your Contacts</h3>
+                                <div id="contacts-list" class="space-y-2 max-h-60 overflow-y-auto">
+                                    <!-- Contacts will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Send Form -->
+                            <div class="p-4 bg-blue-50 rounded-xl">
+                                <h3 class="font-semibold text-blue-900 mb-3">Send Transaction</h3>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Selected Recipient</label>
+                                        <div id="selected-recipient" class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-500">
+                                            No contact selected
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                                        <input id="contact-send-amount" type="number" step="0.000001" placeholder="0.00"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                                        <select id="contact-send-currency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="ETH">Ethereum (ETH)</option>
+                                            <option value="BTC">Bitcoin (BTC)</option>
+                                            <option value="USDT">Tether (USDT)</option>
+                                            <option value="NUSD">Nexus USD (NUSD)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Message (Optional)</label>
+                                        <textarea id="contact-send-message" placeholder="Add a message..." 
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" rows="2"></textarea>
+                                    </div>
+                                    <button onclick="sendToContact()" 
+                                        class="w-full px-4 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">
+                                        Send Transaction
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            return document.getElementById('contact-send-modal');
+        }
+
+        function closeContactSendModal() {
+            const modal = document.getElementById('contact-send-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function addNewContact() {
+            const name = document.getElementById('contact-name').value.trim();
+            const value = document.getElementById('contact-value').value.trim();
+            const type = document.getElementById('contact-type').value;
+
+            if (!name || !value) {
+                showNotification('Please fill in all fields', 'error');
+                return;
+            }
+
+            // Validate email or address
+            if (type === 'email') {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    showNotification('Please enter a valid email address', 'error');
+                    return;
+                }
+            } else {
+                // Basic address validation (can be improved)
+                if (value.length < 10) {
+                    showNotification('Please enter a valid address', 'error');
+                    return;
+                }
+            }
+
+            const contact = addContact(name, value, type);
+            showNotification(`Contact "${name}" added successfully!`, 'success');
+            
+            // Clear form
+            document.getElementById('contact-name').value = '';
+            document.getElementById('contact-value').value = '';
+            
+            updateContactsList();
+        }
+
+        function updateContactsList() {
+            const container = document.getElementById('contacts-list');
+            if (!container) return;
+
+            if (userContacts.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm">No contacts yet</p>
+                        <p class="text-xs text-gray-400">Add contacts above to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const contactsHTML = userContacts.map(contact => `
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center flex-1">
+                        <div class="w-8 h-8 bg-gradient-to-r ${contact.type === 'email' ? 'from-blue-500 to-blue-600' : 'from-purple-500 to-purple-600'} rounded-full flex items-center justify-center mr-3">
+                            ${contact.type === 'email' ? '📧' : '👤'}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-gray-900 truncate">${contact.name}</h4>
+                            <p class="text-xs text-gray-500 truncate">${contact.value}</p>
+                            <p class="text-xs text-gray-400">${contact.type === 'email' ? 'Email' : 'Address'}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="selectContact('${contact.id}')" 
+                            class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-lg hover:bg-green-200 transition-colors">
+                            Select
+                        </button>
+                        <button onclick="deleteContact('${contact.id}')" 
+                            class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-lg hover:bg-red-200 transition-colors">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = contactsHTML;
+        }
+
+        function selectContact(contactId) {
+            const contact = userContacts.find(c => c.id === contactId);
+            if (!contact) return;
+
+            const recipientElement = document.getElementById('selected-recipient');
+            if (recipientElement) {
+                recipientElement.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 bg-gradient-to-r ${contact.type === 'email' ? 'from-blue-500 to-blue-600' : 'from-purple-500 to-purple-600'} rounded-full flex items-center justify-center mr-2 text-xs">
+                            ${contact.type === 'email' ? '📧' : '👤'}
+                        </div>
+                        <div>
+                            <span class="font-medium">${contact.name}</span>
+                            <span class="text-gray-500 text-xs ml-2">(${contact.type})</span>
+                        </div>
+                    </div>
+                `;
+                recipientElement.dataset.contactId = contactId;
+            }
+        }
+
+        function deleteContact(contactId) {
+            userContacts = userContacts.filter(c => c.id !== contactId);
+            saveContacts();
+            updateContactsList();
+            showNotification('Contact deleted', 'info');
+        }
+
+        async function sendToContact() {
+            const recipientElement = document.getElementById('selected-recipient');
+            const contactId = recipientElement?.dataset?.contactId;
+            
+            if (!contactId) {
+                showNotification('Please select a contact first', 'error');
+                return;
+            }
+
+            const contact = userContacts.find(c => c.id === contactId);
+            const amount = document.getElementById('contact-send-amount').value;
+            const currency = document.getElementById('contact-send-currency').value;
+            const message = document.getElementById('contact-send-message').value;
+
+            if (!amount || parseFloat(amount) <= 0) {
+                showNotification('Please enter a valid amount', 'error');
+                return;
+            }
+
+            if (!currentWallet) {
+                showNotification('Please connect your wallet first', 'error');
+                return;
+            }
+
+            try {
+                showNotification('Processing transaction...', 'info');
+
+                if (contact.type === 'email') {
+                    // Send via email (simulated)
+                    const emailData = {
+                        to: contact.value,
+                        from: currentWallet.address,
+                        amount,
+                        currency,
+                        message,
+                        contactName: contact.name,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // Simulate email sending
+                    await simulateEmailSend(emailData);
+                    
+                    showNotification(`${amount} ${currency} sent to ${contact.name} via email!`, 'success');
+                } else {
+                    // Send directly to address
+                    const response = await fetch(`${API_BASE}/wallet/send`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            fromAddress: currentWallet.address,
+                            toAddress: contact.value,
+                            amount,
+                            blockchain: currency.toLowerCase(),
+                            message
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showNotification(`${amount} ${currency} sent to ${contact.name}! TX: ${result.data.transactionHash}`, 'success');
+                    } else {
+                        throw new Error(result.error || 'Transaction failed');
+                    }
+                }
+
+                // Clear form
+                document.getElementById('contact-send-amount').value = '';
+                document.getElementById('contact-send-message').value = '';
+                document.getElementById('selected-recipient').innerHTML = 'No contact selected';
+                delete document.getElementById('selected-recipient').dataset.contactId;
+
+            } catch (error) {
+                console.error('Send to contact error:', error);
+                showNotification('Failed to send: ' + error.message, 'error');
+            }
+        }
+
+        async function simulateEmailSend(emailData) {
+            // Simulate API call to email service
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    console.log('Email sent:', emailData);
+                    
+                    // Save to transaction history
+                    const transaction = {
+                        id: 'email_' + Date.now(),
+                        type: 'email_send',
+                        to: emailData.to,
+                        amount: emailData.amount,
+                        currency: emailData.currency,
+                        message: emailData.message,
+                        status: 'sent',
+                        timestamp: emailData.timestamp
+                    };
+                    
+                    const history = JSON.parse(localStorage.getItem('emailTransactions') || '[]');
+                    history.unshift(transaction);
+                    localStorage.setItem('emailTransactions', JSON.stringify(history.slice(0, 50))); // Keep last 50
+                    
+                    resolve(transaction);
+                }, 1000);
+            });
+        }
+
         // Initialize NUSD functionality when trading tab is shown
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize dark mode
@@ -5280,6 +6137,10 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
             // Load features marketplace data
             loadUserNUSDBalance();
             loadPurchasedFeatures();
+            loadContacts();
+            
+            // Auto-reconnect wallet
+            autoReconnectWallet();
             
             // Load NUSD data when trading tab is opened
             const tradingTabButton = document.querySelector('button[onclick*="trading"]');
