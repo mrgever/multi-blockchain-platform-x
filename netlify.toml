@@ -1,9 +1,14 @@
 [build]
-  publish = "."
-  command = "echo 'Static site deployment'"
+  publish = "public"
+  command = "mkdir -p public && cp *.html public/ && echo 'Static files copied'"
 
 [functions]
   directory = "netlify/functions"
+
+# Disable all automatic framework detection
+[build.environment]
+  NETLIFY_SKIP_FRAMEWORK_DETECTION = "true"
+  NODE_VERSION = "18"
 
 [[redirects]]
   from = "/"
@@ -16,17 +21,7 @@
   status = 200
 
 [[redirects]]
-  from = "/wallet-center"
-  to = "/wallet-center.html"
-  status = 200
-
-[[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/api-simple"
-  status = 200
-
-[[redirects]]
-  from = "/health"
   to = "/.netlify/functions/api-simple"
   status = 200
 
