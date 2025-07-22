@@ -1,0 +1,55 @@
+# Ignore frontend Next.js directory to prevent plugin conflicts
+frontend/
+frontend/**/*
+
+# Ignore backend source files (we use static HTML)
+backend/src/
+backend/tests/
+backend/dist/
+
+# Ignore shared package
+shared/
+
+# Node modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+shared/node_modules/
+
+# Development files
+*.log
+.env*
+.DS_Store
+
+# Git
+.git/
+.github/
+
+# Database files
+*.db
+*.db-journal
+
+# Documentation
+*.md
+DEPLOYMENT.md
+VERCEL_DEPLOYMENT.md
+RENDER_DEPLOYMENT.md
+
+# Scripts and configs that aren't needed for deployment
+scripts/
+docker/
+docker-compose.yml
+Dockerfile
+vercel.json
+render.yaml
+
+# Build artifacts
+dist/
+build/
+
+# Test files
+test*
+*test*
+__tests__/
+*.test.js
+*.test.ts
