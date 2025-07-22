@@ -17,11 +17,11 @@ dirs.forEach(dir => {
 
 // 2. Build shared package
 console.log('📦 Building shared package...');
-execSync('cd shared && npm install && npm run build', { stdio: 'inherit' });
+execSync('cd shared && npm install --include=dev && npm run build', { stdio: 'inherit' });
 
 // 3. Build backend
 console.log('🔧 Building backend...');
-execSync('cd backend && npm install && npm run build', { stdio: 'inherit' });
+execSync('cd backend && npm install --include=dev && npm run build', { stdio: 'inherit' });
 
 // 4. Copy static files to dist
 console.log('📋 Copying static files...');
