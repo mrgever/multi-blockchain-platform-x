@@ -8,7 +8,7 @@
 # Disable all automatic framework detection
 [build.environment]
   NETLIFY_SKIP_FRAMEWORK_DETECTION = "true"
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
 
 [[redirects]]
   from = "/"
