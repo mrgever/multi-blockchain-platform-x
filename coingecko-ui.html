@@ -2753,7 +2753,7 @@
                 <td class="px-4 py-2 whitespace-nowrap">
                     <div class="flex items-center">
                         <img class="h-6 w-6 rounded-full mr-2" src="${coin.image}" alt="${coin.name}" 
-                             onerror="this.src='https://via.placeholder.com/24x24/e5e7eb/9ca3af?text=${coin.symbol?.[0] || '?'}'">
+                             onerror="handleImageError(this, '${coin.symbol}')">
                         <div>
                             <div class="text-sm font-semibold text-gray-900">${coin.name}</div>
                             <div class="text-xs text-gray-500 uppercase font-medium">${coin.symbol}</div>
@@ -3414,6 +3414,26 @@
         function showPrivateKeyModal() {
             // Implementation for private key import modal
             showNotification('Private key import coming soon...', 'info');
+        }
+
+        // Handle image loading errors with fallback
+        function handleImageError(img, symbol) {
+            const firstLetter = symbol ? symbol.charAt(0).toUpperCase() : '?';
+            const colors = {
+                'B': '#f59e0b', // Bitcoin orange
+                'E': '#6366f1', // Ethereum blue  
+                'D': '#eab308', // Dogecoin yellow
+                'T': '#0ea5e9', // TON blue
+                'U': '#10b981', // USDT green
+            };
+            const color = colors[firstLetter] || '#6b7280';
+            
+            const svg = `<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="${color}"/>
+                <text x="12" y="16" text-anchor="middle" font-family="Arial" font-size="12" font-weight="bold" fill="white">${firstLetter}</text>
+            </svg>`;
+            
+            img.src = 'data:image/svg+xml;base64,' + btoa(svg);
         }
 
         function generateMnemonicGrid() {
