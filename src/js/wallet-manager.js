@@ -366,7 +366,7 @@ class BrowserWeb3Manager {
   }
 
   /**
-   * Get supported tokens for current network (simplified)
+   * Get supported tokens for current network
    */
   getSupportedTokens() {
     const network = this.getCurrentNetwork();
@@ -380,15 +380,79 @@ class BrowserWeb3Manager {
       isNative: true
     }];
 
-    // Add common stablecoins for supported networks
-    if (this.chainId === 1 || this.chainId === 137 || this.chainId === 56) {
+    // Network-specific token support
+    if (this.chainId === 1) { // Ethereum
       tokens.push(
-        { symbol: 'USDT', name: 'Tether USD', address: 'token', isNative: false },
-        { symbol: 'USDC', name: 'USD Coin', address: 'token', isNative: false }
+        { symbol: 'USDT', name: 'Tether USD', address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0xA0b86a33E6b642c2fb8de35E6F0d2ed6e3C9d8C9', isNative: false },
+        { symbol: 'DAI', name: 'Dai Stablecoin', address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', isNative: false },
+        { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', isNative: false },
+        { symbol: 'SHIB', name: 'Shiba Inu', address: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE', isNative: false },
+        { symbol: 'LINK', name: 'Chainlink', address: '0x514910771AF9Ca656af840dff83E8264EcF986CA', isNative: false }
+      );
+    } else if (this.chainId === 137) { // Polygon
+      tokens.push(
+        { symbol: 'USDT', name: 'Tether USD', address: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', isNative: false },
+        { symbol: 'DAI', name: 'Dai Stablecoin', address: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063', isNative: false },
+        { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6', isNative: false }
+      );
+    } else if (this.chainId === 56) { // BSC
+      tokens.push(
+        { symbol: 'USDT', name: 'Tether USD', address: '0x55d398326f99059fF775485246999027B3197955', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', isNative: false },
+        { symbol: 'BUSD', name: 'Binance USD', address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', isNative: false },
+        { symbol: 'BTCB', name: 'Bitcoin BEP20', address: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c', isNative: false }
+      );
+    } else if (this.chainId === 42161) { // Arbitrum
+      tokens.push(
+        { symbol: 'USDT', name: 'Tether USD', address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8', isNative: false },
+        { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f', isNative: false }
+      );
+    } else if (this.chainId === 10) { // Optimism
+      tokens.push(
+        { symbol: 'USDT', name: 'Tether USD', address: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607', isNative: false },
+        { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x68f180fcCe6836688e9084f035309E29Bf0A2095', isNative: false }
+      );
+    } else if (this.chainId === 43114) { // Avalanche
+      tokens.push(
+        { symbol: 'USDT', name: 'Tether USD', address: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7', isNative: false },
+        { symbol: 'USDC', name: 'USD Coin', address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E', isNative: false },
+        { symbol: 'WBTC', name: 'Wrapped Bitcoin', address: '0x50b7545627a5162F82A992c33b87aDc75187B218', isNative: false }
       );
     }
 
     return tokens;
+  }
+
+  /**
+   * Get conversion rate for cryptocurrency to USD
+   */
+  async getCryptoRate(symbol) {
+    try {
+      // Simplified rates - in production you'd fetch from API
+      const rates = {
+        'BTC': 43000, 'WBTC': 43000, 'BTCB': 43000,
+        'ETH': 2600,
+        'BNB': 310,
+        'MATIC': 0.89,
+        'AVAX': 37,
+        'USDT': 1.00, 'USDC': 1.00, 'DAI': 1.00, 'BUSD': 1.00,
+        'LINK': 15.2,
+        'SHIB': 0.00001,
+        'XRP': 0.52,
+        'ADA': 0.38,
+        'DOT': 7.2,
+        'SOL': 102
+      };
+      
+      return rates[symbol.toUpperCase()] || 1;
+    } catch (error) {
+      console.error('Error fetching crypto rate:', error);
+      return 1;
+    }
   }
 }
 
