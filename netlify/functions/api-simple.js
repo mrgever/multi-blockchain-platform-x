@@ -41,20 +41,14 @@ exports.handler = async (event, context) => {
     // Wallet generation endpoints
     if ((path === '/api/v1/wallet/generate' || path === '/api/v1/wallet/generate-mnemonic') && event.httpMethod === 'POST') {
       const mnemonic = generateMnemonic();
+      const walletData = generateDetailedWalletData(mnemonic);
+      
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
-          data: {
-            mnemonic,
-            addresses: {
-              ethereum: '0x' + Math.random().toString(36).substring(2, 42),
-              bitcoin: '1' + Math.random().toString(36).substring(2, 35).toUpperCase(),
-              dogecoin: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
-              ton: 'UQ' + Math.random().toString(36).substring(2, 40) + '__'
-            }
-          }
+          data: walletData
         })
       };
     }
@@ -278,6 +272,65 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Send transaction endpoint
+    if (path === '/api/v1/wallet/send' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { fromAddress, toAddress, amount, blockchain, privateKey } = body;
+      
+      // Simulate transaction processing
+      const txHash = '0x' + Math.random().toString(36).substring(2, 66);
+      const fee = (parseFloat(amount) * 0.001).toFixed(6); // 0.1% fee
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            transactionHash: txHash,
+            fromAddress,
+            toAddress,
+            amount: parseFloat(amount),
+            fee: parseFloat(fee),
+            blockchain,
+            status: 'pending',
+            timestamp: new Date().toISOString(),
+            confirmations: 0,
+            estimatedConfirmationTime: '2-5 minutes'
+          }
+        })
+      };
+    }
+
+    // Generate receive address endpoint
+    if (path === '/api/v1/wallet/receive' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { blockchain } = body;
+      
+      const addresses = {
+        ethereum: '0x' + Math.random().toString(36).substring(2, 42),
+        bitcoin: '1' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+        dogecoin: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+        ton: 'UQ' + Math.random().toString(36).substring(2, 40) + '__',
+        usdt: '0x' + Math.random().toString(36).substring(2, 42)
+      };
+      
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            blockchain,
+            address: addresses[blockchain?.toLowerCase()] || addresses.ethereum,
+            qrCode: `data:image/svg+xml;base64,${Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="white"/><text x="50" y="50" text-anchor="middle" font-size="10">QR Code</text></svg>`).toString('base64')}`,
+            network: blockchain,
+            memo: Math.random().toString(36).substring(2, 10).toUpperCase()
+          }
+        })
+      };
+    }
+
     // Catch-all for wallet endpoints
     if (path.includes('/wallet/') && event.httpMethod === 'POST') {
       console.log('Catch-all wallet endpoint hit:', path);
@@ -331,10 +384,108 @@ exports.handler = async (event, context) => {
   }
 };
 
+
+// Generate detailed wallet data for all networks
+function generateDetailedWalletData(mnemonic) {
+  return {
+    mnemonic,
+    networks: {
+      ethereum: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        chainId: 1,
+        derivationPath: "m/44'/60'/0'/0/0",
+        address: '0x' + Math.random().toString(36).substring(2, 42),
+        privateKey: '0x' + Math.random().toString(36).substring(2, 66),
+        publicKey: '0x04' + Math.random().toString(36).substring(2, 128),
+        balance: '0.0',
+        networkInfo: {
+          rpcUrl: 'https://mainnet.infura.io/v3/YOUR_PROJECT_ID',
+          explorerUrl: 'https://etherscan.io'
+        }
+      },
+      bitcoin: {
+        name: 'Bitcoin',
+        symbol: 'BTC',
+        chainId: 0,
+        derivationPath: "m/44'/0'/0'/0/0",
+        address: '1' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+        privateKey: 'L' + Math.random().toString(36).substring(2, 51).toUpperCase(),
+        publicKey: '02' + Math.random().toString(36).substring(2, 66),
+        balance: '0.0',
+        networkInfo: {
+          rpcUrl: 'https://blockstream.info/api',
+          explorerUrl: 'https://blockstream.info'
+        }
+      },
+      dogecoin: {
+        name: 'Dogecoin',
+        symbol: 'DOGE',
+        chainId: 3,
+        derivationPath: "m/44'/3'/0'/0/0",
+        address: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+        privateKey: 'Q' + Math.random().toString(36).substring(2, 51).toUpperCase(),
+        publicKey: '02' + Math.random().toString(36).substring(2, 66),
+        balance: '0.0',
+        networkInfo: {
+          rpcUrl: 'https://dogechain.info/api',
+          explorerUrl: 'https://dogechain.info'
+        }
+      },
+      ton: {
+        name: 'TON',
+        symbol: 'TON',
+        chainId: 'mainnet',
+        derivationPath: "m/44'/607'/0'/0/0",
+        address: 'UQ' + Math.random().toString(36).substring(2, 40) + '__',
+        privateKey: Math.random().toString(36).substring(2, 66).toUpperCase(),
+        publicKey: Math.random().toString(36).substring(2, 66).toUpperCase(),
+        balance: '0.0',
+        networkInfo: {
+          rpcUrl: 'https://toncenter.com/api/v2',
+          explorerUrl: 'https://tonscan.org'
+        }
+      },
+      usdt: {
+        name: 'Tether USD (USDT)',
+        symbol: 'USDT',
+        chainId: 1,
+        contractAddress: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        derivationPath: "m/44'/60'/0'/0/0",
+        address: '0x' + Math.random().toString(36).substring(2, 42),
+        privateKey: '0x' + Math.random().toString(36).substring(2, 66),
+        publicKey: '0x04' + Math.random().toString(36).substring(2, 128),
+        balance: '0.0',
+        networkInfo: {
+          rpcUrl: 'https://mainnet.infura.io/v3/YOUR_PROJECT_ID',
+          explorerUrl: 'https://etherscan.io'
+        }
+      }
+    },
+    createdAt: new Date().toISOString(),
+    walletId: 'wallet_' + Math.random().toString(36).substr(2, 9)
+  };
+}
+
 // Simple mnemonic generator
 function generateMnemonic() {
   const words = ['abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 
-                 'absurd', 'abuse', 'access', 'accident', 'account', 'accuse', 'achieve', 'acid'];
+                 'absurd', 'abuse', 'access', 'accident', 'account', 'accuse', 'achieve', 'acid',
+                 'across', 'action', 'actor', 'actress', 'actual', 'adapt', 'add', 'address',
+                 'adjust', 'admit', 'adult', 'advance', 'advice', 'aerobic', 'affair', 'afford',
+                 'afraid', 'again', 'age', 'agent', 'agree', 'ahead', 'aim', 'air', 'airport',
+                 'aisle', 'alarm', 'album', 'alcohol', 'alert', 'alien', 'all', 'alley', 'allow',
+                 'almost', 'alone', 'alpha', 'already', 'also', 'alter', 'always', 'amateur',
+                 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger',
+                 'angle', 'angry', 'animal', 'ankle', 'announce', 'annual', 'another', 'answer',
+                 'antenna', 'antique', 'anxiety', 'any', 'apart', 'apology', 'appear', 'apple',
+                 'approve', 'april', 'arch', 'arctic', 'area', 'arena', 'argue', 'arm', 'armed',
+                 'armor', 'army', 'around', 'arrange', 'arrest', 'arrive', 'arrow', 'art', 'artefact',
+                 'artist', 'artwork', 'ask', 'aspect', 'assault', 'asset', 'assist', 'assume',
+                 'asthma', 'athlete', 'atom', 'attack', 'attend', 'attitude', 'attract', 'auction',
+                 'audit', 'august', 'aunt', 'author', 'auto', 'autumn', 'average', 'avocado',
+                 'avoid', 'awake', 'aware', 'away', 'awesome', 'awful', 'awkward', 'axis'];
+  
   const mnemonic = [];
   for (let i = 0; i < 12; i++) {
     mnemonic.push(words[Math.floor(Math.random() * words.length)]);

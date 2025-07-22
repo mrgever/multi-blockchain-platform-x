@@ -3165,20 +3165,22 @@
                 console.log('Response result:', result);
                 
                 if (result.success) {
-                    const mnemonic = result.data?.mnemonic || result.mnemonic;
-                    console.log('Generated mnemonic:', mnemonic);
+                    const walletData = result.data;
+                    console.log('Generated wallet data:', walletData);
                     
-                    // Try to find the element
+                    // Store wallet data
+                    localStorage.setItem('currentWallet', JSON.stringify(walletData));
+                    
+                    // Display detailed wallet information
+                    displayDetailedWalletInfo(walletData);
+                    
+                    // Update the mnemonic field if it exists
                     const mnemonicElement = document.getElementById('import-mnemonic');
-                    console.log('Mnemonic element found:', mnemonicElement);
-                    
                     if (mnemonicElement) {
-                        mnemonicElement.value = mnemonic;
-                        showNotification('New wallet generated!', 'success');
-                    } else {
-                        console.error('Element import-mnemonic not found');
-                        showNotification('Wallet generated but could not display: ' + mnemonic, 'info');
+                        mnemonicElement.value = walletData.mnemonic;
                     }
+                    
+                    showNotification('New wallet generated with detailed information!', 'success');
                 } else {
                     throw new Error(result.error || 'Failed to generate wallet');
                 }
@@ -4928,6 +4930,346 @@ wss://ws.nexus.dev/v1/market/stream?symbols=bitcoin,ethereum`
         function addDemoNUSD() {
             updateUserNUSDBalance(100);
             showNotification('Added 100 NUSD to your balance for demo purposes!', 'success');
+        }
+
+        // Display detailed wallet information
+        function displayDetailedWalletInfo(walletData) {
+            const container = document.querySelector('#wallet-action-content');
+            if (!container) return;
+
+            const networksHTML = Object.entries(walletData.networks).map(([key, network]) => `
+                <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mr-3">
+                                <span class="text-white text-xs font-bold">${network.symbol}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">${network.name}</h4>
+                                <p class="text-xs text-gray-500">Balance: ${network.balance} ${network.symbol}</p>
+                            </div>
+                        </div>
+                        <button onclick="copyToClipboard('${network.address}')" 
+                            class="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-md hover:bg-blue-200 transition-colors">
+                            Copy Address
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-2 text-xs">
+                        <div class="grid grid-cols-1 gap-2">
+                            <div>
+                                <label class="font-medium text-gray-700">Address:</label>
+                                <div class="font-mono text-gray-600 break-all bg-gray-50 p-2 rounded">${network.address}</div>
+                            </div>
+                            <div>
+                                <label class="font-medium text-gray-700">Private Key:</label>
+                                <div class="font-mono text-gray-600 break-all bg-red-50 p-2 rounded border border-red-200">
+                                    <span class="text-red-600">⚠️ KEEP SECRET:</span> ${network.privateKey}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="font-medium text-gray-700">Public Key:</label>
+                                <div class="font-mono text-gray-600 break-all bg-gray-50 p-2 rounded">${network.publicKey}</div>
+                            </div>
+                            <div>
+                                <label class="font-medium text-gray-700">Derivation Path:</label>
+                                <div class="font-mono text-gray-600 bg-gray-50 p-2 rounded">${network.derivationPath}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2 mt-3">
+                            <button onclick="showSendModal('${key}', '${network.address}')" 
+                                class="flex-1 px-3 py-2 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 transition-colors">
+                                Send ${network.symbol}
+                            </button>
+                            <button onclick="showReceiveModal('${key}')" 
+                                class="flex-1 px-3 py-2 bg-green-600 text-white text-xs rounded-md hover:bg-green-700 transition-colors">
+                                Receive ${network.symbol}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-blue-900 mb-2">🔐 Wallet Generated Successfully</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="font-medium text-blue-800">Recovery Phrase (12 words):</label>
+                                <div class="font-mono text-blue-700 bg-blue-100 p-3 rounded border border-blue-300 mt-1">
+                                    ${walletData.mnemonic}
+                                </div>
+                                <p class="text-xs text-blue-600 mt-1">⚠️ Write this down and store it safely! This is the only way to recover your wallet.</p>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-blue-600">
+                                <span>Wallet ID: ${walletData.walletId}</span>
+                                <span>Created: ${new Date(walletData.createdAt).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-3">Network Details</h3>
+                        ${networksHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Send Modal Functions
+        function showSendModal(blockchain, fromAddress) {
+            const modal = document.getElementById('send-modal') || createSendModal();
+            
+            // Populate modal with blockchain info
+            document.getElementById('send-blockchain').value = blockchain;
+            document.getElementById('send-from-address').value = fromAddress;
+            
+            modal.classList.remove('hidden');
+        }
+
+        function createSendModal() {
+            const modalHTML = `
+                <div id="send-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-fade-in-scale">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-red-600 to-rose-600 rounded-full flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-xl font-bold text-gray-900">Send Transaction</h2>
+                                </div>
+                                <button onclick="closeSendModal()" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">From Address</label>
+                                <input id="send-from-address" type="text" readonly 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600 text-sm">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">To Address</label>
+                                <input id="send-to-address" type="text" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    placeholder="Enter recipient address...">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                                <input id="send-amount" type="number" step="0.000001"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    placeholder="0.00">
+                            </div>
+                            
+                            <input id="send-blockchain" type="hidden">
+                            
+                            <div class="flex space-x-3 mt-6">
+                                <button onclick="sendTransaction()" 
+                                    class="flex-1 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white font-semibold rounded-lg hover:from-red-700 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all duration-200">
+                                    Send Transaction
+                                </button>
+                                <button onclick="closeSendModal()" 
+                                    class="flex-1 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all duration-200">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            return document.getElementById('send-modal');
+        }
+
+        function closeSendModal() {
+            const modal = document.getElementById('send-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function sendTransaction() {
+            try {
+                const fromAddress = document.getElementById('send-from-address').value;
+                const toAddress = document.getElementById('send-to-address').value;
+                const amount = document.getElementById('send-amount').value;
+                const blockchain = document.getElementById('send-blockchain').value;
+                
+                if (!toAddress || !amount) {
+                    showNotification('Please fill in all fields', 'error');
+                    return;
+                }
+                
+                const response = await fetch(`${API_BASE}/wallet/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fromAddress,
+                        toAddress,
+                        amount,
+                        blockchain,
+                        privateKey: 'dummy_key' // In real app, this would be properly handled
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`Transaction sent! Hash: ${result.data.transactionHash}`, 'success');
+                    closeSendModal();
+                } else {
+                    showNotification('Transaction failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                console.error('Send transaction error:', error);
+                showNotification('Failed to send transaction: ' + error.message, 'error');
+            }
+        }
+
+        // Receive Modal Functions
+        function showReceiveModal(blockchain) {
+            const modal = document.getElementById('receive-modal') || createReceiveModal();
+            
+            // Generate receive address
+            generateReceiveAddress(blockchain);
+            
+            modal.classList.remove('hidden');
+        }
+
+        function createReceiveModal() {
+            const modalHTML = `
+                <div id="receive-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-fade-in-scale">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+                                        </svg>
+                                    </div>
+                                    <h2 class="text-xl font-bold text-gray-900">Receive Funds</h2>
+                                </div>
+                                <button onclick="closeReceiveModal()" class="text-gray-400 hover:text-gray-600">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="receive-content" class="p-6">
+                            <div class="text-center">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+                                <p class="text-gray-600">Generating receive address...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            return document.getElementById('receive-modal');
+        }
+
+        function closeReceiveModal() {
+            const modal = document.getElementById('receive-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        async function generateReceiveAddress(blockchain) {
+            try {
+                const response = await fetch(`${API_BASE}/wallet/receive`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ blockchain })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayReceiveAddress(result.data);
+                } else {
+                    throw new Error(result.error || 'Failed to generate receive address');
+                }
+            } catch (error) {
+                console.error('Generate receive address error:', error);
+                showNotification('Failed to generate receive address: ' + error.message, 'error');
+            }
+        }
+
+        function displayReceiveAddress(data) {
+            const container = document.getElementById('receive-content');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Your ${data.blockchain.toUpperCase()} Address</h3>
+                        <div class="w-32 h-32 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                            <img src="${data.qrCode}" alt="QR Code" class="w-full h-full rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                        <div class="flex">
+                            <input type="text" value="${data.address}" readonly 
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-gray-600 text-sm font-mono">
+                            <button onclick="copyToClipboard('${data.address}')" 
+                                class="px-4 py-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 transition-colors">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    
+                    ${data.memo ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Memo/Tag</label>
+                            <div class="flex">
+                                <input type="text" value="${data.memo}" readonly 
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-gray-600 text-sm font-mono">
+                                <button onclick="copyToClipboard('${data.memo}')" 
+                                    class="px-4 py-2 bg-green-600 text-white rounded-r-md hover:bg-green-700 transition-colors">
+                                    Copy
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Include this memo when sending to this address</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p class="text-xs text-yellow-800">
+                            ⚠️ Only send ${data.blockchain.toUpperCase()} to this address. Sending other cryptocurrencies may result in permanent loss.
+                        </p>
+                    </div>
+                    
+                    <button onclick="closeReceiveModal()" 
+                        class="w-full py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all duration-200">
+                        Close
+                    </button>
+                </div>
+            `;
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                showNotification('Copied to clipboard!', 'success');
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+                showNotification('Failed to copy to clipboard', 'error');
+            });
         }
 
         // Initialize NUSD functionality when trading tab is shown
