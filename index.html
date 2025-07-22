@@ -406,12 +406,17 @@
                 <div id="cryptoOptions" class="hidden">
                     <label class="block text-sm font-semibold text-gray-700 mb-3">Select Cryptocurrency</label>
                     <select id="cryptoSelect" class="w-full p-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none">
-                        <option value="ETH">Ethereum (ETH)</option>
-                        <option value="MATIC">Polygon (MATIC)</option>
-                        <option value="BNB">BNB Smart Chain (BNB)</option>
-                        <option value="USDC">USD Coin (USDC)</option>
-                        <option value="USDT">Tether (USDT)</option>
+                        <option value="">Select cryptocurrency...</option>
                     </select>
+                    <div id="networkWarning" class="mt-2 p-3 bg-yellow-50 border-l-4 border-yellow-400 rounded hidden">
+                        <p class="text-sm text-yellow-700">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Please connect your wallet to see available cryptocurrencies
+                        </p>
+                    </div>
+                    <div id="balanceDisplay" class="mt-2 text-sm text-gray-600 hidden">
+                        Balance: <span id="selectedTokenBalance">0</span>
+                    </div>
                 </div>
                 
                 <div id="cardOptions" class="hidden">
@@ -453,9 +458,46 @@
 
     <!-- Scripts -->
     <script src="https://js.stripe.com/v3/"></script>
-    <script>
+    <script type="module">
+        import Web3Manager from './src/lib/Web3Manager.js';
+        import LivePaymentProcessor from './src/lib/LivePaymentProcessor.js';
+        
+        // Global variables
         let currentPaymentMethod = null;
         let walletConnected = false;
+        let web3Manager = null;
+        let paymentProcessor = null;
+        let currentWalletInfo = null;
+        
+        // Initialize Web3 components
+        window.initializeWeb3 = function() {
+            web3Manager = new Web3Manager();
+            paymentProcessor = new LivePaymentProcessor(web3Manager);
+            
+            // Override event handlers
+            web3Manager.onAccountChanged = (address) => {
+                currentWalletInfo.address = address;
+                updateWalletDisplay();
+                showToast('Account Changed', `Switched to ${address.slice(0,6)}...${address.slice(-4)}`, 'info');
+            };
+            
+            web3Manager.onChainChanged = (chainId) => {
+                currentWalletInfo.chainId = chainId;
+                const network = web3Manager.getCurrentNetwork();
+                currentWalletInfo.network = network ? network.name : 'Unknown Network';
+                updateWalletDisplay();
+                updateNetworkDisplay();
+                showToast('Network Changed', `Switched to ${currentWalletInfo.network}`, 'info');
+            };
+            
+            web3Manager.onDisconnected = () => {
+                walletConnected = false;
+                currentWalletInfo = null;
+                updateWalletDisplay();
+                updateNetworkDisplay();
+                showToast('Disconnected', 'Wallet disconnected', 'warning');
+            };
+        };
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -464,11 +506,31 @@
         
         async function initializeApp() {
             showToast('System', 'Initializing NEXUS Platform...', 'info');
+            initializeWeb3();
             await checkSystemHealth();
             await loadCryptoPrices();
             
             // Auto-refresh prices every 30 seconds
             setInterval(loadCryptoPrices, 30000);
+            
+            // Check for previously connected wallet
+            await checkPreviousConnection();
+            
+            // Initialize transaction display
+            updateTransactionDisplay();
+        }
+        
+        async function checkPreviousConnection() {
+            if (localStorage.getItem('wallet-connected') && window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        await connectMetaMask();
+                    }
+                } catch (error) {
+                    console.log('No previous wallet connection found');
+                }
+            }
         }
         
         async function checkSystemHealth() {
@@ -546,6 +608,61 @@
         
         function showPaymentModal() {
             document.getElementById('paymentModal').classList.remove('hidden');
+            updateSupportedTokens();
+        }
+        
+        function updateSupportedTokens() {
+            const cryptoSelect = document.getElementById('cryptoSelect');
+            const networkWarning = document.getElementById('networkWarning');
+            
+            if (!walletConnected || !paymentProcessor) {
+                cryptoSelect.innerHTML = '<option value="">Connect wallet first...</option>';
+                networkWarning.classList.remove('hidden');
+                return;
+            }
+            
+            networkWarning.classList.add('hidden');
+            
+            try {
+                const supportedTokens = paymentProcessor.getSupportedTokens();
+                
+                cryptoSelect.innerHTML = supportedTokens.map(token => 
+                    `<option value="${token.symbol}">${token.name} (${token.symbol})</option>`
+                ).join('');
+                
+                // Set up balance loading for token selection
+                cryptoSelect.addEventListener('change', async (e) => {
+                    if (e.target.value) {
+                        await updateTokenBalance(e.target.value);
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading supported tokens:', error);
+                cryptoSelect.innerHTML = '<option value="">Error loading tokens</option>';
+            }
+        }
+        
+        async function updateTokenBalance(tokenSymbol) {
+            const balanceDisplay = document.getElementById('balanceDisplay');
+            const selectedTokenBalance = document.getElementById('selectedTokenBalance');
+            
+            if (!tokenSymbol || !paymentProcessor) {
+                balanceDisplay.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                selectedTokenBalance.textContent = 'Loading...';
+                balanceDisplay.classList.remove('hidden');
+                
+                const balance = await paymentProcessor.getTokenBalance(tokenSymbol);
+                selectedTokenBalance.textContent = `${parseFloat(balance).toFixed(6)} ${tokenSymbol}`;
+                
+            } catch (error) {
+                console.error('Error loading balance:', error);
+                selectedTokenBalance.textContent = 'Error loading balance';
+            }
         }
         
         function closeModal(modalId) {
@@ -613,14 +730,63 @@
                 return;
             }
             
-            const crypto = document.getElementById('cryptoSelect').value;
-            showToast('Payment Created', `Creating ${crypto} payment for $${amount}`, 'success');
+            if (!web3Manager.isSupportedNetwork()) {
+                showToast('Unsupported Network', 'Please switch to a supported network', 'error');
+                return;
+            }
             
-            // In production, this would create actual payment
-            setTimeout(() => {
+            try {
+                const crypto = document.getElementById('cryptoSelect').value;
+                
+                // For demo purposes, we'll send to a test address (you should replace this with actual recipient)
+                const recipientAddress = '0x742d35Cc6634C0532925a3b8D80B91e1e05C4c71'; // OpenSea charity address
+                
+                showToast('Processing', `Preparing ${crypto} payment for $${amount}`, 'info');
+                
+                // Create payment record
+                const payment = await paymentProcessor.createPayment(amount, crypto, recipientAddress);
+                
+                let transactionResult;
+                
+                if (crypto === 'ETH' || crypto === 'MATIC' || crypto === 'BNB' || crypto === 'AVAX') {
+                    // Native currency payment
+                    const network = web3Manager.getCurrentNetwork();
+                    const cryptoAmount = (parseFloat(amount) / 2400).toFixed(6); // Rough conversion for demo
+                    
+                    transactionResult = await paymentProcessor.processNativePayment(
+                        payment.id,
+                        recipientAddress,
+                        cryptoAmount
+                    );
+                } else {
+                    // Token payment
+                    const tokenAmount = parseFloat(amount); // Assuming 1:1 for stablecoins
+                    
+                    transactionResult = await paymentProcessor.processTokenPayment(
+                        payment.id,
+                        crypto,
+                        recipientAddress,
+                        tokenAmount
+                    );
+                }
+                
                 closeModal('paymentModal');
-                showToast('Payment Sent', `${crypto} payment initiated successfully`, 'success');
-            }, 2000);
+                showToast('Payment Sent!', `Transaction: ${transactionResult.transactionHash.slice(0,10)}...`, 'success');
+                
+                // Add to recent transactions display
+                addTransactionToHistory({
+                    id: payment.id,
+                    amount: amount,
+                    currency: crypto,
+                    hash: transactionResult.transactionHash,
+                    status: 'confirming',
+                    timestamp: new Date().toISOString()
+                });
+                
+            } catch (error) {
+                console.error('Payment failed:', error);
+                showToast('Payment Failed', error.message, 'error');
+            }
         }
         
         async function processCardPayment(amount) {
@@ -633,24 +799,134 @@
             }, 2000);
         }
         
-        function connectMetaMask() {
-            showToast('MetaMask', 'Connecting to MetaMask...', 'info');
-            
-            setTimeout(() => {
+        async function connectMetaMask() {
+            try {
+                showToast('MetaMask', 'Connecting to MetaMask...', 'info');
+                
+                currentWalletInfo = await web3Manager.connectMetaMask();
                 walletConnected = true;
-                document.getElementById('walletBtnText').textContent = '0x1234...5678';
-                document.getElementById('connectWalletBtn').classList.add('wallet-connected');
+                
+                localStorage.setItem('wallet-connected', 'metamask');
+                
+                updateWalletDisplay();
+                updateNetworkDisplay();
                 closeModal('walletModal');
-                showToast('Wallet Connected', 'MetaMask connected successfully', 'success');
-            }, 1500);
+                
+                showToast('Wallet Connected', `Connected to ${currentWalletInfo.network}`, 'success');
+                
+                // Load wallet balance
+                await loadWalletBalance();
+                
+            } catch (error) {
+                console.error('MetaMask connection failed:', error);
+                showToast('Connection Failed', error.message, 'error');
+            }
         }
         
-        function connectWalletConnect() {
-            showToast('WalletConnect', 'Opening QR code scanner...', 'info');
+        async function connectWalletConnect() {
+            try {
+                showToast('WalletConnect', 'Opening QR code scanner...', 'info');
+                
+                currentWalletInfo = await web3Manager.connectWalletConnect();
+                walletConnected = true;
+                
+                localStorage.setItem('wallet-connected', 'walletconnect');
+                
+                updateWalletDisplay();
+                updateNetworkDisplay();
+                closeModal('walletModal');
+                
+                showToast('Wallet Connected', `Connected via WalletConnect`, 'success');
+                
+                await loadWalletBalance();
+                
+            } catch (error) {
+                console.error('WalletConnect connection failed:', error);
+                showToast('Connection Failed', error.message, 'error');
+            }
         }
         
-        function connectCoinbase() {
-            showToast('Coinbase', 'Connecting to Coinbase Wallet...', 'info');
+        async function connectCoinbase() {
+            try {
+                showToast('Coinbase', 'Connecting to Coinbase Wallet...', 'info');
+                
+                currentWalletInfo = await web3Manager.connectCoinbase();
+                walletConnected = true;
+                
+                localStorage.setItem('wallet-connected', 'coinbase');
+                
+                updateWalletDisplay();
+                updateNetworkDisplay();
+                closeModal('walletModal');
+                
+                showToast('Wallet Connected', `Connected to Coinbase Wallet`, 'success');
+                
+                await loadWalletBalance();
+                
+            } catch (error) {
+                console.error('Coinbase connection failed:', error);
+                showToast('Connection Failed', error.message, 'error');
+            }
+        }
+        
+        function updateWalletDisplay() {
+            const walletBtn = document.getElementById('connectWalletBtn');
+            const walletBtnText = document.getElementById('walletBtnText');
+            
+            if (walletConnected && currentWalletInfo) {
+                walletBtnText.textContent = `${currentWalletInfo.address.slice(0,6)}...${currentWalletInfo.address.slice(-4)}`;
+                walletBtn.classList.add('wallet-connected');
+                walletBtn.onclick = disconnectWallet;
+            } else {
+                walletBtnText.textContent = 'Connect Wallet';
+                walletBtn.classList.remove('wallet-connected');
+                walletBtn.onclick = showWalletModal;
+            }
+        }
+        
+        function updateNetworkDisplay() {
+            const networkName = document.getElementById('networkName');
+            const networkStatus = document.getElementById('networkStatus');
+            
+            if (walletConnected && currentWalletInfo) {
+                networkName.textContent = currentWalletInfo.network;
+                networkStatus.classList.remove('hidden');
+                
+                // Show warning if unsupported network
+                if (!web3Manager.isSupportedNetwork()) {
+                    showToast('Unsupported Network', 'Please switch to a supported network', 'warning');
+                }
+            } else {
+                networkName.textContent = 'No Network';
+                networkStatus.classList.add('hidden');
+            }
+        }
+        
+        async function loadWalletBalance() {
+            if (!walletConnected || !paymentProcessor) return;
+            
+            try {
+                const balance = await web3Manager.getBalance();
+                const network = web3Manager.getCurrentNetwork();
+                
+                showToast('Balance Loaded', `${parseFloat(balance).toFixed(4)} ${network.symbol}`, 'success');
+            } catch (error) {
+                console.error('Failed to load balance:', error);
+            }
+        }
+        
+        async function disconnectWallet() {
+            try {
+                await web3Manager.disconnect();
+                localStorage.removeItem('wallet-connected');
+                walletConnected = false;
+                currentWalletInfo = null;
+                updateWalletDisplay();
+                updateNetworkDisplay();
+                showToast('Disconnected', 'Wallet disconnected successfully', 'info');
+            } catch (error) {
+                console.error('Disconnect failed:', error);
+            }
         }
         
         function showToast(title, message, type) {
@@ -697,7 +973,146 @@
             showToast('Networks', 'Ethereum, Polygon, BSC, Arbitrum, Optimism, Avalanche + Stripe', 'info');
         }
         
+        // Transaction history management
+        let transactionHistory = JSON.parse(localStorage.getItem('transaction-history') || '[]');
+        
+        function addTransactionToHistory(transaction) {
+            transactionHistory.unshift(transaction);
+            
+            // Keep only last 10 transactions
+            if (transactionHistory.length > 10) {
+                transactionHistory = transactionHistory.slice(0, 10);
+            }
+            
+            localStorage.setItem('transaction-history', JSON.stringify(transactionHistory));
+            updateTransactionDisplay();
+            
+            // Start monitoring this transaction
+            monitorTransaction(transaction.hash, transaction.id);
+        }
+        
+        function updateTransactionDisplay() {
+            const transactionsList = document.getElementById('transactionsList');
+            
+            if (transactionHistory.length === 0) {
+                transactionsList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <p>No recent transactions</p>
+                        <button onclick="showPaymentModal()" class="mt-4 text-purple-600 font-semibold hover:underline">
+                            Create your first payment
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            const transactionsHTML = transactionHistory.map(tx => {
+                const statusIcon = {
+                    'pending': '<i class="fas fa-clock text-yellow-500"></i>',
+                    'confirming': '<i class="fas fa-spinner fa-spin text-blue-500"></i>',
+                    'completed': '<i class="fas fa-check-circle text-green-500"></i>',
+                    'failed': '<i class="fas fa-times-circle text-red-500"></i>'
+                }[tx.status] || '<i class="fas fa-question-circle text-gray-500"></i>';
+                
+                const explorerUrl = getExplorerUrl(tx.hash);
+                const timeAgo = formatTimeAgo(new Date(tx.timestamp));
+                
+                return `
+                    <div class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition">
+                        <div class="flex items-center">
+                            ${statusIcon}
+                            <div class="ml-4">
+                                <div class="font-semibold">$${tx.amount} ${tx.currency}</div>
+                                <div class="text-sm text-gray-500">${timeAgo}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-mono text-gray-600">
+                                <a href="${explorerUrl}" target="_blank" class="hover:text-blue-600">
+                                    ${tx.hash.slice(0, 10)}...${tx.hash.slice(-6)}
+                                </a>
+                            </div>
+                            <div class="text-xs text-gray-400 capitalize">${tx.status}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            transactionsList.innerHTML = transactionsHTML;
+        }
+        
+        async function monitorTransaction(hash, transactionId) {
+            if (!paymentProcessor) return;
+            
+            const checkInterval = setInterval(async () => {
+                try {
+                    const status = await paymentProcessor.monitorTransaction(hash);
+                    
+                    // Update transaction in history
+                    const txIndex = transactionHistory.findIndex(tx => tx.hash === hash);
+                    if (txIndex !== -1) {
+                        transactionHistory[txIndex].status = status.status;
+                        if (status.confirmations) {
+                            transactionHistory[txIndex].confirmations = status.confirmations;
+                        }
+                        
+                        localStorage.setItem('transaction-history', JSON.stringify(transactionHistory));
+                        updateTransactionDisplay();
+                        
+                        // Stop monitoring if completed or failed
+                        if (status.status === 'confirmed' || status.status === 'error') {
+                            clearInterval(checkInterval);
+                            
+                            if (status.status === 'confirmed') {
+                                showToast('Transaction Confirmed', `Payment confirmed on blockchain`, 'success');
+                            } else if (status.status === 'error') {
+                                showToast('Transaction Failed', `Transaction failed: ${status.error}`, 'error');
+                            }
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error monitoring transaction:', error);
+                    clearInterval(checkInterval);
+                }
+            }, 10000); // Check every 10 seconds
+            
+            // Stop monitoring after 1 hour
+            setTimeout(() => clearInterval(checkInterval), 3600000);
+        }
+        
+        function getExplorerUrl(hash) {
+            if (!currentWalletInfo) return '#';
+            
+            const explorers = {
+                1: 'https://etherscan.io/tx/',
+                137: 'https://polygonscan.com/tx/',
+                56: 'https://bscscan.com/tx/',
+                42161: 'https://arbiscan.io/tx/',
+                10: 'https://optimistic.etherscan.io/tx/',
+                43114: 'https://snowtrace.io/tx/'
+            };
+            
+            const baseUrl = explorers[currentWalletInfo.chainId] || 'https://etherscan.io/tx/';
+            return baseUrl + hash;
+        }
+        
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            if (seconds < 60) return `${seconds}s ago`;
+            if (minutes < 60) return `${minutes}m ago`;
+            if (hours < 24) return `${hours}h ago`;
+            return date.toLocaleDateString();
+        }
+        
         function refreshTransactions() {
+            updateTransactionDisplay();
             showToast('Refreshed', 'Transaction history updated', 'success');
         }
         
