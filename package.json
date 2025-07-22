@@ -5,9 +5,19 @@
   "private": true,
   "scripts": {
     "build": "echo 'Static site - no build needed'",
-    "start": "echo 'Static deployment'"
+    "start": "echo 'Static deployment'",
+    "install-deps": "npm install"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "web3": "^4.0.0",
+    "ethers": "^6.8.0",
+    "bitcoinjs-lib": "^6.1.0",
+    "coinbase-commerce-node": "^1.0.4",
+    "axios": "^1.6.0",
+    "uuid": "^9.0.0"
   }
 }
