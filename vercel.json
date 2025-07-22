@@ -1,7 +1,6 @@
 {
   "version": 2,
   "name": "nexus-multi-blockchain-platform",
-  "description": "Professional multi-blockchain platform with NUSD swaps, wallet generation, and admin panel",
   "builds": [
     {
       "src": "backend/src/index.ts",
