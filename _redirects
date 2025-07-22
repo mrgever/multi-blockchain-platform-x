@@ -1,0 +1,25 @@
+# API Routes - redirect to serverless functions
+/api/v1/wallet/*        /.netlify/functions/api/v1/wallet/:splat   200
+/api/v1/blockchain/*    /.netlify/functions/api/v1/blockchain/:splat   200
+/api/v1/market/*        /.netlify/functions/api/v1/market/:splat   200
+/api/v1/swap/*          /.netlify/functions/api/v1/swap/:splat   200
+/api/v1/nexus/*         /.netlify/functions/api/v1/nexus/:splat   200
+/api/v1/blockchains     /.netlify/functions/api/v1/blockchains   200
+/api/*                  /.netlify/functions/api/:splat   200
+
+# Health check
+/health                 /.netlify/functions/api/health   200
+
+# Static page routes
+/admin                  /admin-panel.html               200
+/wallet-center          /wallet-center.html            200
+/modern                 /modern-ui.html                200
+/demo                   /quick-demo.html               200
+/tech                   /tech-ui.html                  200
+/simple                 /self-contained-ui.html        200
+/test-wallet            /test-wallet-generation.html   200
+/                       /coingecko-ui.html             200
+
+# Clean URL redirects
+/index.html             /                              301
+/coingecko-ui.html      /                              302

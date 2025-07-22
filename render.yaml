@@ -1,0 +1,57 @@
+services:
+  # Web Service
+  - type: web
+    name: nexus-blockchain-platform
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: |
+      cd backend && npm install
+    startCommand: |
+      cd backend && npm run dev
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        generateValue: true
+      - key: COINGECKO_API_KEY
+        sync: false
+      - key: COINMARKETCAP_API_KEY
+        sync: false
+      - key: CRYPTOCOMPARE_API_KEY
+        sync: false
+      - key: USDT_ADDRESS
+        value: TPw6NEgZRxEoX8s64zfCKfPjwRCHHPTjQN
+      - key: TON_ADDRESS
+        value: UQA7SUW4pslVSudC0Cfi8NTQyZI1nHHi-frcp20EvQZSfn__
+      - key: CORS_ORIGIN
+        value: https://nexus-blockchain-platform.onrender.com
+
+  # Static Site
+  - type: static
+    name: nexus-blockchain-static
+    env: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /
+        destination: /coingecko-ui.html
+      - type: rewrite
+        source: /admin
+        destination: /admin-panel.html
+      - type: rewrite
+        source: /wallet-center
+        destination: /wallet-center.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
