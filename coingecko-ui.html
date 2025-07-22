@@ -2752,7 +2752,7 @@
                 </td>
                 <td class="px-4 py-2 whitespace-nowrap">
                     <div class="flex items-center">
-                        <img class="h-6 w-6 rounded-full mr-2" src="${coin.image}" alt="${coin.name}" 
+                        <img class="h-6 w-6 rounded-full mr-2" src="${coin.image || ''}" alt="${coin.name}" 
                              onerror="handleImageError(this, '${coin.symbol}')">
                         <div>
                             <div class="text-sm font-semibold text-gray-900">${coin.name}</div>
@@ -2833,18 +2833,32 @@
         // Wallet functions
         async function generateNewWallet() {
             try {
+                console.log('Generating wallet, API_BASE:', API_BASE);
                 const response = await fetch(`${API_BASE}/wallet/generate-mnemonic`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: '{}'
                 });
                 
+                console.log('Response status:', response.status);
                 const result = await response.json();
+                console.log('Response result:', result);
                 
                 if (result.success) {
                     const mnemonic = result.data?.mnemonic || result.mnemonic;
-                    document.getElementById('import-mnemonic').value = mnemonic;
-                    showNotification('New wallet generated!', 'success');
+                    console.log('Generated mnemonic:', mnemonic);
+                    
+                    // Try to find the element
+                    const mnemonicElement = document.getElementById('import-mnemonic');
+                    console.log('Mnemonic element found:', mnemonicElement);
+                    
+                    if (mnemonicElement) {
+                        mnemonicElement.value = mnemonic;
+                        showNotification('New wallet generated!', 'success');
+                    } else {
+                        console.error('Element import-mnemonic not found');
+                        showNotification('Wallet generated but could not display: ' + mnemonic, 'info');
+                    }
                 } else {
                     throw new Error(result.error || 'Failed to generate wallet');
                 }
