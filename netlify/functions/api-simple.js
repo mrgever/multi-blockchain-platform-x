@@ -33,9 +33,32 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Wallet generation endpoint
+    // Wallet generation endpoints
     if (path === '/api/v1/wallet/generate' && event.httpMethod === 'POST') {
       const mnemonic = generateMnemonic();
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          data: {
+            mnemonic,
+            addresses: {
+              ethereum: '0x' + Math.random().toString(36).substring(2, 42),
+              bitcoin: '1' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+              dogecoin: 'D' + Math.random().toString(36).substring(2, 35).toUpperCase(),
+              ton: 'UQ' + Math.random().toString(36).substring(2, 40) + '__'
+            }
+          }
+        })
+      };
+    }
+
+    // Import wallet endpoint
+    if (path === '/api/v1/wallet/import' && event.httpMethod === 'POST') {
+      const body = JSON.parse(event.body || '{}');
+      const { mnemonic } = body;
+      
       return {
         statusCode: 200,
         headers,
@@ -94,20 +117,61 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Market data endpoint
-    if (path.startsWith('/api/v1/market')) {
+    // Market data endpoints
+    if (path === '/api/v1/market/overview' || path.startsWith('/api/v1/market')) {
+      const mockPrices = [
+        { 
+          id: 'bitcoin', 
+          symbol: 'btc', 
+          name: 'Bitcoin', 
+          current_price: 43250, 
+          price_change_percentage_24h: 2.5,
+          market_cap: 847000000000,
+          total_volume: 15000000000
+        },
+        { 
+          id: 'ethereum', 
+          symbol: 'eth', 
+          name: 'Ethereum', 
+          current_price: 2650, 
+          price_change_percentage_24h: 3.2,
+          market_cap: 318000000000,
+          total_volume: 8000000000
+        },
+        { 
+          id: 'dogecoin', 
+          symbol: 'doge', 
+          name: 'Dogecoin', 
+          current_price: 0.087, 
+          price_change_percentage_24h: -1.1,
+          market_cap: 12000000000,
+          total_volume: 400000000
+        },
+        { 
+          id: 'toncoin', 
+          symbol: 'ton', 
+          name: 'TON', 
+          current_price: 3.45, 
+          price_change_percentage_24h: 5.7,
+          market_cap: 12000000000,
+          total_volume: 200000000
+        }
+      ];
+
+      const globalStats = {
+        total_market_cap: { usd: 1189000000000 },
+        total_volume: { usd: 23600000000 },
+        market_cap_percentage: { btc: 71.2, eth: 26.7 }
+      };
+
       return {
         statusCode: 200,
         headers,
         body: JSON.stringify({
           success: true,
           data: {
-            markets: [
-              { symbol: 'BTC', price: 43250, change24h: 2.5 },
-              { symbol: 'ETH', price: 2650, change24h: 3.2 },
-              { symbol: 'DOGE', price: 0.087, change24h: -1.1 },
-              { symbol: 'TON', price: 3.45, change24h: 5.7 }
-            ]
+            prices: mockPrices,
+            globalStats
           }
         })
       };
