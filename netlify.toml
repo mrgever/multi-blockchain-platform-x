@@ -133,10 +133,10 @@
   to = "/.netlify/functions/api-simple"
   status = 200
 
-# SPA fallback for any unmatched routes
+# Fallback for any unmatched routes to main page
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/coingecko-ui.html"
   status = 200
 
 # Environment variable configuration
