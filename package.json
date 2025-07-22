@@ -3,7 +3,6 @@
   "version": "2.0.0",
   "description": "Production-ready cryptocurrency payment platform",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "netlify dev",
     "build": "vite build",
@@ -30,10 +29,16 @@
     "web3modal": "^1.9.12",
     "bip39": "^3.1.0",
     "@sentry/browser": "^7.81.1",
+    "@sentry/node": "^7.81.1",
     "@sentry/integrations": "^7.81.1",
+    "@sentry/tracing": "^7.81.1",
     "faunadb": "^4.8.0",
     "alchemy-sdk": "^3.1.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "crypto": "^1.0.1",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "stream-browserify": "^3.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.0",

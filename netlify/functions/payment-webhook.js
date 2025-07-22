@@ -3,10 +3,10 @@
  * Receives blockchain events and updates payment status
  */
 
-import { ethers } from 'ethers';
-import faunadb from 'faunadb';
-import * as Sentry from '@sentry/node';
-import crypto from 'crypto';
+const { ethers } = require('ethers');
+const faunadb = require('faunadb');
+const Sentry = require('@sentry/node');
+const crypto = require('crypto');
 
 // Initialize Sentry
 Sentry.init({
@@ -27,7 +27,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Only accept POST requests
   if (event.httpMethod !== 'POST') {
     return {

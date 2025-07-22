@@ -3,8 +3,8 @@
  * Creates necessary collections and indexes
  */
 
-import faunadb from 'faunadb';
-import dotenv from 'dotenv';
+const faunadb = require('faunadb');
+const dotenv = require('dotenv');
 
 // Load environment variables
 dotenv.config();

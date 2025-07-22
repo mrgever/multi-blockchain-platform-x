@@ -3,8 +3,8 @@
  * Creates payment intents and handles Stripe webhooks
  */
 
-import Stripe from 'stripe';
-import * as Sentry from '@sentry/node';
+const Stripe = require('stripe');
+const Sentry = require('@sentry/node');
 
 // Initialize Sentry
 Sentry.init({
@@ -26,7 +26,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };

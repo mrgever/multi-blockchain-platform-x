@@ -3,8 +3,8 @@
  * Fetches real-time cryptocurrency rates with caching
  */
 
-import axios from 'axios';
-import * as Sentry from '@sentry/node';
+const axios = require('axios');
+const Sentry = require('@sentry/node');
 
 // Initialize Sentry
 Sentry.init({
@@ -57,7 +57,7 @@ const FALLBACK_RATES = {
   LINK: { usd: 15, eur: 14, gbp: 12 }
 };
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };

@@ -3,11 +3,11 @@
  * Handles payment creation, verification, and status updates
  */
 
-import faunadb from 'faunadb';
-import { ethers } from 'ethers';
-import { Alchemy, Network } from 'alchemy-sdk';
-import * as Sentry from '@sentry/node';
-import { v4 as uuidv4 } from 'uuid';
+const faunadb = require('faunadb');
+const { ethers } = require('ethers');
+const { Alchemy, Network } = require('alchemy-sdk');
+const Sentry = require('@sentry/node');
+const { v4: uuidv4 } = require('uuid');
 
 // Initialize Sentry
 Sentry.init({
@@ -79,7 +79,7 @@ function checkRateLimit(ip) {
   return userLimits.count <= RATE_LIMIT;
 }
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };

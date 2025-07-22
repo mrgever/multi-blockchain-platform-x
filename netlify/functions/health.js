@@ -3,10 +3,10 @@
  * Monitors system status and dependencies
  */
 
-import { ethers } from 'ethers';
-import faunadb from 'faunadb';
-import Stripe from 'stripe';
-import axios from 'axios';
+const { ethers } = require('ethers');
+const faunadb = require('faunadb');
+const Stripe = require('stripe');
+const axios = require('axios');
 
 const q = faunadb.query;
 
@@ -18,7 +18,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 
-export const handler = async (event, context) => {
+exports.handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
