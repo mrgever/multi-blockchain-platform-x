@@ -3,21 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS - Multi-Blockchain Platform</title>
-    <meta name="description" content="Professional multi-blockchain wallet and trading platform supporting Bitcoin, Ethereum, TON, and Dogecoin with advanced features.">
-    <meta name="keywords" content="blockchain, wallet, cryptocurrency, bitcoin, ethereum, trading, defi">
-    <script>
-        // Redirect to main UI
-        window.location.href = '/nexus.html';
-    </script>
+    <title>NEXUS - Multi-Blockchain Payment Platform</title>
+    <meta name="description" content="Enterprise-grade cryptocurrency payment platform with support for Ethereum, Polygon, BSC and traditional payments">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://js.stripe.com">
+    <link rel="preconnect" href="https://api.coingecko.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .crypto-card {
+            transition: all 0.3s ease;
+        }
+        .crypto-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
 </head>
-<body>
-    <div style="display: flex; align-items: center; justify-content: center; height: 100vh; font-family: system-ui;">
-        <div style="text-align: center;">
-            <h1>NEXUS Platform</h1>
-            <p>Redirecting to the platform...</p>
-            <a href="/nexus.html" style="color: #3b82f6;">Click here if not redirected automatically</a>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <nav class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold">NEXUS</div>
+                    <div class="ml-2 text-sm opacity-75">v2.0</div>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#features" class="hover:text-blue-200">Features</a>
+                    <a href="#supported-chains" class="hover:text-blue-200">Chains</a>
+                    <a href="#security" class="hover:text-blue-200">Security</a>
+                    <button id="connectWalletBtn" class="bg-white text-purple-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50">
+                        Connect Wallet
+                    </button>
+                </div>
+                <button class="md:hidden text-white" id="mobileMenuBtn">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-5xl font-bold mb-6">
+                Enterprise Crypto Payments
+            </h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">
+                Accept cryptocurrency and traditional payments seamlessly with our production-ready platform. 
+                Built for scale, security, and reliability.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="startPaymentBtn" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
+                    Start Payment
+                </button>
+                <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
+                    View Documentation
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Status Bar -->
+    <div id="statusBar" class="bg-green-50 border-l-4 border-green-400 p-4 hidden">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <div class="w-4 h-4 bg-green-400 rounded-full pulse"></div>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-green-700">
+                    <span id="statusMessage">System operational</span>
+                </p>
+            </div>
         </div>
     </div>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">Features</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6 crypto-card bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-blue-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Enterprise Security</h3>
+                    <p class="text-gray-600">Bank-grade security with multi-layer protection, rate limiting, and real-time monitoring.</p>
+                </div>
+                
+                <div class="text-center p-6 crypto-card bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-green-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Lightning Fast</h3>
+                    <p class="text-gray-600">Real-time payments with instant confirmations and automated processing.</p>
+                </div>
+                
+                <div class="text-center p-6 crypto-card bg-white rounded-lg shadow-sm">
+                    <div class="w-16 h-16 bg-purple-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Multi-Chain Support</h3>
+                    <p class="text-gray-600">Accept payments on Ethereum, Polygon, BSC, Arbitrum, and traditional methods.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supported Chains -->
+    <section id="supported-chains" class="bg-gray-100 py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">Supported Networks</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">⟠</div>
+                    <div class="font-semibold">Ethereum</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">⬟</div>
+                    <div class="font-semibold">Polygon</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">🔶</div>
+                    <div class="font-semibold">BSC</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">🔵</div>
+                    <div class="font-semibold">Arbitrum</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">🔴</div>
+                    <div class="font-semibold">Optimism</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center shadow-sm crypto-card">
+                    <div class="text-2xl mb-2">💳</div>
+                    <div class="font-semibold">Stripe</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-4">NEXUS</div>
+                <p class="text-gray-400 mb-4">Enterprise Cryptocurrency Payment Platform v2.0</p>
+                <div class="flex justify-center space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white">Documentation</a>
+                    <a href="/.netlify/functions/health" class="text-gray-400 hover:text-white">Status</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Basic functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemHealth();
+            
+            document.getElementById('connectWalletBtn').addEventListener('click', function() {
+                alert('Production wallet connection available. Configure environment variables and deploy.');
+            });
+            
+            document.getElementById('startPaymentBtn').addEventListener('click', function() {
+                alert('Payment system ready for production. Configure environment variables and deploy.');
+            });
+        });
+        
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch('/.netlify/functions/health');
+                const data = await response.json();
+                
+                const statusBar = document.getElementById('statusBar');
+                const statusMessage = document.getElementById('statusMessage');
+                
+                if (data.status === 'healthy') {
+                    statusBar.className = 'bg-green-50 border-l-4 border-green-400 p-4';
+                    statusMessage.textContent = 'All systems operational';
+                } else {
+                    statusBar.className = 'bg-yellow-50 border-l-4 border-yellow-400 p-4';
+                    statusMessage.textContent = 'Some services degraded';
+                }
+                
+                statusBar.classList.remove('hidden');
+            } catch (error) {
+                console.error('Health check failed:', error);
+                const statusBar = document.getElementById('statusBar');
+                statusBar.className = 'bg-red-50 border-l-4 border-red-400 p-4';
+                document.getElementById('statusMessage').textContent = 'System checks failed';
+                statusBar.classList.remove('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
