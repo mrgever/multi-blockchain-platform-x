@@ -646,3 +646,199 @@ SIGTERM received, shutting down gracefully
 ✅ Global stats fetched via CoinGecko
 ✅ CoinGecko succeeded for coins/markets
 ✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+❌ Attempt 1/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+❌ Attempt 1/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+❌ Attempt 1/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+❌ Attempt 2/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+📡 Making request to: https://api.coingecko.com/api/v3/global
+❌ Attempt 2/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+❌ Attempt 2/3 failed for CoinGecko: getaddrinfo EAI_AGAIN api.coingecko.com
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+📡 Making request to: https://api.coingecko.com/api/v3/global
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+🔄 Trying CoinGecko for coins/markets
+📡 Making request to: https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d
+🔄 Trying CoinGecko for global
+📡 Making request to: https://api.coingecko.com/api/v3/global
+🔄 Trying CoinGecko for search/trending
+📡 Making request to: https://api.coingecko.com/api/v3/search/trending
+✅ CoinGecko succeeded for search/trending
+✅ Trending coins fetched via CoinGecko
+✅ CoinGecko succeeded for global
+✅ Global stats fetched via CoinGecko
+✅ CoinGecko succeeded for coins/markets
+✅ Market data fetched via CoinGecko
