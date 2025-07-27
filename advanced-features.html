@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitorzo - Advanced Features Showcase</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .feature-gradient {
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+        }
+        .code-block {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .tech-badge {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(139, 92, 246, 0.2);
+        }
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="gradient-bg text-white min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-gray-900 bg-opacity-90 backdrop-blur-md border-b border-gray-800">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold flex items-center">
+                        <i class="fas fa-rocket text-purple-400 mr-2"></i>
+                        Bitorzo Advanced Features
+                    </h1>
+                    <span class="px-3 py-1 bg-green-500 bg-opacity-20 border border-green-500 rounded-full text-xs">
+                        v1.0 Production
+                    </span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-400">Seed Stage Startup</span>
+                    <a href="/bitorzo-analytics.html" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h2 class="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                Cutting-Edge Technology Stack
+            </h2>
+            <p class="text-xl text-gray-400 max-w-3xl mx-auto">
+                Bitorzo leverages the latest advances in computer science to deliver 
+                unparalleled blockchain analytics capabilities
+            </p>
+        </div>
+    </section>
+
+    <!-- Advanced Features Grid -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Vector Database & AI Search -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-brain text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">AI-Powered Vector Search</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Semantic search using transformer models and Pinecone vector database for intelligent transaction discovery.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>MiniLM-L6-v2 embeddings</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>384-dimensional vectors</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Cosine similarity matching</span>
+                    </div>
+                </div>
+                <div class="code-block p-3 text-xs">
+                    <code class="text-green-400">
+// Semantic transaction search<br>
+const results = await vectorSearch.semanticSearch(<br>
+&nbsp;&nbsp;"large ETH transfers to DeFi protocols",<br>
+&nbsp;&nbsp;{ topK: 10, filter: { blockchain: "ethereum" } }<br>
+);
+                    </code>
+                </div>
+            </div>
+
+            <!-- Zero-Knowledge Proofs -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-user-secret text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">Zero-Knowledge Proofs</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Privacy-preserving verification using zk-SNARKs for confidential balance proofs and ownership verification.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Groth16 proving system</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>BabyJubJub elliptic curve</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Poseidon hash function</span>
+                    </div>
+                </div>
+                <div class="code-block p-3 text-xs">
+                    <code class="text-green-400">
+// Generate balance proof without revealing amount<br>
+const proof = await zkSystem.generateBalanceProof(<br>
+&nbsp;&nbsp;userBalance, minimumThreshold<br>
+);<br>
+// Verify: balance >= threshold ✓
+                    </code>
+                </div>
+            </div>
+
+            <!-- Apache Kafka Streaming -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-stream text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">Kafka Event Streaming</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Process millions of blockchain events per second with distributed Apache Kafka clusters.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Multi-partition topics</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Exactly-once semantics</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Real-time aggregations</span>
+                    </div>
+                </div>
+                <div class="code-block p-3 text-xs">
+                    <code class="text-green-400">
+// Kafka event pipeline<br>
+Topics: blockchain-events → analytics-pipeline<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;anomaly-detection
+                    </code>
+                </div>
+            </div>
+
+            <!-- WebAssembly Performance -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-bolt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">WebAssembly Integration</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Near-native performance for compute-intensive operations using WASM modules.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Rust-compiled modules</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>5x faster cryptography</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Browser-native execution</span>
+                    </div>
+                </div>
+                <div class="tech-badge inline-block px-3 py-1 rounded-full text-xs">
+                    <i class="fab fa-rust mr-1"></i> Rust + WASM
+                </div>
+            </div>
+
+            <!-- GraphQL Federation -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-project-diagram text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">GraphQL Federation</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Microservices architecture with federated GraphQL for unified data access.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Apollo Federation v2</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Schema composition</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Distributed resolvers</span>
+                    </div>
+                </div>
+                <div class="code-block p-3 text-xs">
+                    <code class="text-green-400">
+query GetAnalytics {<br>
+&nbsp;&nbsp;@transaction @analytics @ml<br>
+}
+                    </code>
+                </div>
+            </div>
+
+            <!-- OpenTelemetry -->
+            <div class="feature-card p-6 rounded-xl">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mr-4">
+                        <i class="fas fa-chart-network text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold">OpenTelemetry Tracing</h3>
+                </div>
+                <p class="text-gray-400 mb-4">
+                    Distributed tracing and observability across all microservices.
+                </p>
+                <div class="space-y-2 mb-4">
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Jaeger integration</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Automatic instrumentation</span>
+                    </div>
+                    <div class="flex items-center text-sm">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Performance metrics</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-500">Trace ID:</span>
+                    <span class="text-xs font-mono text-purple-400">4bf92f3577b34da2</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Architecture Diagram -->
+    <section class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">System Architecture</h2>
+        <div class="bg-gray-800 bg-opacity-50 rounded-xl p-8 border border-gray-700">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-400">Data Ingestion Layer</h3>
+                    <div class="space-y-2">
+                        <div class="bg-gray-700 rounded p-2 text-sm">Blockchain Nodes</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">WebSocket Streams</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">REST APIs</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Processing Layer</h3>
+                    <div class="space-y-2">
+                        <div class="bg-gray-700 rounded p-2 text-sm">Kafka Streams</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">Redis Cache</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">ML Pipeline</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-lg font-semibold mb-4 text-green-400">Presentation Layer</h3>
+                    <div class="space-y-2">
+                        <div class="bg-gray-700 rounded p-2 text-sm">GraphQL API</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">WebSocket Server</div>
+                        <div class="bg-gray-700 rounded p-2 text-sm">React Dashboard</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Performance Metrics -->
+    <section class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Performance Metrics</h2>
+        <div class="grid md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-purple-400 mb-2">1M+</div>
+                <p class="text-gray-400">Events/Second</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-blue-400 mb-2"><100ms</div>
+                <p class="text-gray-400">P99 Latency</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-green-400 mb-2">99.99%</div>
+                <p class="text-gray-400">Uptime SLA</p>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-yellow-400 mb-2">5PB</div>
+                <p class="text-gray-400">Data Processed</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coming Soon Features -->
+    <section class="container mx-auto px-4 py-12">
+        <h2 class="text-3xl font-bold text-center mb-8">Roadmap Features</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="border border-gray-700 rounded-lg p-4 opacity-75">
+                <h3 class="text-lg font-semibold mb-2">
+                    <i class="fas fa-cube mr-2 text-purple-400"></i>
+                    Quantum-Resistant Cryptography
+                </h3>
+                <p class="text-sm text-gray-400">Post-quantum algorithms for future-proof security</p>
+            </div>
+            <div class="border border-gray-700 rounded-lg p-4 opacity-75">
+                <h3 class="text-lg font-semibold mb-2">
+                    <i class="fas fa-network-wired mr-2 text-blue-400"></i>
+                    Edge Computing Nodes
+                </h3>
+                <p class="text-sm text-gray-400">Distributed processing at network edge locations</p>
+            </div>
+            <div class="border border-gray-700 rounded-lg p-4 opacity-75">
+                <h3 class="text-lg font-semibold mb-2">
+                    <i class="fas fa-robot mr-2 text-green-400"></i>
+                    AutoML Pipeline
+                </h3>
+                <p class="text-sm text-gray-400">Self-optimizing machine learning models</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-8 mt-16">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400 mb-2">© 2024 Bitorzo - Advanced Blockchain Analytics Platform</p>
+            <p class="text-sm text-gray-500">Built with cutting-edge technology for the future of blockchain</p>
+        </div>
+    </footer>
+
+    <script>
+        // Add interactive demos here
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simulate real-time metrics
+            const updateMetrics = () => {
+                const metrics = document.querySelectorAll('.pulse-dot');
+                metrics.forEach(m => {
+                    m.style.animationDelay = `${Math.random() * 2}s`;
+                });
+            };
+            
+            setInterval(updateMetrics, 3000);
+        });
+    </script>
+</body>
+</html>
