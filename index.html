@@ -729,7 +729,7 @@
                                         <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
                                         <span class="font-semibold">Development Progress Dashboard</span>
                                     </div>
-                                    <p class="text-sm text-gray-300">Added interactive development stats and git history</p>
+                                    <p class="text-sm text-gray-300">Added interactive development stats</p>
                                 </div>
                             </div>
                             <div class="flex items-start">
@@ -792,9 +792,6 @@
                         <div class="flex space-x-3">
                             <button onclick="showDevDetails()" class="bg-white bg-opacity-10 hover:bg-opacity-20 px-4 py-2 rounded-lg text-sm font-semibold transition">
                                 <i class="fas fa-info-circle mr-2"></i>View Details
-                            </button>
-                            <button onclick="showGitHistory()" class="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-lg text-sm font-semibold transition">
-                                <i class="fab fa-github mr-2"></i>Git History
                             </button>
                         </div>
                     </div>
@@ -2744,94 +2741,6 @@
             }, 100);
         }
 
-        function showGitHistory() {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black bg-opacity-50 modal z-50 flex items-center justify-center';
-            modal.innerHTML = `
-                <div class="bg-white rounded-2xl max-w-4xl w-full mx-4 p-8 max-h-[90vh] overflow-y-auto">
-                    <div class="text-center mb-8">
-                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <i class="fab fa-github text-gray-800 text-2xl"></i>
-                        </div>
-                        <h3 class="text-2xl font-bold mb-2">Git Commit History</h3>
-                        <p class="text-gray-600">Recent development activity</p>
-                    </div>
-                    
-                    <div class="bg-gray-900 rounded-xl p-6 font-mono text-sm">
-                        <div class="text-green-400 mb-4">$ git log --oneline -10</div>
-                        <div class="space-y-2 text-gray-300">
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">5caf5545</span>
-                                <span class="flex-1">Simplify beta messaging with small top-right indicator</span>
-                                <span class="text-gray-500 text-xs">2 min ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">e0634601</span>
-                                <span class="flex-1">Fix MIME type issue by moving wallet manager inline</span>
-                                <span class="text-gray-500 text-xs">4 hours ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">da5ff4da</span>
-                                <span class="flex-1">Add comprehensive beta version messaging</span>
-                                <span class="text-gray-500 text-xs">6 hours ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">2c43e482</span>
-                                <span class="flex-1">Add comprehensive multi-currency and wallet support</span>
-                                <span class="text-gray-500 text-xs">8 hours ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">ad915adc</span>
-                                <span class="flex-1">Fix browser compatibility and function issues</span>
-                                <span class="text-gray-500 text-xs">12 hours ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">e5d3d68a</span>
-                                <span class="flex-1">Implement real wallet connections and live blockchain</span>
-                                <span class="text-gray-500 text-xs">1 day ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">7f2a891b</span>
-                                <span class="flex-1">Add payment processing serverless functions</span>
-                                <span class="text-gray-500 text-xs">1 day ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">6d1c742a</span>
-                                <span class="flex-1">Create complete UI with TailwindCSS styling</span>
-                                <span class="text-gray-500 text-xs">2 days ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">4e9b583f</span>
-                                <span class="flex-1">Initialize project structure and dependencies</span>
-                                <span class="text-gray-500 text-xs">2 days ago</span>
-                            </div>
-                            <div class="flex items-center">
-                                <span class="text-yellow-400 mr-3">8a5fb81c</span>
-                                <span class="flex-1">Initial commit</span>
-                                <span class="text-gray-500 text-xs">3 days ago</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6 pt-4 border-t border-gray-700">
-                            <div class="text-green-400 mb-2">$ git status</div>
-                            <div class="text-gray-300">
-                                On branch <span class="text-cyan-400">master</span><br>
-                                Your branch is up to date with '<span class="text-cyan-400">origin/master</span>'.<br><br>
-                                <span class="text-green-400">nothing to commit, working tree clean</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-center mt-6">
-                        <button onclick="this.closest('.modal').remove()" 
-                                class="bg-gray-800 text-white px-8 py-3 rounded-xl font-semibold hover:bg-gray-900 transition">
-                            <i class="fab fa-github mr-2"></i>Close
-                        </button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        }
         
         // Close modals when clicking outside
         window.onclick = function(event) {

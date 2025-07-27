@@ -202,10 +202,23 @@ export class DemoWebSocketManager {
         timestamp: new Date().toISOString()
       });
 
-      // Simulate price updates
+      // Simulate coin data with logos and loading states
+      const coins = [
+        { symbol: 'BTC', name: 'Bitcoin', logo: '₿', price: 45000 + (Math.random() - 0.5) * 2000, balance: Math.random() * 2 },
+        { symbol: 'ETH', name: 'Ethereum', logo: 'Ξ', price: 2500 + (Math.random() - 0.5) * 200, balance: Math.random() * 10 },
+        { symbol: 'ADA', name: 'Cardano', logo: '₳', price: 0.5 + (Math.random() - 0.5) * 0.1, balance: Math.random() * 1000 },
+        { symbol: 'DOT', name: 'Polkadot', logo: '●', price: 7 + (Math.random() - 0.5) * 1, balance: Math.random() * 100 },
+        { symbol: 'SOL', name: 'Solana', logo: '◎', price: 100 + (Math.random() - 0.5) * 20, balance: Math.random() * 20 },
+        { symbol: 'MATIC', name: 'Polygon', logo: '⬟', price: 0.8 + (Math.random() - 0.5) * 0.2, balance: Math.random() * 500 },
+        { symbol: 'ZERO', name: 'ZeroCoin', logo: '∅', price: 0, balance: 0 }
+      ];
+
+      this.notifySubscribers('coins', coins);
+      
+      // Simulate price updates for backward compatibility
       this.notifySubscribers('prices', {
-        ETH: 2500 + (Math.random() - 0.5) * 100,
-        BTC: 45000 + (Math.random() - 0.5) * 1000,
+        ETH: coins.find(c => c.symbol === 'ETH')?.price || 2500,
+        BTC: coins.find(c => c.symbol === 'BTC')?.price || 45000,
         gasPrice: 20 + (Math.random() - 0.5) * 10
       });
     }, 2000);

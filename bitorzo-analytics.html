@@ -297,6 +297,41 @@
                             <p class="text-2xl font-bold text-red-400" id="demo-risk">0%</p>
                         </div>
                     </div>
+                    
+                    <!-- Coin Portfolio Section -->
+                    <div class="mb-8">
+                        <div class="bg-gray-800 p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4 flex items-center">
+                                <i class="fas fa-coins text-yellow-400 mr-2"></i>
+                                Portfolio Holdings
+                            </h3>
+                            <div id="coin-portfolio" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Loading state -->
+                                <div class="loading-coin flex items-center p-3 bg-gray-700 rounded-lg animate-pulse">
+                                    <div class="w-8 h-8 bg-gray-600 rounded-full mr-3"></div>
+                                    <div class="flex-1">
+                                        <div class="h-4 bg-gray-600 rounded mb-2"></div>
+                                        <div class="h-3 bg-gray-600 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                                <div class="loading-coin flex items-center p-3 bg-gray-700 rounded-lg animate-pulse">
+                                    <div class="w-8 h-8 bg-gray-600 rounded-full mr-3"></div>
+                                    <div class="flex-1">
+                                        <div class="h-4 bg-gray-600 rounded mb-2"></div>
+                                        <div class="h-3 bg-gray-600 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                                <div class="loading-coin flex items-center p-3 bg-gray-700 rounded-lg animate-pulse">
+                                    <div class="w-8 h-8 bg-gray-600 rounded-full mr-3"></div>
+                                    <div class="flex-1">
+                                        <div class="h-4 bg-gray-600 rounded mb-2"></div>
+                                        <div class="h-3 bg-gray-600 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="bg-gray-800 p-6 rounded-lg">
                             <h3 class="text-lg font-semibold mb-4">Recent Transactions</h3>
@@ -325,6 +360,11 @@
         }
         
         function startDemoUpdates() {
+            // Subscribe to coin updates
+            if (demoFeatures?.websocket) {
+                demoFeatures.websocket.subscribe('coins', updateCoinPortfolio);
+            }
+            
             setInterval(async () => {
                 if (demoFeatures) {
                     const metrics = await demoFeatures.kafka.aggregateMetrics();
@@ -334,6 +374,55 @@
                     document.getElementById('demo-risk').textContent = `${(Math.random() * 100).toFixed(1)}%`;
                 }
             }, 3000);
+        }
+        
+        function updateCoinPortfolio(coins) {
+            const portfolioContainer = document.getElementById('coin-portfolio');
+            if (!portfolioContainer) return;
+            
+            // Filter out coins with zero value
+            const activeCoins = coins.filter(coin => {
+                const totalValue = coin.price * coin.balance;
+                return totalValue > 0;
+            });
+            
+            // Clear loading state and existing coins
+            portfolioContainer.innerHTML = '';
+            
+            if (activeCoins.length === 0) {
+                portfolioContainer.innerHTML = `
+                    <div class="col-span-full text-center text-gray-400 py-8">
+                        <i class="fas fa-wallet text-4xl mb-2"></i>
+                        <p>No active holdings</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Add coin cards
+            activeCoins.forEach(coin => {
+                const totalValue = coin.price * coin.balance;
+                const coinCard = document.createElement('div');
+                coinCard.className = 'coin-card flex items-center p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors';
+                
+                coinCard.innerHTML = `
+                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                        ${coin.logo}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-semibold text-white">${coin.symbol}</span>
+                            <span class="text-green-400 font-bold">$${totalValue.toFixed(2)}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-gray-400">
+                            <span>${coin.balance.toFixed(4)} ${coin.symbol}</span>
+                            <span>$${coin.price.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+                
+                portfolioContainer.appendChild(coinCard);
+            });
         }
 
         window.startDemo = function() {
