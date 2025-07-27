@@ -23,17 +23,33 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
+        analytics: resolve(__dirname, 'bitorzo-analytics.html'),
+        features: resolve(__dirname, 'advanced-features.html')
       },
+      external: [
+        // Mark heavy dependencies as external to avoid build issues
+        '@xenova/transformers',
+        '@pinecone-database/pinecone',
+        'snarkjs',
+        'circomlibjs',
+        '@apollo/server',
+        '@apollo/gateway',
+        '@opentelemetry/api',
+        'ipfs-http-client',
+        'kafkajs',
+        'redis'
+      ],
       output: {
         manualChunks: {
           'vendor': ['react', 'react-dom'],
-          'web3': ['ethers', 'web3modal', '@walletconnect/web3-provider'],
+          'web3': ['ethers', 'web3modal'],
           'crypto': ['bitcoinjs-lib', 'bip39'],
-          'ui': ['@stripe/stripe-js']
+          'ui': ['@stripe/stripe-js'],
+          'charts': ['chart.js', 'd3']
         }
       }
     }
@@ -47,7 +63,21 @@ export default defineConfig({
       '@walletconnect/web3-provider',
       'bitcoinjs-lib',
       'bip39',
-      '@stripe/stripe-js'
+      '@stripe/stripe-js',
+      'chart.js',
+      'd3',
+      'lodash',
+      'moment'
+    ],
+    exclude: [
+      // Exclude heavy ML/AI dependencies from pre-bundling
+      '@xenova/transformers',
+      '@tensorflow/tfjs',
+      '@pinecone-database/pinecone',
+      'snarkjs',
+      'circomlibjs',
+      'kafkajs',
+      'redis'
     ],
     esbuildOptions: {
       define: {

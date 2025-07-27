@@ -383,19 +383,86 @@ query GetAnalytics {<br>
         </div>
     </footer>
 
-    <script>
-        // Add interactive demos here
-        document.addEventListener('DOMContentLoaded', () => {
+    <script type="module">
+        import { initializeDemoFeatures } from './demo-features.js';
+        
+        // Interactive demos
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize demo features
+            const demoFeatures = await initializeDemoFeatures();
+            window.demoFeatures = demoFeatures;
+            
+            // Add click handlers to feature cards
+            document.querySelectorAll('.feature-card').forEach((card, index) => {
+                card.addEventListener('click', async () => {
+                    const features = [
+                        'Vector Search',
+                        'ZK Proofs', 
+                        'Kafka Streaming',
+                        'WebAssembly',
+                        'GraphQL Federation',
+                        'OpenTelemetry'
+                    ];
+                    
+                    const feature = features[index];
+                    if (feature) {
+                        showFeatureDemo(feature, demoFeatures);
+                    }
+                });
+            });
+            
             // Simulate real-time metrics
             const updateMetrics = () => {
                 const metrics = document.querySelectorAll('.pulse-dot');
                 metrics.forEach(m => {
                     m.style.animationDelay = `${Math.random() * 2}s`;
                 });
+                
+                // Update performance numbers
+                const eventsEl = document.querySelector('.text-4xl:contains("1M+")');
+                if (eventsEl) {
+                    const newValue = (1000000 + Math.floor(Math.random() * 100000)).toLocaleString();
+                    eventsEl.textContent = newValue.substring(0, 3) + 'K+';
+                }
             };
             
             setInterval(updateMetrics, 3000);
         });
+        
+        async function showFeatureDemo(featureName, demoFeatures) {
+            let result;
+            
+            switch(featureName) {
+                case 'Vector Search':
+                    result = await demoFeatures.vectorSearch.semanticSearch(
+                        "DeFi protocol transactions with high value"
+                    );
+                    alert(`🤖 Vector Search Demo\n\nQuery: "DeFi protocol transactions with high value"\n\nResults: ${result.length} similar transactions found\nTop match: ${result[0]?.blockchain} transaction with ${result[0]?.score?.toFixed(3)} similarity`);
+                    break;
+                    
+                case 'ZK Proofs':
+                    const proof = await demoFeatures.zkProofs.generateBalanceProof(50000, 10000);
+                    const verified = await demoFeatures.zkProofs.verifyBalanceProof(proof.proof, proof.publicSignals);
+                    alert(`🔐 Zero-Knowledge Proof Demo\n\nProof Type: Balance Verification\nProtocol: Groth16\nCurve: BN128\n\nResult: ${verified.verified ? '✅ Verified' : '❌ Failed'}\nProof generated without revealing actual balance!`);
+                    break;
+                    
+                case 'Kafka Streaming':
+                    const metrics = await demoFeatures.kafka.aggregateMetrics('5m');
+                    alert(`⚡ Kafka Analytics Demo\n\nReal-time Metrics (5min window):\n• Transactions: ${metrics.totalTransactions.toLocaleString()}\n• Volume: $${(metrics.totalVolume/1000000).toFixed(1)}M\n• Unique Wallets: ${metrics.uniqueWallets.toLocaleString()}\n• Avg Size: $${metrics.avgTransactionSize.toFixed(0)}`);
+                    break;
+                    
+                case 'WebAssembly':
+                    const benchmark = await demoFeatures.wasm.benchmark();
+                    alert(`🚀 WebAssembly Performance Demo\n\nCrypto Operations Benchmark:\n• JavaScript: ${benchmark.jsTime}ms\n• WebAssembly: ${benchmark.wasmTime}ms\n• Speedup: ${benchmark.speedup.toFixed(1)}x faster\n\nWASM provides near-native performance!`);
+                    break;
+                    
+                default:
+                    alert(`🛠️ ${featureName} Demo\n\nThis feature showcases enterprise-grade ${featureName.toLowerCase()} capabilities.\n\nKey benefits:\n• Scalable architecture\n• Production-ready\n• Industry standards\n\nContact for detailed technical demo.`);
+            }
+        }
+        
+        // Global functions for external calls
+        window.showFeatureDemo = showFeatureDemo;
     </script>
 </body>
 </html>
