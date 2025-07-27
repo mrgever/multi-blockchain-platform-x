@@ -188,19 +188,6 @@
         </div>
 
 
-        <!-- Live Crypto Prices -->
-        <div class="mb-12">
-            <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-chart-line text-green-500 mr-3"></i>
-                Top 10 Cryptocurrency Prices
-                <button onclick="loadCryptoPrices()" class="ml-4 text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full hover:bg-green-200 transition">
-                    <i class="fas fa-sync-alt mr-1"></i>Refresh
-                </button>
-            </h2>
-            <div id="cryptoPrices" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <!-- Top 10 crypto prices will be loaded dynamically -->
-            </div>
-        </div>
 
         <!-- Mobile-Responsive CSS -->
         <style>
@@ -1593,89 +1580,12 @@
                     });
                 }
                 
-                displayTop10Cryptocurrencies(data.rates);
-                showToast('Success', 'Crypto prices updated', 'success');
+                showToast('Success', 'Data updated', 'success');
                 
             } catch (error) {
-                console.error('Failed to load crypto prices:', error);
-                showFallbackPrices();
-                showToast('Error', 'Failed to load live prices, showing cached data', 'warning');
+                console.error('Failed to load data:', error);
+                showToast('Error', 'Failed to load live data', 'warning');
             }
-        }
-        
-        function displayTop10Cryptocurrencies(rates) {
-            const cryptoPricesContainer = document.getElementById('cryptoPrices');
-            
-            // Define the top cryptocurrencies with their display info
-            const topCryptos = [
-                { symbol: 'BTC', name: 'Bitcoin', icon: '₿', color: 'orange' },
-                { symbol: 'ETH', name: 'Ethereum', icon: 'Ξ', color: 'blue' },
-                { symbol: 'BNB', name: 'BNB', icon: '◈', color: 'yellow' },
-                { symbol: 'XRP', name: 'XRP', icon: '◆', color: 'blue' },
-                { symbol: 'ADA', name: 'Cardano', icon: '₳', color: 'blue' },
-                { symbol: 'AVAX', name: 'Avalanche', icon: '🔺', color: 'red' },
-                { symbol: 'DOT', name: 'Polkadot', icon: '●', color: 'pink' },
-                { symbol: 'MATIC', name: 'Polygon', icon: '◊', color: 'purple' },
-                { symbol: 'SOL', name: 'Solana', icon: '◎', color: 'purple' },
-                { symbol: 'USDT', name: 'Tether', icon: '$', color: 'green' }
-            ];
-            
-            let html = '';
-            
-            topCryptos.forEach(crypto => {
-                const rate = rates[crypto.symbol] || { usd: 0, usd_24h_change: 0 };
-                const price = rate.usd ? rate.usd.toLocaleString('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    minimumFractionDigits: rate.usd < 1 ? 6 : 2,
-                    maximumFractionDigits: rate.usd < 1 ? 6 : 2
-                }) : '$0.00';
-                
-                const change = rate.usd_24h_change || 0;
-                const changeClass = change >= 0 ? 'text-green-500' : 'text-red-500';
-                const changeIcon = change >= 0 ? '↗' : '↘';
-                
-                html += `
-                    <div class="bg-white rounded-xl p-4 shadow-sm crypto-card hover:shadow-md transition-all duration-300 border border-gray-100">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-10 h-10 bg-${crypto.color}-100 rounded-full flex items-center justify-center mr-3">
-                                    <span class="text-${crypto.color}-600 font-bold text-lg">${crypto.icon}</span>
-                                </div>
-                                <div>
-                                    <div class="font-semibold text-sm">${crypto.name}</div>
-                                    <div class="text-xs text-gray-500">${crypto.symbol}</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-bold text-lg">${price}</div>
-                                <div class="text-xs ${changeClass} flex items-center">
-                                    ${changeIcon} ${Math.abs(change).toFixed(2)}%
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            cryptoPricesContainer.innerHTML = html;
-        }
-        
-        function showFallbackPrices() {
-            const fallbackRates = {
-                'BTC': { usd: 43000, usd_24h_change: 2.5 },
-                'ETH': { usd: 2600, usd_24h_change: 1.8 },
-                'BNB': { usd: 310, usd_24h_change: -0.5 },
-                'XRP': { usd: 0.52, usd_24h_change: 3.2 },
-                'ADA': { usd: 0.38, usd_24h_change: -1.1 },
-                'AVAX': { usd: 37, usd_24h_change: 4.6 },
-                'DOT': { usd: 7.2, usd_24h_change: 0.8 },
-                'MATIC': { usd: 0.89, usd_24h_change: -2.1 },
-                'SOL': { usd: 102, usd_24h_change: 5.4 },
-                'USDT': { usd: 1.00, usd_24h_change: 0.0 }
-            };
-            
-            displayTop10Cryptocurrencies(fallbackRates);
         }
         
         function updatePriceDisplay(crypto, data) {
