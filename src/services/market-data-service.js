@@ -32,57 +32,105 @@ export class MarketDataService extends EventEmitter {
     }
 
     initializeDataSources() {
-        // Primary Sources (Institutional Grade)
-        this.dataSources.set('coinbase', {
+        // Primary Exchange Sources (Real trading data)
+        this.dataSources.set('binance', {
             priority: 1,
-            endpoint: 'https://api.coinbase.com/v2/exchange-rates',
-            apiKey: process.env.COINBASE_API_KEY,
-            rateLimit: 10000, // requests per hour
+            endpoint: 'https://api.binance.com/api/v3/ticker/24hr',
+            apiKey: null, // Public API
+            rateLimit: 1200, // requests per minute
             lastCall: 0,
             reliability: 0.99,
-            type: 'primary'
+            type: 'exchange',
+            exchange: 'Binance'
         });
 
-        this.dataSources.set('binance', {
+        this.dataSources.set('coinbase_pro', {
             priority: 2,
-            endpoint: 'https://api.binance.com/api/v3/ticker/price',
-            apiKey: process.env.BINANCE_API_KEY,
-            rateLimit: 6000,
+            endpoint: 'https://api.exchange.coinbase.com/products',
+            apiKey: null, // Public API
+            rateLimit: 600,
             lastCall: 0,
             reliability: 0.98,
-            type: 'primary'
+            type: 'exchange',
+            exchange: 'Coinbase Pro'
         });
 
-        // Secondary Sources (Backup & Validation)
-        this.dataSources.set('coingecko', {
+        this.dataSources.set('kraken', {
             priority: 3,
+            endpoint: 'https://api.kraken.com/0/public/Ticker',
+            apiKey: null, // Public API
+            rateLimit: 1000,
+            lastCall: 0,
+            reliability: 0.97,
+            type: 'exchange',
+            exchange: 'Kraken'
+        });
+
+        this.dataSources.set('kucoin', {
+            priority: 4,
+            endpoint: 'https://api.kucoin.com/api/v1/market/allTickers',
+            apiKey: null, // Public API
+            rateLimit: 600,
+            lastCall: 0,
+            reliability: 0.96,
+            type: 'exchange',
+            exchange: 'KuCoin'
+        });
+
+        this.dataSources.set('huobi', {
+            priority: 5,
+            endpoint: 'https://api.huobi.pro/market/tickers',
+            apiKey: null, // Public API
+            rateLimit: 600,
+            lastCall: 0,
+            reliability: 0.95,
+            type: 'exchange',
+            exchange: 'Huobi'
+        });
+
+        this.dataSources.set('okx', {
+            priority: 6,
+            endpoint: 'https://www.okx.com/api/v5/market/tickers',
+            apiKey: null, // Public API
+            rateLimit: 600,
+            lastCall: 0,
+            reliability: 0.94,
+            type: 'exchange',
+            exchange: 'OKX'
+        });
+
+        // Aggregator Sources (Backup & Validation)
+        this.dataSources.set('coingecko', {
+            priority: 7,
             endpoint: 'https://api.coingecko.com/api/v3/simple/price',
             apiKey: process.env.COINGECKO_API_KEY,
             rateLimit: 50, // Demo tier
             lastCall: 0,
             reliability: 0.95,
-            type: 'secondary'
+            type: 'aggregator',
+            exchange: 'CoinGecko'
         });
 
         this.dataSources.set('coinmarketcap', {
-            priority: 4,
+            priority: 8,
             endpoint: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
             apiKey: process.env.CMC_API_KEY,
             rateLimit: 333,
             lastCall: 0,
             reliability: 0.97,
-            type: 'secondary'
+            type: 'aggregator',
+            exchange: 'CoinMarketCap'
         });
 
-        // Real-World Asset Sources (Future Integration)
-        this.dataSources.set('alphavantage', {
-            priority: 5,
-            endpoint: 'https://www.alphavantage.co/query',
-            apiKey: process.env.ALPHA_VANTAGE_API_KEY,
-            rateLimit: 5, // Free tier
+        this.dataSources.set('cryptocompare', {
+            priority: 9,
+            endpoint: 'https://min-api.cryptocompare.com/data/pricemultifull',
+            apiKey: process.env.CRYPTOCOMPARE_API_KEY,
+            rateLimit: 300,
             lastCall: 0,
-            reliability: 0.94,
-            type: 'rwa'
+            reliability: 0.93,
+            type: 'aggregator',
+            exchange: 'CryptoCompare'
         });
 
         // Initialize health status for all sources
@@ -92,7 +140,8 @@ export class MarketDataService extends EventEmitter {
                 lastCheck: 0,
                 consecutiveFailures: 0,
                 averageLatency: 0,
-                uptime: 0
+                uptime: 0,
+                exchangeName: config.exchange
             });
         }
     }
@@ -207,18 +256,32 @@ export class MarketDataService extends EventEmitter {
 
     async callSourceAPI(sourceName, symbols) {
         const config = this.dataSources.get(sourceName);
-        const headers = {};
+        const headers = {
+            'User-Agent': 'Bitorzo-Analytics/1.0'
+        };
         
         if (config.apiKey) {
             headers['X-API-Key'] = config.apiKey;
         }
 
         switch (sourceName) {
-            case 'coinbase':
-                return await this.fetchCoinbaseData(symbols, headers);
-            
             case 'binance':
                 return await this.fetchBinanceData(symbols, headers);
+            
+            case 'coinbase_pro':
+                return await this.fetchCoinbaseProData(symbols, headers);
+            
+            case 'kraken':
+                return await this.fetchKrakenData(symbols, headers);
+            
+            case 'kucoin':
+                return await this.fetchKucoinData(symbols, headers);
+            
+            case 'huobi':
+                return await this.fetchHuobiData(symbols, headers);
+            
+            case 'okx':
+                return await this.fetchOKXData(symbols, headers);
             
             case 'coingecko':
                 return await this.fetchCoingeckoData(symbols, headers);
@@ -226,8 +289,8 @@ export class MarketDataService extends EventEmitter {
             case 'coinmarketcap':
                 return await this.fetchCMCData(symbols, headers);
             
-            case 'alphavantage':
-                return await this.fetchAlphaVantageData(symbols, headers);
+            case 'cryptocompare':
+                return await this.fetchCryptoCompareData(symbols, headers);
             
             default:
                 throw new Error(`Unknown data source: ${sourceName}`);
@@ -258,29 +321,263 @@ export class MarketDataService extends EventEmitter {
     }
 
     async fetchBinanceData(symbols, headers) {
-        const result = {};
-        
-        for (const symbol of symbols) {
-            try {
-                const ticker = `${symbol}USDT`;
-                const [priceResponse, volumeResponse] = await Promise.all([
-                    axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${ticker}`, { headers, timeout: 5000 }),
-                    axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${ticker}`, { headers, timeout: 5000 })
-                ]);
+        try {
+            // Fetch all tickers at once for efficiency
+            const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr', { 
+                headers, 
+                timeout: 10000 
+            });
+            
+            const result = {};
+            const tickers = response.data;
+            
+            for (const symbol of symbols) {
+                const ticker = tickers.find(t => 
+                    t.symbol === `${symbol}USDT` || 
+                    t.symbol === `${symbol}BUSD` ||
+                    t.symbol === `${symbol}BTC`
+                );
                 
-                result[symbol] = {
-                    price: parseFloat(priceResponse.data.price),
-                    volume_24h: parseFloat(volumeResponse.data.volume),
-                    price_change_24h: parseFloat(volumeResponse.data.priceChangePercent),
-                    last_updated: new Date().toISOString()
-                };
-            } catch (error) {
-                // Continue with other symbols if one fails
-                console.warn(`Binance: Failed to fetch ${symbol}:`, error.message);
+                if (ticker) {
+                    let price = parseFloat(ticker.lastPrice);
+                    
+                    // Convert BTC pairs to USD
+                    if (ticker.symbol.endsWith('BTC')) {
+                        const btcTicker = tickers.find(t => t.symbol === 'BTCUSDT');
+                        if (btcTicker) {
+                            price = price * parseFloat(btcTicker.lastPrice);
+                        }
+                    }
+                    
+                    result[symbol] = {
+                        price: price,
+                        volume_24h: parseFloat(ticker.volume),
+                        price_change_24h: parseFloat(ticker.priceChangePercent),
+                        high_24h: parseFloat(ticker.highPrice),
+                        low_24h: parseFloat(ticker.lowPrice),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'Binance'
+                    };
+                }
             }
+            
+            return result;
+        } catch (error) {
+            console.warn('Binance API error:', error.message);
+            return {};
         }
-        
-        return result;
+    }
+
+    async fetchCoinbaseProData(symbols, headers) {
+        try {
+            const result = {};
+            
+            for (const symbol of symbols) {
+                try {
+                    const productId = `${symbol}-USD`;
+                    const [statsResponse, tickerResponse] = await Promise.all([
+                        axios.get(`https://api.exchange.coinbase.com/products/${productId}/stats`, { headers, timeout: 5000 }),
+                        axios.get(`https://api.exchange.coinbase.com/products/${productId}/ticker`, { headers, timeout: 5000 })
+                    ]);
+                    
+                    const stats = statsResponse.data;
+                    const ticker = tickerResponse.data;
+                    
+                    result[symbol] = {
+                        price: parseFloat(ticker.price),
+                        volume_24h: parseFloat(stats.volume),
+                        high_24h: parseFloat(stats.high),
+                        low_24h: parseFloat(stats.low),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'Coinbase Pro'
+                    };
+                } catch (error) {
+                    console.warn(`Coinbase Pro: Failed to fetch ${symbol}:`, error.message);
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('Coinbase Pro API error:', error.message);
+            return {};
+        }
+    }
+
+    async fetchKrakenData(symbols, headers) {
+        try {
+            const pairs = symbols.map(s => `X${s}ZUSD`).join(',');
+            const response = await axios.get(`https://api.kraken.com/0/public/Ticker?pair=${pairs}`, { 
+                headers, 
+                timeout: 10000 
+            });
+            
+            const result = {};
+            const data = response.data.result;
+            
+            for (const symbol of symbols) {
+                const pairKey = Object.keys(data).find(key => 
+                    key.includes(symbol) || key.includes(`X${symbol}`)
+                );
+                
+                if (pairKey && data[pairKey]) {
+                    const ticker = data[pairKey];
+                    result[symbol] = {
+                        price: parseFloat(ticker.c[0]), // Last trade price
+                        volume_24h: parseFloat(ticker.v[1]), // 24h volume
+                        high_24h: parseFloat(ticker.h[1]), // 24h high
+                        low_24h: parseFloat(ticker.l[1]), // 24h low
+                        last_updated: new Date().toISOString(),
+                        exchange: 'Kraken'
+                    };
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('Kraken API error:', error.message);
+            return {};
+        }
+    }
+
+    async fetchKucoinData(symbols, headers) {
+        try {
+            const response = await axios.get('https://api.kucoin.com/api/v1/market/allTickers', { 
+                headers, 
+                timeout: 10000 
+            });
+            
+            const result = {};
+            const tickers = response.data.data.ticker;
+            
+            for (const symbol of symbols) {
+                const ticker = tickers.find(t => 
+                    t.symbol === `${symbol}-USDT` || 
+                    t.symbol === `${symbol}-USD`
+                );
+                
+                if (ticker) {
+                    result[symbol] = {
+                        price: parseFloat(ticker.last),
+                        volume_24h: parseFloat(ticker.volValue), // Volume in USD
+                        price_change_24h: parseFloat(ticker.changeRate) * 100,
+                        high_24h: parseFloat(ticker.high),
+                        low_24h: parseFloat(ticker.low),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'KuCoin'
+                    };
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('KuCoin API error:', error.message);
+            return {};
+        }
+    }
+
+    async fetchHuobiData(symbols, headers) {
+        try {
+            const response = await axios.get('https://api.huobi.pro/market/tickers', { 
+                headers, 
+                timeout: 10000 
+            });
+            
+            const result = {};
+            const tickers = response.data.data;
+            
+            for (const symbol of symbols) {
+                const ticker = tickers.find(t => 
+                    t.symbol === `${symbol.toLowerCase()}usdt` || 
+                    t.symbol === `${symbol.toLowerCase()}usd`
+                );
+                
+                if (ticker) {
+                    result[symbol] = {
+                        price: parseFloat(ticker.close),
+                        volume_24h: parseFloat(ticker.vol),
+                        high_24h: parseFloat(ticker.high),
+                        low_24h: parseFloat(ticker.low),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'Huobi'
+                    };
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('Huobi API error:', error.message);
+            return {};
+        }
+    }
+
+    async fetchOKXData(symbols, headers) {
+        try {
+            const response = await axios.get('https://www.okx.com/api/v5/market/tickers?instType=SPOT', { 
+                headers, 
+                timeout: 10000 
+            });
+            
+            const result = {};
+            const tickers = response.data.data;
+            
+            for (const symbol of symbols) {
+                const ticker = tickers.find(t => 
+                    t.instId === `${symbol}-USDT` || 
+                    t.instId === `${symbol}-USD`
+                );
+                
+                if (ticker) {
+                    result[symbol] = {
+                        price: parseFloat(ticker.last),
+                        volume_24h: parseFloat(ticker.volCcy24h), // Volume in quote currency
+                        price_change_24h: parseFloat(ticker.chgUtc8) * 100,
+                        high_24h: parseFloat(ticker.high24h),
+                        low_24h: parseFloat(ticker.low24h),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'OKX'
+                    };
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('OKX API error:', error.message);
+            return {};
+        }
+    }
+
+    async fetchCryptoCompareData(symbols, headers) {
+        try {
+            const symbolsParam = symbols.join(',');
+            const response = await axios.get(
+                `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${symbolsParam}&tsyms=USD`,
+                { headers, timeout: 10000 }
+            );
+            
+            const result = {};
+            const data = response.data.RAW;
+            
+            for (const symbol of symbols) {
+                if (data[symbol] && data[symbol].USD) {
+                    const info = data[symbol].USD;
+                    result[symbol] = {
+                        price: parseFloat(info.PRICE),
+                        volume_24h: parseFloat(info.TOTALVOLUME24HTO),
+                        price_change_24h: parseFloat(info.CHANGEPCT24HOUR),
+                        high_24h: parseFloat(info.HIGH24HOUR),
+                        low_24h: parseFloat(info.LOW24HOUR),
+                        market_cap: parseFloat(info.MKTCAP),
+                        last_updated: new Date().toISOString(),
+                        exchange: 'CryptoCompare'
+                    };
+                }
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('CryptoCompare API error:', error.message);
+            return {};
+        }
     }
 
     async fetchCoingeckoData(symbols, headers) {
@@ -407,16 +704,35 @@ export class MarketDataService extends EventEmitter {
             const marketCaps = symbolData.map(d => d.market_cap).filter(m => m && m > 0);
             const priceChanges = symbolData.map(d => d.price_change_24h).filter(p => p !== null && p !== undefined);
             
+            // Aggregate exchange prices for transparency
+            const exchangePrices = symbolData.map(d => ({
+                exchange: d.exchange || 'Unknown',
+                price: d.price,
+                volume: d.volume_24h,
+                source: d.source
+            })).sort((a, b) => b.volume - a.volume);
+
             consolidated[symbol] = {
                 price: finalPrice,
                 volume_24h: volumes.length > 0 ? this.calculateMedian(volumes) : null,
                 market_cap: marketCaps.length > 0 ? this.calculateMedian(marketCaps) : null,
                 price_change_24h: priceChanges.length > 0 ? this.calculateMedian(priceChanges) : null,
+                high_24h: symbolData.map(d => d.high_24h).filter(h => h).length > 0 ? 
+                    Math.max(...symbolData.map(d => d.high_24h).filter(h => h)) : null,
+                low_24h: symbolData.map(d => d.low_24h).filter(l => l).length > 0 ? 
+                    Math.min(...symbolData.map(d => d.low_24h).filter(l => l)) : null,
+                exchange_prices: exchangePrices,
+                price_range: {
+                    min: Math.min(...validPrices),
+                    max: Math.max(...validPrices),
+                    spread_percentage: ((Math.max(...validPrices) - Math.min(...validPrices)) / finalPrice) * 100
+                },
                 data_quality: {
                     sources_count: symbolData.length,
                     consensus_reached: validPrices.length >= 2,
                     price_deviation: stdDev / mean,
-                    outliers_removed: prices.length - validPrices.length
+                    outliers_removed: prices.length - validPrices.length,
+                    confidence_score: Math.min(95, 60 + (validPrices.length * 7)) // Max 95% confidence
                 },
                 last_updated: new Date().toISOString(),
                 sources: symbolData.map(d => d.source)
