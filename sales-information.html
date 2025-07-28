@@ -102,7 +102,7 @@
                         <div id="last-update" class="text-sm text-purple-200">Last updated: --</div>
                         <div id="data-sources" class="text-xs text-purple-300">Sources: 0</div>
                     </div>
-                    <button onclick="refreshAllData()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition flex items-center">
+                    <button id="refresh-btn" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition flex items-center">
                         <i class="fas fa-sync-alt mr-2" id="refresh-icon"></i>
                         Refresh
                     </button>
@@ -206,10 +206,10 @@
                         </select>
                     </div>
                     <div class="flex space-x-2">
-                        <button onclick="setTimeframe('1h')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1h">1H</button>
-                        <button onclick="setTimeframe('4h')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="4h">4H</button>
-                        <button onclick="setTimeframe('1d')" class="px-3 py-1 text-sm border rounded timeframe-btn active" data-timeframe="1d">1D</button>
-                        <button onclick="setTimeframe('1w')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1w">1W</button>
+                        <button class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1h">1H</button>
+                        <button class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="4h">4H</button>
+                        <button class="px-3 py-1 text-sm border rounded timeframe-btn active" data-timeframe="1d">1D</button>
+                        <button class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1w">1W</button>
                     </div>
                 </div>
                 <div id="price-chart" style="height: 400px;"></div>
@@ -261,7 +261,7 @@
                         <input type="date" id="start-date" class="border rounded px-3 py-2" />
                         <span class="text-gray-500">to</span>
                         <input type="date" id="end-date" class="border rounded px-3 py-2" />
-                        <button onclick="loadHistoricalData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                        <button id="analyze-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
                             Analyze
                         </button>
                     </div>
@@ -1033,6 +1033,32 @@
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             window.salesInfoPage = new SalesInformationPage();
+            
+            // Add event listeners to replace inline handlers
+            document.getElementById('refresh-btn').addEventListener('click', () => {
+                if (window.salesInfoPage) {
+                    window.salesInfoPage.refreshAllData();
+                }
+            });
+            
+            document.getElementById('analyze-btn').addEventListener('click', () => {
+                if (window.salesInfoPage) {
+                    window.salesInfoPage.loadHistoricalData();
+                }
+            });
+            
+            // Add event listeners for timeframe buttons
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const timeframe = btn.getAttribute('data-timeframe');
+                    document.querySelectorAll('.timeframe-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-blue-500', 'text-white');
+                        b.classList.add('bg-white', 'text-gray-700');
+                    });
+                    btn.classList.add('active', 'bg-blue-500', 'text-white');
+                    btn.classList.remove('bg-white', 'text-gray-700');
+                });
+            });
             
             // Set default dates for historical analysis
             const today = new Date();

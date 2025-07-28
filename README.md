@@ -1,36 +1,64 @@
-# Multi-Blockchain Platform
+# Bitorzo - Advanced Blockchain Analytics Platform
 
-A comprehensive platform for managing cryptocurrencies across TON, Ethereum, Bitcoin, Dogecoin, and USDT (ERC-20).
+A comprehensive blockchain analytics and cryptocurrency management platform serving both developers and individual users across TON, Ethereum, Bitcoin, Dogecoin, and USDT (ERC-20).
 
-## Features
+## Target Markets
 
-### 1. Wallet Management
+### B2B Developer Solutions
+Powerful APIs and tools for developers building blockchain applications
+
+### B2C Individual Users
+Simplified, secure crypto management for everyday users with:
+- **Unified Multi-Currency Wallet**: Manage ETH, BTC, DOGE, USDT, and more in one interface
+- **Easy Crypto Payments**: Streamlined crypto payment processing
+- **Fiat On/Off-Ramps**: Buy crypto with credit cards, sell crypto for fiat
+- **Market Intelligence**: Real-time crypto prices and market insights
+- **Self-Custody Security**: You control your keys, we never hold your funds
+
+## Core Features
+
+### 1. Advanced Wallet Management
 - HD wallet generation with BIP32/BIP39/BIP44 standards
 - Secure mnemonic phrase generation and encryption
-- Multi-currency wallet support
+- Multi-currency wallet support (ETH, BTC, DOGE, USDT)
 - Client-side transaction signing
 - Address derivation for all supported blockchains
 
-### 2. Transaction Management
+### 2. Transaction & Payment Processing
 - Send and receive transactions across all chains
-- Real-time fee estimation
-- Transaction history tracking
+- Real-time fee estimation and transparent pricing
+- Transaction history tracking with detailed analytics
 - Support for ERC-20 USDT transfers
-- Transaction status monitoring
+- Transaction status monitoring and notifications
 
-### 3. Blockchain Explorer
+### 3. Blockchain Analytics & Explorer
 - Universal search across all blockchains
-- Real-time block monitoring
-- Transaction details view
-- Address balance and history
-- Block explorer functionality
+- Real-time block monitoring and analytics
+- Transaction details view with advanced insights
+- Address balance and history tracking
+- Comprehensive market data and trends
 
-### 4. Security Features
+### 4. Enterprise Security
 - Client-side key management
 - Encrypted storage for sensitive data
 - Multi-factor authentication support
 - Comprehensive audit logging
 - Rate limiting and API security
+
+## B2C Monetization Strategy
+
+### Revenue Models
+- **Transaction Fees**: Small percentage fees on crypto-to-crypto swaps and fiat conversions
+- **Premium Features**: Subscription tier with advanced analytics, priority support, and enhanced limits
+- **Fiat On/Off-Ramp**: Competitive fees for credit card purchases and bank withdrawals
+- **Referral Programs**: Commission from integrated third-party services
+
+### Value Proposition
+Bitorzo transforms powerful blockchain technology into accessible, profitable services for individual crypto users by solving key pain points:
+- **Simplified Management**: Single interface for multiple cryptocurrencies
+- **Transparent Pricing**: Clear fee structures with competitive rates
+- **Enhanced Security**: Self-custody focus with institutional-grade security
+- **Market Intelligence**: Real-time data and insights for better decision-making
 
 ## Tech Stack
 
