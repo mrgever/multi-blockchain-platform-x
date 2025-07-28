@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Developers - Bitorzo API Documentation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .code-header {
+            background: #1e1e1e;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        .copy-button {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .copy-button:hover {
+            background: #764ba2;
+        }
+        
+        .endpoint-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        
+        .method-get { background: #28a745; color: white; }
+        .method-post { background: #007bff; color: white; }
+        .method-put { background: #ffc107; color: #333; }
+        .method-delete { background: #dc3545; color: white; }
+        
+        .sidebar-link {
+            display: block;
+            padding: 8px 16px;
+            color: #4b5563;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-link:hover {
+            background: #f3f4f6;
+            color: #111827;
+            border-left-color: #667eea;
+        }
+        
+        .sidebar-link.active {
+            background: #ede9fe;
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+        
+        .api-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .response-example {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .tab-button {
+            padding: 8px 16px;
+            background: #e5e7eb;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-stable { background: #d1fae5; color: #065f46; }
+        .status-beta { background: #fef3c7; color: #92400e; }
+        .status-deprecated { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center">
+                        <i class="fas fa-chart-network text-3xl text-yellow-300 mr-3"></i>
+                        <h1 class="text-2xl font-bold">Bitorzo Developers</h1>
+                    </a>
+                </div>
+                <nav class="flex items-center space-x-6">
+                    <a href="index.html" class="hover:text-yellow-300 transition">Home</a>
+                    <a href="sales-information.html" class="hover:text-yellow-300 transition">Market Data</a>
+                    <a href="#support" class="hover:text-yellow-300 transition">Support</a>
+                    <a href="https://github.com/bitorzo" target="_blank" class="hover:text-yellow-300 transition">
+                        <i class="fab fa-github text-xl"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md sidebar">
+                    <div class="p-4 border-b">
+                        <h3 class="font-semibold text-gray-800">Documentation</h3>
+                    </div>
+                    <nav class="p-2">
+                        <a href="#overview" class="sidebar-link active">Overview</a>
+                        <a href="#getting-started" class="sidebar-link">Getting Started</a>
+                        <a href="#authentication" class="sidebar-link">Authentication</a>
+                        
+                        <div class="mt-4 mb-2 px-4">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase">Payment APIs</h4>
+                        </div>
+                        <a href="#create-payment" class="sidebar-link">Create Payment</a>
+                        <a href="#payment-status" class="sidebar-link">Payment Status</a>
+                        <a href="#stripe-payment" class="sidebar-link">Stripe Integration</a>
+                        
+                        <div class="mt-4 mb-2 px-4">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase">Market Data APIs</h4>
+                        </div>
+                        <a href="#realtime-prices" class="sidebar-link">Real-time Prices</a>
+                        <a href="#orderbook" class="sidebar-link">Order Book Data</a>
+                        <a href="#historical-data" class="sidebar-link">Historical Data</a>
+                        
+                        <div class="mt-4 mb-2 px-4">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase">Webhooks</h4>
+                        </div>
+                        <a href="#webhooks" class="sidebar-link">Webhook Events</a>
+                        <a href="#webhook-security" class="sidebar-link">Security</a>
+                        
+                        <div class="mt-4 mb-2 px-4">
+                            <h4 class="text-xs font-semibold text-gray-500 uppercase">Resources</h4>
+                        </div>
+                        <a href="#sdks" class="sidebar-link">SDKs & Libraries</a>
+                        <a href="#guides" class="sidebar-link">Integration Guides</a>
+                        <a href="#examples" class="sidebar-link">Code Examples</a>
+                        <a href="#support" class="sidebar-link">Support</a>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Documentation Content -->
+            <main class="lg:col-span-3">
+                <!-- Overview Section -->
+                <section id="overview" class="api-section">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-3xl font-bold mb-6">Build on Bitorzo</h2>
+                        <p class="text-lg text-gray-600 mb-8">
+                            Integrate cryptocurrency payments, wallet management, and real-time market data into your applications with our powerful APIs.
+                        </p>
+
+                        <div class="grid md:grid-cols-3 gap-6 mb-8">
+                            <div class="border rounded-lg p-6 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                                    <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">Payment Processing</h3>
+                                <p class="text-sm text-gray-600">Accept crypto and fiat payments with unified APIs</p>
+                            </div>
+                            <div class="border rounded-lg p-6 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                                    <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">Market Data</h3>
+                                <p class="text-sm text-gray-600">Access real-time prices and order book data from 7+ exchanges</p>
+                            </div>
+                            <div class="border rounded-lg p-6 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                                    <i class="fas fa-wallet text-purple-600 text-xl"></i>
+                                </div>
+                                <h3 class="font-semibold mb-2">Wallet Management</h3>
+                                <p class="text-sm text-gray-600">Non-custodial wallet integration for Web3 applications</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            <h4 class="font-semibold text-blue-900 mb-2">
+                                <i class="fas fa-rocket mr-2"></i>Quick Start
+                            </h4>
+                            <p class="text-blue-800 mb-4">Get your API key and make your first request in minutes:</p>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">cURL</span>
+                                    <button class="copy-button" onclick="copyCode('quickstart-curl')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="quickstart-curl"><code class="language-bash">curl -X GET "https://api.bitorzo.com/v1/market-data/realtime-prices?symbols=BTC,ETH" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Getting Started -->
+                <section id="getting-started" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Getting Started</h2>
+                        
+                        <h3 class="text-xl font-semibold mb-4">Prerequisites</h3>
+                        <ul class="list-disc list-inside text-gray-600 mb-6 space-y-2">
+                            <li>Basic understanding of RESTful APIs</li>
+                            <li>Knowledge of HTTP requests and responses</li>
+                            <li>Familiarity with JSON data format</li>
+                            <li>Development environment with HTTP client (cURL, Postman, or programming language)</li>
+                        </ul>
+
+                        <h3 class="text-xl font-semibold mb-4">1. Create an Account</h3>
+                        <p class="text-gray-600 mb-4">
+                            Sign up for a Bitorzo developer account to get your API credentials:
+                        </p>
+                        <a href="#" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-user-plus mr-2"></i>Create Developer Account
+                        </a>
+
+                        <h3 class="text-xl font-semibold mt-8 mb-4">2. Get Your API Key</h3>
+                        <p class="text-gray-600 mb-4">
+                            After registration, navigate to your dashboard to generate API keys:
+                        </p>
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                                <li>Log in to your developer dashboard</li>
+                                <li>Navigate to "API Keys" section</li>
+                                <li>Click "Generate New Key"</li>
+                                <li>Store your key securely - it won't be shown again</li>
+                            </ol>
+                        </div>
+
+                        <h3 class="text-xl font-semibold mt-8 mb-4">3. Make Your First Request</h3>
+                        <p class="text-gray-600 mb-4">Test your API key with a simple request:</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex space-x-2">
+                                <button class="tab-button active" onclick="showCodeTab('first-request', 'curl')">cURL</button>
+                                <button class="tab-button" onclick="showCodeTab('first-request', 'nodejs')">Node.js</button>
+                                <button class="tab-button" onclick="showCodeTab('first-request', 'python')">Python</button>
+                            </div>
+                            
+                            <div id="first-request-curl" class="code-block">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">cURL</span>
+                                    <button class="copy-button" onclick="copyCode('first-curl')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="first-curl"><code class="language-bash">curl -X GET "https://api.bitorzo.com/v1/market-data/realtime-prices?symbols=BTC" \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+                            </div>
+
+                            <div id="first-request-nodejs" class="code-block hidden">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Node.js</span>
+                                    <button class="copy-button" onclick="copyCode('first-nodejs')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="first-nodejs"><code class="language-javascript">const axios = require('axios');
+
+const response = await axios.get('https://api.bitorzo.com/v1/market-data/realtime-prices', {
+  params: { symbols: 'BTC' },
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY'
+  }
+});
+
+console.log(response.data);</code></pre>
+                            </div>
+
+                            <div id="first-request-python" class="code-block hidden">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Python</span>
+                                    <button class="copy-button" onclick="copyCode('first-python')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="first-python"><code class="language-python">import requests
+
+response = requests.get(
+    'https://api.bitorzo.com/v1/market-data/realtime-prices',
+    params={'symbols': 'BTC'},
+    headers={'Authorization': 'Bearer YOUR_API_KEY'}
+)
+
+print(response.json())</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Authentication -->
+                <section id="authentication" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Authentication</h2>
+                        
+                        <p class="text-gray-600 mb-6">
+                            All API requests must be authenticated using your API key. Include your key in the Authorization header:
+                        </p>
+
+                        <div class="code-block mb-6">
+                            <div class="code-header">
+                                <span class="text-gray-400 text-sm">HTTP Header</span>
+                            </div>
+                            <pre><code class="language-http">Authorization: Bearer YOUR_API_KEY</code></pre>
+                        </div>
+
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                            <h4 class="font-semibold text-yellow-900 mb-2">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>Security Best Practices
+                            </h4>
+                            <ul class="list-disc list-inside text-yellow-800 space-y-1">
+                                <li>Never expose your API key in client-side code</li>
+                                <li>Use environment variables to store API keys</li>
+                                <li>Rotate your keys regularly</li>
+                                <li>Use IP whitelisting for production environments</li>
+                            </ul>
+                        </div>
+
+                        <h3 class="text-xl font-semibold mb-4">Rate Limiting</h3>
+                        <p class="text-gray-600 mb-4">API requests are rate limited to ensure fair usage:</p>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full border rounded-lg">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Plan</th>
+                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Requests/Minute</th>
+                                        <th class="px-6 py-3 text-left text-sm font-medium text-gray-700">Requests/Day</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y">
+                                    <tr>
+                                        <td class="px-6 py-4">Free</td>
+                                        <td class="px-6 py-4">60</td>
+                                        <td class="px-6 py-4">10,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4">Pro</td>
+                                        <td class="px-6 py-4">600</td>
+                                        <td class="px-6 py-4">100,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4">Enterprise</td>
+                                        <td class="px-6 py-4">Custom</td>
+                                        <td class="px-6 py-4">Custom</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payment APIs -->
+                <section id="create-payment" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Create Payment Request</h2>
+                            <span class="status-badge status-stable">Stable</span>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="endpoint-badge method-post">POST</span>
+                            <code class="text-gray-700 bg-gray-100 px-3 py-1 rounded">/api/create-payment-request</code>
+                        </div>
+
+                        <p class="text-gray-600 mb-6">
+                            Creates a new cryptocurrency payment request with a unique payment ID and receiving address.
+                        </p>
+
+                        <h3 class="text-lg font-semibold mb-4">Request Body</h3>
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full border rounded-lg">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Parameter</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Required</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y">
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">amount</td>
+                                        <td class="px-4 py-3 text-sm">number</td>
+                                        <td class="px-4 py-3 text-sm">Yes</td>
+                                        <td class="px-4 py-3 text-sm">Payment amount in specified currency</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">currency</td>
+                                        <td class="px-4 py-3 text-sm">string</td>
+                                        <td class="px-4 py-3 text-sm">Yes</td>
+                                        <td class="px-4 py-3 text-sm">Currency code (ETH, BTC, USDT, etc.)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">callbackUrl</td>
+                                        <td class="px-4 py-3 text-sm">string</td>
+                                        <td class="px-4 py-3 text-sm">No</td>
+                                        <td class="px-4 py-3 text-sm">Webhook URL for payment notifications</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">metadata</td>
+                                        <td class="px-4 py-3 text-sm">object</td>
+                                        <td class="px-4 py-3 text-sm">No</td>
+                                        <td class="px-4 py-3 text-sm">Custom data to attach to the payment</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mb-4">Example Request</h3>
+                        <div class="space-y-4">
+                            <div class="flex space-x-2">
+                                <button class="tab-button active" onclick="showCodeTab('create-payment', 'curl')">cURL</button>
+                                <button class="tab-button" onclick="showCodeTab('create-payment', 'nodejs')">Node.js</button>
+                                <button class="tab-button" onclick="showCodeTab('create-payment', 'python')">Python</button>
+                            </div>
+                            
+                            <div id="create-payment-curl" class="code-block">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">cURL</span>
+                                    <button class="copy-button" onclick="copyCode('create-payment-curl-code')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="create-payment-curl-code"><code class="language-bash">curl -X POST "https://api.bitorzo.com/api/create-payment-request" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 0.5,
+    "currency": "ETH",
+    "callbackUrl": "https://yourapp.com/webhooks/payment",
+    "metadata": {
+      "orderId": "12345",
+      "customerId": "user_789"
+    }
+  }'</code></pre>
+                            </div>
+
+                            <div id="create-payment-nodejs" class="code-block hidden">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Node.js</span>
+                                    <button class="copy-button" onclick="copyCode('create-payment-nodejs-code')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="create-payment-nodejs-code"><code class="language-javascript">const axios = require('axios');
+
+const payment = await axios.post('https://api.bitorzo.com/api/create-payment-request', {
+  amount: 0.5,
+  currency: 'ETH',
+  callbackUrl: 'https://yourapp.com/webhooks/payment',
+  metadata: {
+    orderId: '12345',
+    customerId: 'user_789'
+  }
+}, {
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+});
+
+console.log('Payment Request:', payment.data);</code></pre>
+                            </div>
+
+                            <div id="create-payment-python" class="code-block hidden">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Python</span>
+                                    <button class="copy-button" onclick="copyCode('create-payment-python-code')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="create-payment-python-code"><code class="language-python">import requests
+
+payment = requests.post(
+    'https://api.bitorzo.com/api/create-payment-request',
+    json={
+        'amount': 0.5,
+        'currency': 'ETH',
+        'callbackUrl': 'https://yourapp.com/webhooks/payment',
+        'metadata': {
+            'orderId': '12345',
+            'customerId': 'user_789'
+        }
+    },
+    headers={
+        'Authorization': 'Bearer YOUR_API_KEY',
+        'Content-Type': 'application/json'
+    }
+)
+
+print('Payment Request:', payment.json())</code></pre>
+                            </div>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mt-6 mb-4">Response</h3>
+                        <div class="response-example">
+                            <pre><code class="language-json">{
+  "paymentRequestId": "pay_1a2b3c4d5e6f7g8h",
+  "receivingAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f1234",
+  "expectedAmount": 0.5,
+  "currency": "ETH",
+  "network": "ethereum",
+  "expiresAt": "2024-01-20T15:30:00Z",
+  "status": "pending",
+  "qrCode": "data:image/png;base64,..."
+}</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Payment Status -->
+                <section id="payment-status" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Get Payment Status</h2>
+                            <span class="status-badge status-stable">Stable</span>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="endpoint-badge method-get">GET</span>
+                            <code class="text-gray-700 bg-gray-100 px-3 py-1 rounded">/api/get-payment-status</code>
+                        </div>
+
+                        <p class="text-gray-600 mb-6">
+                            Retrieves the current status and details of a payment request.
+                        </p>
+
+                        <h3 class="text-lg font-semibold mb-4">Query Parameters</h3>
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full border rounded-lg">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Parameter</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Required</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">paymentRequestId</td>
+                                        <td class="px-4 py-3 text-sm">string</td>
+                                        <td class="px-4 py-3 text-sm">Yes</td>
+                                        <td class="px-4 py-3 text-sm">Unique payment request identifier</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mb-4">Response</h3>
+                        <div class="response-example">
+                            <pre><code class="language-json">{
+  "paymentRequestId": "pay_1a2b3c4d5e6f7g8h",
+  "status": "confirmed",
+  "amount": 0.5,
+  "currency": "ETH",
+  "amountReceived": 0.5,
+  "transactionHash": "0x9876543210abcdef...",
+  "confirmations": 12,
+  "paidAt": "2024-01-20T15:25:00Z",
+  "metadata": {
+    "orderId": "12345",
+    "customerId": "user_789"
+  }
+}</code></pre>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mt-6 mb-4">Payment Status Values</h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="border rounded-lg p-4">
+                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm font-mono mb-2">pending</span>
+                                <p class="text-sm text-gray-600">Waiting for payment</p>
+                            </div>
+                            <div class="border rounded-lg p-4">
+                                <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-sm font-mono mb-2">processing</span>
+                                <p class="text-sm text-gray-600">Payment detected, awaiting confirmations</p>
+                            </div>
+                            <div class="border rounded-lg p-4">
+                                <span class="inline-block px-2 py-1 bg-green-100 text-green-700 rounded text-sm font-mono mb-2">confirmed</span>
+                                <p class="text-sm text-gray-600">Payment confirmed on blockchain</p>
+                            </div>
+                            <div class="border rounded-lg p-4">
+                                <span class="inline-block px-2 py-1 bg-red-100 text-red-700 rounded text-sm font-mono mb-2">expired</span>
+                                <p class="text-sm text-gray-600">Payment request expired</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Market Data APIs -->
+                <section id="realtime-prices" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-2xl font-bold">Real-time Prices</h2>
+                            <span class="status-badge status-stable">Stable</span>
+                        </div>
+
+                        <div class="mb-6">
+                            <span class="endpoint-badge method-get">GET</span>
+                            <code class="text-gray-700 bg-gray-100 px-3 py-1 rounded">/api/market-data/realtime-prices</code>
+                        </div>
+
+                        <p class="text-gray-600 mb-6">
+                            Fetches current prices and 24-hour changes for specified cryptocurrencies from multiple exchanges.
+                        </p>
+
+                        <h3 class="text-lg font-semibold mb-4">Query Parameters</h3>
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full border rounded-lg">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Parameter</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Type</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Required</th>
+                                        <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y">
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">symbols</td>
+                                        <td class="px-4 py-3 text-sm">string</td>
+                                        <td class="px-4 py-3 text-sm">Yes</td>
+                                        <td class="px-4 py-3 text-sm">Comma-separated symbols (e.g., BTC,ETH,BNB)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 font-mono text-sm">exchanges</td>
+                                        <td class="px-4 py-3 text-sm">string</td>
+                                        <td class="px-4 py-3 text-sm">No</td>
+                                        <td class="px-4 py-3 text-sm">Filter by specific exchanges</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mb-4">Response</h3>
+                        <div class="response-example">
+                            <pre><code class="language-json">[
+  {
+    "symbol": "BTC",
+    "exchange": "Binance",
+    "price": 43250.50,
+    "volume24h": 15234567890,
+    "change24h": 2.45,
+    "high24h": 43890.00,
+    "low24h": 42100.00,
+    "timestamp": "2024-01-20T10:30:00Z"
+  },
+  {
+    "symbol": "ETH",
+    "exchange": "Binance", 
+    "price": 2580.75,
+    "volume24h": 8765432100,
+    "change24h": -1.23,
+    "high24h": 2650.00,
+    "low24h": 2520.00,
+    "timestamp": "2024-01-20T10:30:00Z"
+  }
+]</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Webhooks -->
+                <section id="webhooks" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Webhook Events</h2>
+                        
+                        <p class="text-gray-600 mb-6">
+                            Receive real-time notifications about payment status changes and other events.
+                        </p>
+
+                        <h3 class="text-lg font-semibold mb-4">Setting Up Webhooks</h3>
+                        <ol class="list-decimal list-inside text-gray-600 mb-6 space-y-2">
+                            <li>Configure your webhook endpoint URL in the developer dashboard</li>
+                            <li>Choose which events you want to receive</li>
+                            <li>Verify webhook signatures for security</li>
+                        </ol>
+
+                        <h3 class="text-lg font-semibold mb-4">Event Types</h3>
+                        <div class="space-y-4">
+                            <div class="border rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">payment.created</h4>
+                                <p class="text-sm text-gray-600 mb-2">Triggered when a new payment request is created</p>
+                                <div class="response-example">
+                                    <pre><code class="language-json">{
+  "event": "payment.created",
+  "data": {
+    "paymentRequestId": "pay_1a2b3c4d5e6f7g8h",
+    "amount": 0.5,
+    "currency": "ETH",
+    "status": "pending"
+  },
+  "timestamp": "2024-01-20T10:00:00Z"
+}</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">payment.confirmed</h4>
+                                <p class="text-sm text-gray-600 mb-2">Triggered when a payment is confirmed on the blockchain</p>
+                                <div class="response-example">
+                                    <pre><code class="language-json">{
+  "event": "payment.confirmed",
+  "data": {
+    "paymentRequestId": "pay_1a2b3c4d5e6f7g8h",
+    "transactionHash": "0x9876543210abcdef...",
+    "confirmations": 12,
+    "amountReceived": 0.5
+  },
+  "timestamp": "2024-01-20T10:15:00Z"
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Webhook Security -->
+                <section id="webhook-security" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Webhook Security</h2>
+                        
+                        <p class="text-gray-600 mb-6">
+                            Verify webhook signatures to ensure requests are coming from Bitorzo.
+                        </p>
+
+                        <h3 class="text-lg font-semibold mb-4">Signature Verification</h3>
+                        <p class="text-gray-600 mb-4">
+                            All webhook requests include a signature in the <code class="bg-gray-100 px-2 py-1 rounded">X-Bitorzo-Signature</code> header.
+                        </p>
+
+                        <div class="space-y-4">
+                            <div class="flex space-x-2">
+                                <button class="tab-button active" onclick="showCodeTab('webhook-verify', 'nodejs')">Node.js</button>
+                                <button class="tab-button" onclick="showCodeTab('webhook-verify', 'python')">Python</button>
+                            </div>
+                            
+                            <div id="webhook-verify-nodejs" class="code-block">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Node.js</span>
+                                    <button class="copy-button" onclick="copyCode('webhook-verify-nodejs-code')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="webhook-verify-nodejs-code"><code class="language-javascript">const crypto = require('crypto');
+
+function verifyWebhookSignature(payload, signature, secret) {
+  const hash = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+  
+  return hash === signature;
+}
+
+// In your webhook handler
+app.post('/webhook', (req, res) => {
+  const signature = req.headers['x-bitorzo-signature'];
+  const isValid = verifyWebhookSignature(req.body, signature, WEBHOOK_SECRET);
+  
+  if (!isValid) {
+    return res.status(401).send('Invalid signature');
+  }
+  
+  // Process the webhook
+  console.log('Webhook event:', req.body.event);
+  res.sendStatus(200);
+});</code></pre>
+                            </div>
+
+                            <div id="webhook-verify-python" class="code-block hidden">
+                                <div class="code-header">
+                                    <span class="text-gray-400 text-sm">Python</span>
+                                    <button class="copy-button" onclick="copyCode('webhook-verify-python-code')">
+                                        <i class="fas fa-copy mr-1"></i>Copy
+                                    </button>
+                                </div>
+                                <pre id="webhook-verify-python-code"><code class="language-python">import hmac
+import hashlib
+import json
+
+def verify_webhook_signature(payload, signature, secret):
+    expected = hmac.new(
+        secret.encode(),
+        json.dumps(payload).encode(),
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(expected, signature)
+
+# In your webhook handler
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    signature = request.headers.get('X-Bitorzo-Signature')
+    payload = request.json
+    
+    if not verify_webhook_signature(payload, signature, WEBHOOK_SECRET):
+        return 'Invalid signature', 401
+    
+    # Process the webhook
+    print(f"Webhook event: {payload['event']}")
+    return '', 200</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SDKs -->
+                <section id="sdks" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">SDKs & Libraries</h2>
+                        
+                        <p class="text-gray-600 mb-6">
+                            Official SDKs to simplify integration with Bitorzo APIs.
+                        </p>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="border rounded-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-node-js text-4xl text-green-600 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold">Node.js SDK</h3>
+                                        <span class="status-badge status-stable">v1.0.0</span>
+                                    </div>
+                                </div>
+                                <div class="code-block mb-4">
+                                    <pre><code class="language-bash">npm install @bitorzo/sdk</code></pre>
+                                </div>
+                                <a href="#" class="text-blue-600 hover:underline">Documentation →</a>
+                            </div>
+
+                            <div class="border rounded-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-python text-4xl text-blue-600 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold">Python SDK</h3>
+                                        <span class="status-badge status-stable">v1.0.0</span>
+                                    </div>
+                                </div>
+                                <div class="code-block mb-4">
+                                    <pre><code class="language-bash">pip install bitorzo</code></pre>
+                                </div>
+                                <a href="#" class="text-blue-600 hover:underline">Documentation →</a>
+                            </div>
+
+                            <div class="border rounded-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-react text-4xl text-cyan-600 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold">React Components</h3>
+                                        <span class="status-badge status-beta">Beta</span>
+                                    </div>
+                                </div>
+                                <div class="code-block mb-4">
+                                    <pre><code class="language-bash">npm install @bitorzo/react</code></pre>
+                                </div>
+                                <a href="#" class="text-blue-600 hover:underline">Documentation →</a>
+                            </div>
+
+                            <div class="border rounded-lg p-6">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-php text-4xl text-indigo-600 mr-3"></i>
+                                    <div>
+                                        <h3 class="font-semibold">PHP SDK</h3>
+                                        <span class="status-badge status-beta">Coming Soon</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600">PHP SDK is under development</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Integration Guides -->
+                <section id="guides" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Integration Guides</h2>
+                        
+                        <div class="space-y-6">
+                            <a href="#" class="block border rounded-lg p-6 hover:shadow-lg transition">
+                                <h3 class="font-semibold text-xl mb-2">E-commerce Checkout Integration</h3>
+                                <p class="text-gray-600 mb-3">
+                                    Step-by-step guide to add cryptocurrency payments to your online store
+                                </p>
+                                <div class="flex items-center text-blue-600">
+                                    <span class="mr-2">Read guide</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+
+                            <a href="#" class="block border rounded-lg p-6 hover:shadow-lg transition">
+                                <h3 class="font-semibold text-xl mb-2">Building a Crypto Price Tracker</h3>
+                                <p class="text-gray-600 mb-3">
+                                    Create a real-time cryptocurrency price monitoring application
+                                </p>
+                                <div class="flex items-center text-blue-600">
+                                    <span class="mr-2">Read guide</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+
+                            <a href="#" class="block border rounded-lg p-6 hover:shadow-lg transition">
+                                <h3 class="font-semibold text-xl mb-2">Web3 Wallet Integration</h3>
+                                <p class="text-gray-600 mb-3">
+                                    Connect MetaMask and other Web3 wallets to your application
+                                </p>
+                                <div class="flex items-center text-blue-600">
+                                    <span class="mr-2">Read guide</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Support -->
+                <section id="support" class="api-section mt-8">
+                    <div class="bg-white rounded-lg shadow-md p-8">
+                        <h2 class="text-2xl font-bold mb-6">Support & Community</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-semibold text-lg mb-4">Get Help</h3>
+                                <div class="space-y-3">
+                                    <a href="#" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fas fa-book mr-3"></i>
+                                        API Documentation
+                                    </a>
+                                    <a href="#" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fas fa-comments mr-3"></i>
+                                        Community Forum
+                                    </a>
+                                    <a href="mailto:developers@bitorzo.com" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fas fa-envelope mr-3"></i>
+                                        developers@bitorzo.com
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-semibold text-lg mb-4">Join Our Community</h3>
+                                <div class="space-y-3">
+                                    <a href="#" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fab fa-discord mr-3"></i>
+                                        Discord Server
+                                    </a>
+                                    <a href="#" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fab fa-github mr-3"></i>
+                                        GitHub Repository
+                                    </a>
+                                    <a href="#" class="flex items-center text-blue-600 hover:underline">
+                                        <i class="fab fa-twitter mr-3"></i>
+                                        Twitter Updates
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 p-6 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-900 mb-2">
+                                <i class="fas fa-headset mr-2"></i>Enterprise Support
+                            </h4>
+                            <p class="text-blue-800 mb-4">
+                                Need dedicated support or custom solutions? Our enterprise team is here to help.
+                            </p>
+                            <a href="#" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                                Contact Sales
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16 py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p>&copy; 2024 Bitorzo. All rights reserved.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:text-yellow-300 transition">Terms</a>
+                    <a href="#" class="hover:text-yellow-300 transition">Privacy</a>
+                    <a href="#" class="hover:text-yellow-300 transition">Status</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-http.min.js"></script>
+    
+    <script>
+        // Tab switching functionality
+        function showCodeTab(section, language) {
+            // Hide all tabs for this section
+            document.querySelectorAll(`[id^="${section}-"]`).forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${section}-${language}`).classList.remove('hidden');
+            
+            // Update button states
+            const buttons = document.querySelectorAll(`[onclick*="${section}"]`);
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick').includes(language)) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Copy code functionality
+        function copyCode(elementId) {
+            const codeElement = document.getElementById(elementId);
+            const code = codeElement.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                // Show feedback
+                const button = codeElement.closest('.code-block').querySelector('.copy-button');
+                const originalText = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+                button.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Sidebar navigation active state
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.api-section');
+            const navLinks = document.querySelectorAll('.sidebar-link');
+            
+            const observerOptions = {
+                rootMargin: '-100px 0px -70% 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${entry.target.id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Smooth scrolling for sidebar links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
