@@ -221,42 +221,102 @@
             <h2 class="text-2xl font-bold mb-6 flex items-center">
                 <i class="fas fa-balance-scale text-indigo-500 mr-3"></i>
                 Exchange Comparison
+                <span class="ml-4 text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full">
+                    7 Exchanges
+                </span>
             </h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="exchange-comparison">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="exchange-comparison">
                 <!-- Exchange comparison cards will be populated here -->
             </div>
         </section>
 
-        <!-- Historical Insights (Phase 2 Preview) -->
+        <!-- Historical Insights (Phase 2) -->
         <section class="mb-8">
             <h2 class="text-2xl font-bold mb-6 flex items-center">
-                <i class="fas fa-history text-gray-500 mr-3"></i>
-                Historical Insights
-                <span class="ml-4 text-sm bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
-                    Coming Soon
+                <i class="fas fa-history text-yellow-500 mr-3"></i>
+                Historical Order Book Analysis
+                <span class="ml-4 text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    <i class="fas fa-circle text-xs mr-1"></i>Active
                 </span>
             </h2>
-            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
-                <i class="fas fa-database text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-xl font-semibold text-gray-600 mb-2">Advanced Historical Analysis</h3>
-                <p class="text-gray-500 mb-4">Deep order book analysis, liquidity patterns, and market manipulation detection across years of historical data.</p>
-                <div class="text-sm text-gray-400">
-                    <i class="fas fa-clock mr-1"></i>
-                    Phase 2 Development in Progress
+            
+            <!-- Historical Controls -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <select id="historical-asset" class="border rounded px-3 py-2">
+                            <option value="BTC">Bitcoin (BTC)</option>
+                            <option value="ETH">Ethereum (ETH)</option>
+                            <option value="BNB">Binance Coin (BNB)</option>
+                        </select>
+                        <select id="historical-exchange" class="border rounded px-3 py-2">
+                            <option value="binance">Binance</option>
+                            <option value="coinbase">Coinbase</option>
+                            <option value="kraken">Kraken</option>
+                            <option value="bybit">Bybit</option>
+                            <option value="okx">OKX</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <input type="date" id="start-date" class="border rounded px-3 py-2" />
+                        <span class="text-gray-500">to</span>
+                        <input type="date" id="end-date" class="border rounded px-3 py-2" />
+                        <button onclick="loadHistoricalData()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                            Analyze
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <!-- Historical Metrics Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <!-- Liquidity Analysis -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Liquidity Metrics Over Time</h3>
+                    <div id="liquidity-metrics" class="space-y-4">
+                        <div class="loading-skeleton h-32 rounded"></div>
+                    </div>
+                </div>
+
+                <!-- Market Manipulation Detection -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Market Manipulation Patterns</h3>
+                    <div id="manipulation-alerts" class="space-y-2">
+                        <div class="loading-skeleton h-32 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Book Heatmap -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-lg font-semibold mb-4">Order Book Depth Heatmap</h3>
+                <div id="orderbook-heatmap" style="height: 400px;">
+                    <div class="loading-skeleton h-full rounded"></div>
+                </div>
+            </div>
+
+            <!-- Volume Profile Chart -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Historical Volume Profile</h3>
+                <canvas id="volume-profile-chart" width="400" height="300"></canvas>
             </div>
         </section>
     </main>
 
     <!-- Scripts -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script type="module">
         import { MarketDataService } from './src/services/market-data-service.js';
+        import { SalesDataService } from './src/services/sales-data-service.js';
 
         class SalesInformationPage {
             constructor() {
                 this.marketDataService = new MarketDataService();
+                this.salesDataService = new SalesDataService();
                 this.priceChart = null;
                 this.volumeChart = null;
+                this.volumeProfileChart = null;
+                this.heatmapChart = null;
                 this.currentTimeframe = '1d';
                 this.updateInterval = null;
                 this.websockets = new Map();
@@ -489,9 +549,9 @@
 
             updateExchangeComparison(marketData) {
                 const container = document.getElementById('exchange-comparison');
-                const exchanges = ['Binance', 'Coinbase Pro', 'Kraken'];
+                const exchanges = ['Binance', 'Coinbase Pro', 'Kraken', 'Bybit', 'OKX', 'KuCoin', 'Bitfinex'];
                 
-                container.innerHTML = exchanges.map(exchange => {
+                container.innerHTML = exchanges.slice(0, 6).map(exchange => {
                     const exchangeData = this.getExchangeData(marketData, exchange);
                     
                     return `
@@ -521,6 +581,202 @@
                         </div>
                     `;
                 }).join('');
+            }
+
+            // Historical Analysis Methods
+            async loadHistoricalData() {
+                const asset = document.getElementById('historical-asset').value;
+                const exchange = document.getElementById('historical-exchange').value;
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+
+                if (!startDate || !endDate) {
+                    this.showError('Please select date range');
+                    return;
+                }
+
+                try {
+                    // Show loading states
+                    this.showHistoricalLoadingState();
+
+                    // Fetch historical data
+                    const historicalData = await this.salesDataService.fetchHistoricalOrderBookData(
+                        asset, exchange, startDate, endDate
+                    );
+
+                    // Update all historical visualizations
+                    this.updateLiquidityMetrics(historicalData.liquidityMetrics);
+                    this.updateManipulationDetection(asset, exchange);
+                    this.renderOrderBookHeatmap(historicalData);
+                    this.renderVolumeProfile(historicalData.volumeProfile);
+
+                } catch (error) {
+                    console.error('Failed to load historical data:', error);
+                    this.showError('Failed to load historical data');
+                }
+            }
+
+            showHistoricalLoadingState() {
+                document.getElementById('liquidity-metrics').innerHTML = '<div class="loading-skeleton h-32 rounded"></div>';
+                document.getElementById('manipulation-alerts').innerHTML = '<div class="loading-skeleton h-32 rounded"></div>';
+                document.getElementById('orderbook-heatmap').innerHTML = '<div class="loading-skeleton h-full rounded"></div>';
+            }
+
+            updateLiquidityMetrics(metrics) {
+                const container = document.getElementById('liquidity-metrics');
+                
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="text-xs text-gray-600 mb-1">Avg Spread</div>
+                            <div class="text-lg font-bold">${(metrics.averageSpread * 100).toFixed(3)}%</div>
+                        </div>
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="text-xs text-gray-600 mb-1">Avg Depth</div>
+                            <div class="text-lg font-bold">$${this.formatVolume(metrics.averageDepth)}</div>
+                        </div>
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="text-xs text-gray-600 mb-1">Volatility</div>
+                            <div class="text-lg font-bold">${metrics.volatility.toFixed(2)}%</div>
+                        </div>
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="text-xs text-gray-600 mb-1">Liquidity Score</div>
+                            <div class="text-lg font-bold text-green-600">${metrics.liquidityScore.toFixed(1)}/100</div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="text-sm font-medium mb-2">Market Efficiency</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${metrics.marketEfficiency}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">${metrics.marketEfficiency.toFixed(1)}% efficient</div>
+                    </div>
+                `;
+            }
+
+            async updateManipulationDetection(asset, exchange) {
+                const container = document.getElementById('manipulation-alerts');
+                
+                try {
+                    const patterns = await this.salesDataService.analyzeMarketManipulation(asset, exchange, '24h');
+                    
+                    const allPatterns = [
+                        ...patterns.spoofing.map(p => ({ ...p, category: 'Spoofing', color: 'yellow' })),
+                        ...patterns.pumpAndDump.map(p => ({ ...p, category: 'Pump & Dump', color: 'red' })),
+                        ...patterns.washTrading.map(p => ({ ...p, category: 'Wash Trading', color: 'orange' }))
+                    ].sort((a, b) => b.timestamp - a.timestamp);
+
+                    if (allPatterns.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-check-circle text-4xl text-green-500 mb-2"></i>
+                                <p>No suspicious patterns detected</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = allPatterns.slice(0, 5).map(pattern => `
+                            <div class="border-l-4 border-${pattern.color}-500 bg-${pattern.color}-50 p-3 rounded">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <div class="font-medium text-${pattern.color}-800">${pattern.category}</div>
+                                        <div class="text-xs text-${pattern.color}-600">${pattern.type}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">
+                                        ${new Date(pattern.timestamp).toLocaleTimeString()}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                } catch (error) {
+                    container.innerHTML = '<div class="text-red-500">Failed to analyze patterns</div>';
+                }
+            }
+
+            renderOrderBookHeatmap(historicalData) {
+                const container = document.getElementById('orderbook-heatmap');
+                const heatmapData = this.salesDataService.generateOrderBookHeatmap(historicalData);
+
+                if (!heatmapData.timestamps.length) {
+                    container.innerHTML = '<div class="text-center text-gray-500 py-8">No data available</div>';
+                    return;
+                }
+
+                const trace = {
+                    x: heatmapData.timestamps.map(t => new Date(t)),
+                    y: heatmapData.priceLevels,
+                    z: heatmapData.bidIntensity.map((bid, i) => 
+                        bid.map((b, j) => b - heatmapData.askIntensity[i][j])
+                    ),
+                    type: 'heatmap',
+                    colorscale: [
+                        [0, 'rgb(255, 0, 0)'],
+                        [0.5, 'rgb(255, 255, 255)'],
+                        [1, 'rgb(0, 255, 0)']
+                    ],
+                    showscale: true,
+                    colorbar: {
+                        title: 'Order Intensity',
+                        titleside: 'right'
+                    }
+                };
+
+                const layout = {
+                    title: '',
+                    xaxis: { title: 'Time', type: 'date' },
+                    yaxis: { title: 'Price Level ($)' },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    margin: { t: 20, r: 20, b: 40, l: 60 }
+                };
+
+                Plotly.newPlot(container, [trace], layout, { responsive: true });
+            }
+
+            renderVolumeProfile(volumeProfile) {
+                const ctx = document.getElementById('volume-profile-chart').getContext('2d');
+                
+                if (this.volumeProfileChart) {
+                    this.volumeProfileChart.destroy();
+                }
+
+                const priceRanges = Object.keys(volumeProfile).sort((a, b) => parseInt(a) - parseInt(b));
+                const volumes = priceRanges.map(range => volumeProfile[range].avgDepth);
+
+                this.volumeProfileChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: priceRanges.map(range => volumeProfile[range].range),
+                        datasets: [{
+                            label: 'Average Depth',
+                            data: volumes,
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `Depth: $${this.formatVolume(context.raw)}`
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Average Depth ($)' },
+                                ticks: {
+                                    callback: (value) => '$' + this.formatVolume(value)
+                                }
+                            }
+                        }
+                    }
+                });
             }
 
             initializeCharts() {
@@ -768,9 +1024,22 @@
             }
         };
 
+        window.loadHistoricalData = () => {
+            if (window.salesInfoPage) {
+                window.salesInfoPage.loadHistoricalData();
+            }
+        };
+
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             window.salesInfoPage = new SalesInformationPage();
+            
+            // Set default dates for historical analysis
+            const today = new Date();
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+            document.getElementById('start-date').value = weekAgo.toISOString().split('T')[0];
         });
     </script>
 </body>

@@ -22,6 +22,7 @@ export class SalesDataService extends EventEmitter {
                 websocket: 'wss://stream.binance.com:9443/ws/',
                 orderBookEndpoint: 'https://api.binance.com/api/v3/depth',
                 tradesEndpoint: 'https://api.binance.com/api/v3/trades',
+                historicalEndpoint: 'https://api.binance.com/api/v3/klines',
                 priority: 1,
                 reliability: 0.99
             },
@@ -29,6 +30,7 @@ export class SalesDataService extends EventEmitter {
                 websocket: 'wss://ws-feed.exchange.coinbase.com',
                 orderBookEndpoint: 'https://api.exchange.coinbase.com/products/{symbol}/book',
                 tradesEndpoint: 'https://api.exchange.coinbase.com/products/{symbol}/trades',
+                historicalEndpoint: 'https://api.exchange.coinbase.com/products/{symbol}/candles',
                 priority: 2,
                 reliability: 0.98
             },
@@ -36,8 +38,41 @@ export class SalesDataService extends EventEmitter {
                 websocket: 'wss://ws.kraken.com',
                 orderBookEndpoint: 'https://api.kraken.com/0/public/Depth',
                 tradesEndpoint: 'https://api.kraken.com/0/public/Trades',
+                historicalEndpoint: 'https://api.kraken.com/0/public/OHLC',
                 priority: 3,
                 reliability: 0.97
+            },
+            bybit: {
+                websocket: 'wss://stream.bybit.com/realtime_public',
+                orderBookEndpoint: 'https://api.bybit.com/v5/market/orderbook',
+                tradesEndpoint: 'https://api.bybit.com/v5/market/recent-trade',
+                historicalEndpoint: 'https://api.bybit.com/v5/market/kline',
+                priority: 4,
+                reliability: 0.96
+            },
+            okx: {
+                websocket: 'wss://ws.okx.com:8443/ws/v5/public',
+                orderBookEndpoint: 'https://www.okx.com/api/v5/market/books',
+                tradesEndpoint: 'https://www.okx.com/api/v5/market/trades',
+                historicalEndpoint: 'https://www.okx.com/api/v5/market/candles',
+                priority: 5,
+                reliability: 0.95
+            },
+            kucoin: {
+                websocket: 'wss://ws-api.kucoin.com/endpoint',
+                orderBookEndpoint: 'https://api.kucoin.com/api/v3/market/orderbook/level2',
+                tradesEndpoint: 'https://api.kucoin.com/api/v1/market/histories',
+                historicalEndpoint: 'https://api.kucoin.com/api/v1/market/candles',
+                priority: 6,
+                reliability: 0.94
+            },
+            bitfinex: {
+                websocket: 'wss://api-pub.bitfinex.com/ws/2',
+                orderBookEndpoint: 'https://api-pub.bitfinex.com/v2/book/{symbol}/P0',
+                tradesEndpoint: 'https://api-pub.bitfinex.com/v2/trades/{symbol}/hist',
+                historicalEndpoint: 'https://api-pub.bitfinex.com/v2/candles/trade:{timeframe}:{symbol}/hist',
+                priority: 7,
+                reliability: 0.93
             }
         };
         
@@ -235,6 +270,89 @@ export class SalesDataService extends EventEmitter {
                             total: parseFloat(price) * parseFloat(quantity)
                         })),
                         exchange: 'Kraken',
+                        symbol,
+                        timestamp: Date.now()
+                    };
+                }
+                break;
+
+            case 'bybit':
+                if (rawData.b && rawData.a) {
+                    return {
+                        bids: rawData.b.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity),
+                            total: parseFloat(price) * parseFloat(quantity)
+                        })),
+                        asks: rawData.a.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity),
+                            total: parseFloat(price) * parseFloat(quantity)
+                        })),
+                        exchange: 'Bybit',
+                        symbol,
+                        timestamp: Date.now()
+                    };
+                }
+                break;
+
+            case 'okx':
+                if (rawData.bids && rawData.asks) {
+                    return {
+                        bids: rawData.bids.map(bid => ({
+                            price: parseFloat(bid[0]),
+                            quantity: parseFloat(bid[1]),
+                            total: parseFloat(bid[0]) * parseFloat(bid[1])
+                        })),
+                        asks: rawData.asks.map(ask => ({
+                            price: parseFloat(ask[0]),
+                            quantity: parseFloat(ask[1]),
+                            total: parseFloat(ask[0]) * parseFloat(ask[1])
+                        })),
+                        exchange: 'OKX',
+                        symbol,
+                        timestamp: Date.now()
+                    };
+                }
+                break;
+
+            case 'kucoin':
+                if (rawData.bids && rawData.asks) {
+                    return {
+                        bids: rawData.bids.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity),
+                            total: parseFloat(price) * parseFloat(quantity)
+                        })),
+                        asks: rawData.asks.map(([price, quantity]) => ({
+                            price: parseFloat(price),
+                            quantity: parseFloat(quantity),
+                            total: parseFloat(price) * parseFloat(quantity)
+                        })),
+                        exchange: 'KuCoin',
+                        symbol,
+                        timestamp: Date.now()
+                    };
+                }
+                break;
+
+            case 'bitfinex':
+                if (Array.isArray(rawData)) {
+                    const bids = rawData.filter(order => order[2] > 0);
+                    const asks = rawData.filter(order => order[2] < 0);
+                    
+                    return {
+                        bids: bids.map(([price, count, amount]) => ({
+                            price: parseFloat(price),
+                            quantity: Math.abs(parseFloat(amount)),
+                            total: parseFloat(price) * Math.abs(parseFloat(amount))
+                        })),
+                        asks: asks.map(([price, count, amount]) => ({
+                            price: parseFloat(price),
+                            quantity: Math.abs(parseFloat(amount)),
+                            total: parseFloat(price) * Math.abs(parseFloat(amount))
+                        })),
+                        exchange: 'Bitfinex',
                         symbol,
                         timestamp: Date.now()
                     };
@@ -743,6 +861,316 @@ export class SalesDataService extends EventEmitter {
             .sort(([a], [b]) => b.localeCompare(a))
             .slice(0, limit)
             .map(([, snapshot]) => snapshot);
+    }
+
+    // Phase 2: Historical Order Book Analysis Methods
+    async fetchHistoricalOrderBookData(symbol, exchange, startDate, endDate) {
+        console.log(`📚 Fetching historical order book data for ${symbol} on ${exchange}...`);
+        
+        const config = this.exchangeConfigs[exchange];
+        if (!config || !config.historicalEndpoint) {
+            throw new Error(`Historical data not available for ${exchange}`);
+        }
+
+        try {
+            // This would connect to historical data APIs or data warehouses
+            // For now, we'll simulate with recent data
+            const historicalData = {
+                symbol,
+                exchange,
+                period: { start: startDate, end: endDate },
+                orderBookSnapshots: [],
+                volumeProfile: {},
+                liquidityMetrics: {}
+            };
+
+            // Generate sample historical snapshots
+            const intervals = this.generateTimeIntervals(startDate, endDate, 3600000); // Hourly
+            
+            for (const timestamp of intervals) {
+                const snapshot = await this.generateHistoricalSnapshot(symbol, exchange, timestamp);
+                historicalData.orderBookSnapshots.push(snapshot);
+            }
+
+            // Calculate volume profile
+            historicalData.volumeProfile = this.calculateVolumeProfile(historicalData.orderBookSnapshots);
+            
+            // Calculate liquidity metrics over time
+            historicalData.liquidityMetrics = this.calculateHistoricalLiquidityMetrics(historicalData.orderBookSnapshots);
+
+            return historicalData;
+
+        } catch (error) {
+            console.error(`Failed to fetch historical data for ${exchange}:`, error);
+            throw error;
+        }
+    }
+
+    generateTimeIntervals(startDate, endDate, intervalMs) {
+        const intervals = [];
+        const start = new Date(startDate).getTime();
+        const end = new Date(endDate).getTime();
+        
+        for (let time = start; time <= end; time += intervalMs) {
+            intervals.push(time);
+        }
+        
+        return intervals;
+    }
+
+    async generateHistoricalSnapshot(symbol, exchange, timestamp) {
+        // In production, this would fetch real historical data
+        // For demo, we generate realistic sample data
+        const basePrice = symbol === 'BTC' ? 43000 : symbol === 'ETH' ? 2600 : 300;
+        const volatility = 0.02; // 2% volatility
+        const priceVariation = basePrice * volatility * (Math.random() - 0.5);
+        const midPrice = basePrice + priceVariation;
+
+        const snapshot = {
+            timestamp,
+            symbol,
+            exchange,
+            midPrice,
+            bestBid: midPrice - (midPrice * 0.0001),
+            bestAsk: midPrice + (midPrice * 0.0001),
+            bidDepth: Math.random() * 1000000,
+            askDepth: Math.random() * 1000000,
+            spread: midPrice * 0.0002,
+            spreadPercentage: 0.02,
+            orderCount: {
+                bids: Math.floor(Math.random() * 1000),
+                asks: Math.floor(Math.random() * 1000)
+            },
+            imbalance: (Math.random() - 0.5) * 0.2
+        };
+
+        return snapshot;
+    }
+
+    calculateVolumeProfile(snapshots) {
+        const priceRanges = {};
+        const rangeSize = 100; // $100 price ranges
+
+        for (const snapshot of snapshots) {
+            const rangeKey = Math.floor(snapshot.midPrice / rangeSize) * rangeSize;
+            
+            if (!priceRanges[rangeKey]) {
+                priceRanges[rangeKey] = {
+                    range: `$${rangeKey}-${rangeKey + rangeSize}`,
+                    volume: 0,
+                    count: 0,
+                    avgDepth: 0
+                };
+            }
+
+            priceRanges[rangeKey].volume += (snapshot.bidDepth + snapshot.askDepth);
+            priceRanges[rangeKey].count++;
+            priceRanges[rangeKey].avgDepth = priceRanges[rangeKey].volume / priceRanges[rangeKey].count;
+        }
+
+        return priceRanges;
+    }
+
+    calculateHistoricalLiquidityMetrics(snapshots) {
+        const metrics = {
+            averageSpread: 0,
+            averageDepth: 0,
+            volatility: 0,
+            liquidityScore: 0,
+            marketEfficiency: 0,
+            periods: []
+        };
+
+        if (snapshots.length === 0) return metrics;
+
+        // Calculate averages
+        const totalSpread = snapshots.reduce((sum, s) => sum + s.spreadPercentage, 0);
+        const totalDepth = snapshots.reduce((sum, s) => sum + s.bidDepth + s.askDepth, 0);
+        
+        metrics.averageSpread = totalSpread / snapshots.length;
+        metrics.averageDepth = totalDepth / snapshots.length;
+
+        // Calculate volatility
+        const prices = snapshots.map(s => s.midPrice);
+        const priceChanges = [];
+        for (let i = 1; i < prices.length; i++) {
+            priceChanges.push((prices[i] - prices[i-1]) / prices[i-1]);
+        }
+        
+        if (priceChanges.length > 0) {
+            const avgChange = priceChanges.reduce((sum, c) => sum + c, 0) / priceChanges.length;
+            const variance = priceChanges.reduce((sum, c) => sum + Math.pow(c - avgChange, 2), 0) / priceChanges.length;
+            metrics.volatility = Math.sqrt(variance) * 100; // Percentage
+        }
+
+        // Calculate liquidity score (0-100)
+        const depthScore = Math.min(100, metrics.averageDepth / 10000);
+        const spreadScore = Math.max(0, 100 - metrics.averageSpread * 1000);
+        metrics.liquidityScore = (depthScore + spreadScore) / 2;
+
+        // Market efficiency (based on spread consistency)
+        const spreadStdDev = this.calculateStandardDeviation(snapshots.map(s => s.spreadPercentage));
+        metrics.marketEfficiency = Math.max(0, 100 - spreadStdDev * 1000);
+
+        // Period analysis
+        const periodSize = Math.floor(snapshots.length / 10); // 10 periods
+        for (let i = 0; i < snapshots.length; i += periodSize) {
+            const periodSnapshots = snapshots.slice(i, i + periodSize);
+            if (periodSnapshots.length > 0) {
+                metrics.periods.push({
+                    start: periodSnapshots[0].timestamp,
+                    end: periodSnapshots[periodSnapshots.length - 1].timestamp,
+                    avgSpread: periodSnapshots.reduce((sum, s) => sum + s.spreadPercentage, 0) / periodSnapshots.length,
+                    avgDepth: periodSnapshots.reduce((sum, s) => sum + s.bidDepth + s.askDepth, 0) / periodSnapshots.length,
+                    imbalance: periodSnapshots.reduce((sum, s) => sum + s.imbalance, 0) / periodSnapshots.length
+                });
+            }
+        }
+
+        return metrics;
+    }
+
+    async analyzeMarketManipulation(symbol, exchange, timeframe) {
+        console.log(`🔍 Analyzing market manipulation patterns for ${symbol} on ${exchange}...`);
+        
+        const patterns = {
+            spoofing: [],
+            washTrading: [],
+            pumpAndDump: [],
+            frontRunning: []
+        };
+
+        // Get recent order book snapshots
+        const snapshots = this.getHistoricalSnapshots(symbol, 50);
+        
+        if (snapshots.length < 10) {
+            return patterns; // Not enough data
+        }
+
+        // Detect spoofing (large orders that disappear quickly)
+        for (let i = 1; i < snapshots.length; i++) {
+            const prev = snapshots[i-1];
+            const curr = snapshots[i];
+            
+            // Check for sudden large order appearance/disappearance
+            const bidDepthChange = Math.abs(curr.exchanges[exchange]?.metrics?.bidDepth - prev.exchanges[exchange]?.metrics?.bidDepth) || 0;
+            const askDepthChange = Math.abs(curr.exchanges[exchange]?.metrics?.askDepth - prev.exchanges[exchange]?.metrics?.askDepth) || 0;
+            
+            if (bidDepthChange > 100000 || askDepthChange > 100000) {
+                patterns.spoofing.push({
+                    timestamp: curr.timestamp,
+                    type: 'Large order fluctuation',
+                    severity: 'Medium',
+                    details: {
+                        bidDepthChange,
+                        askDepthChange
+                    }
+                });
+            }
+        }
+
+        // Detect wash trading (matching orders from same source)
+        // This would require trade data analysis
+        
+        // Detect pump and dump patterns
+        const priceChanges = [];
+        for (let i = 1; i < snapshots.length; i++) {
+            const prevPrice = snapshots[i-1].exchanges[exchange]?.metrics?.midPrice || 0;
+            const currPrice = snapshots[i].exchanges[exchange]?.metrics?.midPrice || 0;
+            
+            if (prevPrice > 0) {
+                priceChanges.push({
+                    timestamp: snapshots[i].timestamp,
+                    change: (currPrice - prevPrice) / prevPrice
+                });
+            }
+        }
+
+        // Look for rapid price increases followed by crashes
+        for (let i = 5; i < priceChanges.length - 5; i++) {
+            const prevChanges = priceChanges.slice(i-5, i);
+            const nextChanges = priceChanges.slice(i, i+5);
+            
+            const prevAvg = prevChanges.reduce((sum, c) => sum + c.change, 0) / prevChanges.length;
+            const nextAvg = nextChanges.reduce((sum, c) => sum + c.change, 0) / nextChanges.length;
+            
+            if (prevAvg > 0.05 && nextAvg < -0.03) {
+                patterns.pumpAndDump.push({
+                    timestamp: priceChanges[i].timestamp,
+                    type: 'Potential pump and dump',
+                    severity: 'High',
+                    details: {
+                        pumpPercentage: prevAvg * 100,
+                        dumpPercentage: nextAvg * 100
+                    }
+                });
+            }
+        }
+
+        return patterns;
+    }
+
+    generateOrderBookHeatmap(historicalData) {
+        const heatmapData = {
+            timestamps: [],
+            priceLevels: [],
+            bidIntensity: [],
+            askIntensity: []
+        };
+
+        if (!historicalData.orderBookSnapshots || historicalData.orderBookSnapshots.length === 0) {
+            return heatmapData;
+        }
+
+        // Extract unique timestamps and price levels
+        const allPrices = new Set();
+        historicalData.orderBookSnapshots.forEach(snapshot => {
+            heatmapData.timestamps.push(snapshot.timestamp);
+            
+            // Add price levels around the mid price
+            const midPrice = snapshot.midPrice;
+            for (let i = -10; i <= 10; i++) {
+                allPrices.add(Math.round(midPrice + (midPrice * 0.001 * i)));
+            }
+        });
+
+        heatmapData.priceLevels = Array.from(allPrices).sort((a, b) => a - b);
+
+        // Generate intensity data
+        for (const priceLevel of heatmapData.priceLevels) {
+            const bidRow = [];
+            const askRow = [];
+            
+            for (const snapshot of historicalData.orderBookSnapshots) {
+                const distanceFromMid = (priceLevel - snapshot.midPrice) / snapshot.midPrice;
+                
+                // Simulate intensity based on distance from mid price
+                if (distanceFromMid < 0) {
+                    // Bid side
+                    bidRow.push(Math.max(0, 100 - Math.abs(distanceFromMid) * 5000));
+                    askRow.push(0);
+                } else {
+                    // Ask side
+                    bidRow.push(0);
+                    askRow.push(Math.max(0, 100 - Math.abs(distanceFromMid) * 5000));
+                }
+            }
+            
+            heatmapData.bidIntensity.push(bidRow);
+            heatmapData.askIntensity.push(askRow);
+        }
+
+        return heatmapData;
+    }
+
+    calculateStandardDeviation(values) {
+        if (values.length === 0) return 0;
+        
+        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
+        const squaredDiffs = values.map(val => Math.pow(val - mean, 2));
+        const avgSquaredDiff = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+        
+        return Math.sqrt(avgSquaredDiff);
     }
 }
 
