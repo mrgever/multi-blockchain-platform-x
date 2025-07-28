@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Information - Bitorzo Analytics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .data-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .data-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-left-color: #667eea;
+        }
+        
+        .price-up {
+            color: #10b981;
+            animation: flash-green 0.5s ease-in-out;
+        }
+        
+        .price-down {
+            color: #ef4444;
+            animation: flash-red 0.5s ease-in-out;
+        }
+        
+        @keyframes flash-green {
+            0% { background-color: rgba(16, 185, 129, 0.1); }
+            50% { background-color: rgba(16, 185, 129, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        @keyframes flash-red {
+            0% { background-color: rgba(239, 68, 68, 0.1); }
+            50% { background-color: rgba(239, 68, 68, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .order-book-row {
+            transition: background-color 0.2s ease;
+        }
+        
+        .order-book-row:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .exchange-badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .depth-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        
+        .ask-bar {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-chart-bar text-3xl mr-4"></i>
+                    <div>
+                        <h1 class="text-3xl font-bold">Sales Information</h1>
+                        <p class="text-purple-100">Real-Time Market Data & Order Book Analysis</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-right">
+                        <div id="last-update" class="text-sm text-purple-200">Last updated: --</div>
+                        <div id="data-sources" class="text-xs text-purple-300">Sources: 0</div>
+                    </div>
+                    <button onclick="refreshAllData()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-sync-alt mr-2" id="refresh-icon"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Market Overview -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-globe text-blue-500 mr-3"></i>
+                Market Overview
+            </h2>
+            <div id="market-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Market overview cards will be populated here -->
+            </div>
+        </section>
+
+        <!-- Real-Time Price Feed -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-broadcast-tower text-green-500 mr-3"></i>
+                Live Price Feed
+                <span class="ml-4 text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    <i class="fas fa-circle text-xs mr-1"></i>Live
+                </span>
+            </h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exchange</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">24h Change</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Volume</th>
+                                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spread</th>
+                            </tr>
+                        </thead>
+                        <tbody id="price-feed" class="bg-white divide-y divide-gray-200">
+                            <!-- Price feed rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Book Analysis -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-layer-group text-purple-500 mr-3"></i>
+                Order Book Analysis
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Order Book Depth -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Market Depth</h3>
+                        <select id="depth-asset" class="text-sm border rounded px-3 py-1" onchange="updateOrderBook()">
+                            <option value="BTC">BTC/USDT</option>
+                            <option value="ETH">ETH/USDT</option>
+                            <option value="BNB">BNB/USDT</option>
+                        </select>
+                    </div>
+                    <div id="order-book" class="space-y-2">
+                        <!-- Order book will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Volume Distribution -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Volume Distribution</h3>
+                    <canvas id="volume-chart" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Price Charts -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-chart-line text-orange-500 mr-3"></i>
+                Price Analysis
+            </h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex space-x-4">
+                        <select id="chart-asset" class="border rounded px-3 py-2" onchange="updateChart()">
+                            <option value="BTC">Bitcoin (BTC)</option>
+                            <option value="ETH">Ethereum (ETH)</option>
+                            <option value="BNB">Binance Coin (BNB)</option>
+                        </select>
+                        <select id="chart-exchange" class="border rounded px-3 py-2" onchange="updateChart()">
+                            <option value="all">All Exchanges</option>
+                            <option value="binance">Binance</option>
+                            <option value="coinbase">Coinbase</option>
+                            <option value="kraken">Kraken</option>
+                        </select>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="setTimeframe('1h')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1h">1H</button>
+                        <button onclick="setTimeframe('4h')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="4h">4H</button>
+                        <button onclick="setTimeframe('1d')" class="px-3 py-1 text-sm border rounded timeframe-btn active" data-timeframe="1d">1D</button>
+                        <button onclick="setTimeframe('1w')" class="px-3 py-1 text-sm border rounded timeframe-btn" data-timeframe="1w">1W</button>
+                    </div>
+                </div>
+                <div id="price-chart" style="height: 400px;"></div>
+            </div>
+        </section>
+
+        <!-- Exchange Comparison -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-balance-scale text-indigo-500 mr-3"></i>
+                Exchange Comparison
+            </h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="exchange-comparison">
+                <!-- Exchange comparison cards will be populated here -->
+            </div>
+        </section>
+
+        <!-- Historical Insights (Phase 2 Preview) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-history text-gray-500 mr-3"></i>
+                Historical Insights
+                <span class="ml-4 text-sm bg-orange-100 text-orange-700 px-3 py-1 rounded-full">
+                    Coming Soon
+                </span>
+            </h2>
+            <div class="bg-white rounded-xl shadow-lg p-8 text-center">
+                <i class="fas fa-database text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Advanced Historical Analysis</h3>
+                <p class="text-gray-500 mb-4">Deep order book analysis, liquidity patterns, and market manipulation detection across years of historical data.</p>
+                <div class="text-sm text-gray-400">
+                    <i class="fas fa-clock mr-1"></i>
+                    Phase 2 Development in Progress
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { MarketDataService } from './src/services/market-data-service.js';
+
+        class SalesInformationPage {
+            constructor() {
+                this.marketDataService = new MarketDataService();
+                this.priceChart = null;
+                this.volumeChart = null;
+                this.currentTimeframe = '1d';
+                this.updateInterval = null;
+                this.websockets = new Map();
+                
+                this.initialize();
+            }
+
+            async initialize() {
+                console.log('🚀 Initializing Sales Information Page...');
+                
+                // Show loading state
+                this.showLoadingState();
+                
+                // Initialize data services
+                await this.setupDataServices();
+                
+                // Load initial data
+                await this.loadInitialData();
+                
+                // Setup real-time updates
+                this.setupRealTimeUpdates();
+                
+                // Initialize charts
+                this.initializeCharts();
+                
+                // Setup event listeners
+                this.setupEventListeners();
+                
+                console.log('✅ Sales Information Page initialized');
+            }
+
+            showLoadingState() {
+                // Market Overview Loading
+                const marketOverview = document.getElementById('market-overview');
+                marketOverview.innerHTML = Array(4).fill(0).map(() => `
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="loading-skeleton h-4 w-20 mb-2 rounded"></div>
+                        <div class="loading-skeleton h-8 w-32 mb-2 rounded"></div>
+                        <div class="loading-skeleton h-3 w-24 rounded"></div>
+                    </div>
+                `).join('');
+
+                // Price Feed Loading
+                const priceFeed = document.getElementById('price-feed');
+                priceFeed.innerHTML = Array(6).fill(0).map(() => `
+                    <tr>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-16 rounded"></div></td>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-20 rounded"></div></td>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-24 rounded"></div></td>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-16 rounded"></div></td>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-20 rounded"></div></td>
+                        <td class="px-6 py-4"><div class="loading-skeleton h-4 w-12 rounded"></div></td>
+                    </tr>
+                `).join('');
+            }
+
+            async setupDataServices() {
+                // Setup market data service event listeners
+                this.marketDataService.on('data_fetched', (data) => {
+                    this.updateLastUpdateTime();
+                    this.updateDataSources(data.sources);
+                });
+
+                this.marketDataService.on('fetch_error', (error) => {
+                    console.error('Market data fetch error:', error);
+                    this.showError('Failed to fetch market data');
+                });
+            }
+
+            async loadInitialData() {
+                try {
+                    // Define key assets for analysis
+                    const keyAssets = ['BTC', 'ETH', 'BNB', 'USDT', 'ADA', 'SOL'];
+                    
+                    // Fetch comprehensive market data
+                    const marketData = await this.marketDataService.fetchPriceData(keyAssets, {
+                        requireConsensus: true,
+                        minSources: 2
+                    });
+
+                    // Update all UI components
+                    this.updateMarketOverview(marketData);
+                    this.updatePriceFeed(marketData);
+                    this.updateOrderBook('BTC');
+                    this.updateExchangeComparison(marketData);
+
+                } catch (error) {
+                    console.error('Failed to load initial data:', error);
+                    this.showError('Failed to load market data');
+                }
+            }
+
+            updateMarketOverview(marketData) {
+                const container = document.getElementById('market-overview');
+                const assets = Object.keys(marketData).slice(0, 4);
+                
+                container.innerHTML = assets.map(asset => {
+                    const data = marketData[asset];
+                    const changeClass = data.price_change_24h >= 0 ? 'text-green-500' : 'text-red-500';
+                    const changeIcon = data.price_change_24h >= 0 ? '↗️' : '↘️';
+                    
+                    return `
+                        <div class="data-card bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-lg font-semibold">${asset}</h3>
+                                <span class="exchange-badge bg-blue-100 text-blue-800">
+                                    ${data.sources?.length || 0} sources
+                                </span>
+                            </div>
+                            <div class="text-2xl font-bold mb-1">
+                                $${data.price?.toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: data.price < 1 ? 6 : 2
+                                })}
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="${changeClass} text-sm font-medium">
+                                    ${changeIcon} ${Math.abs(data.price_change_24h || 0).toFixed(2)}%
+                                </span>
+                                <span class="text-xs text-gray-500">
+                                    Vol: $${this.formatVolume(data.volume_24h)}
+                                </span>
+                            </div>
+                            <div class="mt-3 text-xs text-gray-400">
+                                Confidence: ${data.data_quality?.confidence_score || 0}%
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updatePriceFeed(marketData) {
+                const tbody = document.getElementById('price-feed');
+                const rows = [];
+
+                for (const [asset, data] of Object.entries(marketData)) {
+                    if (data.exchange_prices) {
+                        data.exchange_prices.forEach(exchangeData => {
+                            const changeClass = data.price_change_24h >= 0 ? 'price-up' : 'price-down';
+                            const spread = data.price_range ? 
+                                data.price_range.spread_percentage.toFixed(3) + '%' : 'N/A';
+                            
+                            rows.push(`
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="text-sm font-medium text-gray-900">${asset}</div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="exchange-badge bg-gray-100 text-gray-800">
+                                            ${exchangeData.exchange}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        $${exchangeData.price?.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: exchangeData.price < 1 ? 6 : 2
+                                        })}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm ${changeClass}">
+                                        ${data.price_change_24h >= 0 ? '+' : ''}${(data.price_change_24h || 0).toFixed(2)}%
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        $${this.formatVolume(exchangeData.volume)}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        ${spread}
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    }
+                }
+
+                tbody.innerHTML = rows.slice(0, 20).join('');
+            }
+
+            async updateOrderBook(asset = 'BTC') {
+                const container = document.getElementById('order-book');
+                
+                try {
+                    // This would connect to WebSocket for real-time order book data
+                    // For now, we'll simulate order book data
+                    const orderBookData = await this.generateSampleOrderBook(asset);
+                    
+                    container.innerHTML = `
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="text-sm font-medium text-red-600 mb-2">Asks (Sell Orders)</h4>
+                                <div class="space-y-1">
+                                    ${orderBookData.asks.map(order => `
+                                        <div class="order-book-row flex justify-between text-xs p-2 rounded bg-red-50">
+                                            <span class="text-red-600">$${order.price.toLocaleString()}</span>
+                                            <span class="text-gray-600">${order.quantity.toFixed(4)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-green-600 mb-2">Bids (Buy Orders)</h4>
+                                <div class="space-y-1">
+                                    ${orderBookData.bids.map(order => `
+                                        <div class="order-book-row flex justify-between text-xs p-2 rounded bg-green-50">
+                                            <span class="text-green-600">$${order.price.toLocaleString()}</span>
+                                            <span class="text-gray-600">${order.quantity.toFixed(4)}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <div class="text-lg font-bold">
+                                Spread: $${(orderBookData.asks[0].price - orderBookData.bids[0].price).toFixed(2)}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                ${(((orderBookData.asks[0].price - orderBookData.bids[0].price) / orderBookData.asks[0].price) * 100).toFixed(3)}%
+                            </div>
+                        </div>
+                    `;
+                } catch (error) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                            <p>Failed to load order book data</p>
+                        </div>
+                    `;
+                }
+            }
+
+            updateExchangeComparison(marketData) {
+                const container = document.getElementById('exchange-comparison');
+                const exchanges = ['Binance', 'Coinbase Pro', 'Kraken'];
+                
+                container.innerHTML = exchanges.map(exchange => {
+                    const exchangeData = this.getExchangeData(marketData, exchange);
+                    
+                    return `
+                        <div class="data-card bg-white rounded-xl p-6 shadow-lg">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold">${exchange}</h3>
+                                <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Assets:</span>
+                                    <span class="text-sm font-medium">${exchangeData.assets}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Avg Volume:</span>
+                                    <span class="text-sm font-medium">$${this.formatVolume(exchangeData.volume)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Avg Spread:</span>
+                                    <span class="text-sm font-medium">${exchangeData.spread}%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-600">Reliability:</span>
+                                    <span class="text-sm font-medium text-green-600">${exchangeData.reliability}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            initializeCharts() {
+                this.initializePriceChart();
+                this.initializeVolumeChart();
+            }
+
+            initializePriceChart() {
+                const container = document.getElementById('price-chart');
+                this.priceChart = LightweightCharts.createChart(container, {
+                    width: container.clientWidth,
+                    height: 400,
+                    layout: {
+                        backgroundColor: '#ffffff',
+                        textColor: '#333',
+                    },
+                    grid: {
+                        vertLines: { color: '#f0f0f0' },
+                        horzLines: { color: '#f0f0f0' },
+                    },
+                    crosshair: {
+                        mode: LightweightCharts.CrosshairMode.Normal,
+                    },
+                    rightPriceScale: {
+                        borderColor: '#cccccc',
+                    },
+                    timeScale: {
+                        borderColor: '#cccccc',
+                        timeVisible: true,
+                        secondsVisible: false,
+                    },
+                });
+
+                const candlestickSeries = this.priceChart.addCandlestickSeries({
+                    upColor: '#10b981',
+                    downColor: '#ef4444',
+                    borderDownColor: '#ef4444',
+                    borderUpColor: '#10b981',
+                    wickDownColor: '#ef4444',
+                    wickUpColor: '#10b981',
+                });
+
+                // Generate sample data
+                this.updateChartData();
+            }
+
+            initializeVolumeChart() {
+                const ctx = document.getElementById('volume-chart').getContext('2d');
+                this.volumeChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Binance', 'Coinbase', 'Kraken', 'Others'],
+                        datasets: [{
+                            data: [35, 25, 20, 20],
+                            backgroundColor: [
+                                '#f59e0b',
+                                '#3b82f6', 
+                                '#8b5cf6',
+                                '#6b7280'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+
+            setupRealTimeUpdates() {
+                // Update data every 30 seconds
+                this.updateInterval = setInterval(() => {
+                    this.refreshAllData();
+                }, 30000);
+            }
+
+            setupEventListeners() {
+                // Handle window resize for charts
+                window.addEventListener('resize', () => {
+                    if (this.priceChart) {
+                        this.priceChart.applyOptions({
+                            width: document.getElementById('price-chart').clientWidth
+                        });
+                    }
+                });
+            }
+
+            // Utility Methods
+            formatVolume(volume) {
+                if (!volume) return '0';
+                if (volume >= 1e9) return (volume / 1e9).toFixed(1) + 'B';
+                if (volume >= 1e6) return (volume / 1e6).toFixed(1) + 'M';
+                if (volume >= 1e3) return (volume / 1e3).toFixed(1) + 'K';
+                return volume.toFixed(0);
+            }
+
+            updateLastUpdateTime() {
+                document.getElementById('last-update').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+            }
+
+            updateDataSources(count) {
+                document.getElementById('data-sources').textContent = 
+                    `Sources: ${count}`;
+            }
+
+            showError(message) {
+                // Simple error display - could be enhanced with a toast system
+                console.error(message);
+            }
+
+            async generateSampleOrderBook(asset) {
+                const basePrice = asset === 'BTC' ? 43000 : asset === 'ETH' ? 2600 : 300;
+                const asks = [];
+                const bids = [];
+
+                for (let i = 0; i < 10; i++) {
+                    asks.push({
+                        price: basePrice + (i + 1) * (basePrice * 0.001),
+                        quantity: Math.random() * 10
+                    });
+                    bids.push({
+                        price: basePrice - (i + 1) * (basePrice * 0.001),
+                        quantity: Math.random() * 10
+                    });
+                }
+
+                return { asks, bids };
+            }
+
+            getExchangeData(marketData, exchange) {
+                let totalVolume = 0;
+                let assetCount = 0;
+                let totalSpread = 0;
+                let spreadCount = 0;
+
+                for (const [asset, data] of Object.entries(marketData)) {
+                    if (data.exchange_prices) {
+                        const exchangePrice = data.exchange_prices.find(ep => 
+                            ep.exchange.toLowerCase().includes(exchange.toLowerCase())
+                        );
+                        if (exchangePrice) {
+                            assetCount++;
+                            totalVolume += exchangePrice.volume || 0;
+                            if (data.price_range?.spread_percentage) {
+                                totalSpread += data.price_range.spread_percentage;
+                                spreadCount++;
+                            }
+                        }
+                    }
+                }
+
+                return {
+                    assets: assetCount,
+                    volume: totalVolume / Math.max(assetCount, 1),
+                    spread: spreadCount > 0 ? (totalSpread / spreadCount).toFixed(3) : '0',
+                    reliability: exchange === 'Binance' ? 99 : exchange === 'Coinbase Pro' ? 98 : 97
+                };
+            }
+
+            updateChartData() {
+                // Generate sample candlestick data
+                const data = [];
+                const basePrice = 43000;
+                const startTime = Date.now() - (24 * 60 * 60 * 1000); // 24 hours ago
+
+                for (let i = 0; i < 24; i++) {
+                    const time = startTime + (i * 60 * 60 * 1000);
+                    const open = basePrice + (Math.random() - 0.5) * 2000;
+                    const close = open + (Math.random() - 0.5) * 1000;
+                    const high = Math.max(open, close) + Math.random() * 500;
+                    const low = Math.min(open, close) - Math.random() * 500;
+
+                    data.push({
+                        time: Math.floor(time / 1000),
+                        open: open,
+                        high: high,
+                        low: low,
+                        close: close,
+                    });
+                }
+
+                if (this.priceChart) {
+                    const candlestickSeries = this.priceChart.series()[0];
+                    if (candlestickSeries) {
+                        candlestickSeries.setData(data);
+                    }
+                }
+            }
+
+            async refreshAllData() {
+                const refreshIcon = document.getElementById('refresh-icon');
+                refreshIcon.classList.add('fa-spin');
+                
+                try {
+                    await this.loadInitialData();
+                } finally {
+                    refreshIcon.classList.remove('fa-spin');
+                }
+            }
+        }
+
+        // Global functions
+        window.refreshAllData = () => {
+            if (window.salesInfoPage) {
+                window.salesInfoPage.refreshAllData();
+            }
+        };
+
+        window.updateOrderBook = () => {
+            const asset = document.getElementById('depth-asset').value;
+            if (window.salesInfoPage) {
+                window.salesInfoPage.updateOrderBook(asset);
+            }
+        };
+
+        window.updateChart = () => {
+            if (window.salesInfoPage) {
+                window.salesInfoPage.updateChartData();
+            }
+        };
+
+        window.setTimeframe = (timeframe) => {
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-500', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700');
+            });
+            
+            const activeBtn = document.querySelector(`[data-timeframe="${timeframe}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-blue-500', 'text-white');
+                activeBtn.classList.remove('bg-white', 'text-gray-700');
+            }
+            
+            if (window.salesInfoPage) {
+                window.salesInfoPage.currentTimeframe = timeframe;
+                window.salesInfoPage.updateChartData();
+            }
+        };
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.salesInfoPage = new SalesInformationPage();
+        });
+    </script>
+</body>
+</html>
