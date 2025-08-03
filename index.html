@@ -1567,6 +1567,12 @@
         }
         
         async function checkSystemHealth() {
+            // Skip health check in local development
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('Skipping health check in local development');
+                return;
+            }
+            
             try {
                 const response = await fetch('/.netlify/functions/health');
                 const data = await response.json();
@@ -1606,15 +1612,17 @@
             try {
                 showToast('Prices', 'Loading latest crypto prices...', 'info');
                 
-                // Try to fetch from our backend first
+                // Try to fetch from our backend first (skip in local development)
                 let data = null;
-                try {
-                    const response = await fetch('/.netlify/functions/rates');
-                    if (response.ok) {
-                        data = await response.json();
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    try {
+                        const response = await fetch('/.netlify/functions/rates');
+                        if (response.ok) {
+                            data = await response.json();
+                        }
+                    } catch (e) {
+                        console.log('Backend rates unavailable, using direct API');
                     }
-                } catch (e) {
-                    console.log('Backend rates unavailable, using direct API');
                 }
                 
                 // If backend is not available, fetch directly from CoinGecko
