@@ -111,7 +111,7 @@ export default function App() {
         // Pre-load fonts
         await Font.loadAsync({
           ...Ionicons.font,
-          'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+          // 'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
         });
         
         // Artificially delay for two seconds to simulate a slow loading

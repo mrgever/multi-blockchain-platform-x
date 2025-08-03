@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitorzo Mobile App Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Frame */
+        .mobile-frame {
+            max-width: 375px;
+            margin: 20px auto;
+            background: #000;
+            border-radius: 25px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-screen {
+            background: #f3f4f6;
+            border-radius: 20px;
+            overflow: hidden;
+            height: 812px;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #1e40af;
+            color: white;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 8px;
+        }
+
+        .tab-item.active {
+            color: #1e40af;
+        }
+
+        .tab-item:not(.active) {
+            color: #9ca3af;
+        }
+
+        .tab-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .tab-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Screen Content */
+        .screen-content {
+            padding: 20px;
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Header Card */
+        .header-card {
+            background: linear-gradient(135deg, #1e40af, #7c3aed);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .welcome-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .sub-text {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-analytics {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .action-monitor {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .action-wallet {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        /* Market Cards */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .market-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .symbol-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .icon-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .symbol {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .volume {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .price-container {
+            text-align: right;
+        }
+
+        .price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .change.positive {
+            color: #16a34a;
+        }
+
+        .change.negative {
+            color: #dc2626;
+        }
+
+        /* Wallet Screen */
+        .wallet-balance {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .total-balance {
+            margin-top: 20px;
+        }
+
+        .total-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .total-value {
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+        }
+
+        .auth-icon {
+            font-size: 64px;
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+
+        .auth-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+
+        .auth-button {
+            background: #1e40af;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Settings Screen */
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .settings-content {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .setting-item {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .setting-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: #1e40af;
+            font-size: 18px;
+        }
+
+        .setting-label {
+            font-size: 16px;
+            color: #1f2937;
+        }
+
+        .toggle {
+            width: 50px;
+            height: 24px;
+            background: #d1d5db;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.active {
+            background: #1e40af;
+        }
+
+        .toggle-slider {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active .toggle-slider {
+            transform: translateX(26px);
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="mobile-frame">
+        <div class="mobile-screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>Bitorzo</span>
+                <span>🔋 100%</span>
+            </div>
+
+            <!-- Home Screen -->
+            <div class="screen active" id="home-screen">
+                <div class="screen-content">
+                    <div class="header-card">
+                        <div class="welcome-text">Welcome to Bitorzo</div>
+                        <div class="sub-text">Real-time Blockchain Analytics</div>
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <div class="stat-value">10+</div>
+                                <div class="stat-label">Exchanges</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">1M+</div>
+                                <div class="stat-label">Data Points/Min</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">99.9%</div>
+                                <div class="stat-label">Uptime</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <div class="action-button action-analytics" onclick="switchTab('dashboard', document.querySelector('[onclick*=dashboard]'))">
+                            <i class="fas fa-chart-line"></i><br>Analytics
+                        </div>
+                        <div class="action-button action-monitor" onclick="switchTab('monitor', document.querySelector('[onclick*=monitor]'))">
+                            <i class="fas fa-server"></i><br>Monitor
+                        </div>
+                        <div class="action-button action-wallet" onclick="switchTab('wallet', document.querySelector('[onclick*=wallet]'))">
+                            <i class="fas fa-wallet"></i><br>Wallet
+                        </div>
+                    </div>
+
+                    <div class="section-title">Market Overview</div>
+                    <div class="market-card">
+                        <div class="symbol-container">
+                            <div class="icon-circle">B</div>
+                            <div>
+                                <div class="symbol">BTC/USDT</div>
+                                <div class="volume">Vol: $28.5B</div>
+                            </div>
+                        </div>
+                        <div class="price-container">
+                            <div class="price">$43,250</div>
+                            <div class="change positive">+2.34%</div>
+                        </div>
+                    </div>
+
+                    <div class="market-card">
+                        <div class="symbol-container">
+                            <div class="icon-circle">E</div>
+                            <div>
+                                <div class="symbol">ETH/USDT</div>
+                                <div class="volume">Vol: $15.6B</div>
+                            </div>
+                        </div>
+                        <div class="price-container">
+                            <div class="price">$2,280</div>
+                            <div class="change negative">-1.23%</div>
+                        </div>
+                    </div>
+
+                    <div class="market-card">
+                        <div class="symbol-container">
+                            <div class="icon-circle">B</div>
+                            <div>
+                                <div class="symbol">BNB/USDT</div>
+                                <div class="volume">Vol: $1.2B</div>
+                            </div>
+                        </div>
+                        <div class="price-container">
+                            <div class="price">$315</div>
+                            <div class="change positive">+3.45%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Screen -->
+            <div class="screen" id="dashboard-screen">
+                <div class="screen-content">
+                    <div class="section-title">Analytics Dashboard</div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <i class="fas fa-chart-line" style="font-size: 48px; color: #1e40af; margin-bottom: 16px;"></i>
+                        <h3>Full Analytics Dashboard</h3>
+                        <p style="color: #6b7280; margin-top: 8px;">This screen would display the complete analytics dashboard via WebView integration</p>
+                        <div style="margin-top: 20px; padding: 12px; background: #eff6ff; border-radius: 8px;">
+                            <small><strong>WebView URL:</strong> https://bitorzo.netlify.app/bitorzo-analytics.html</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitor Screen -->
+            <div class="screen" id="monitor-screen">
+                <div class="screen-content">
+                    <div class="section-title">System Monitor</div>
+                    <div style="background: white; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                        <i class="fas fa-server" style="font-size: 48px; color: #f59e0b; margin-bottom: 16px;"></i>
+                        <h3>Real-time System Dashboard</h3>
+                        <p style="color: #6b7280; margin-top: 8px;">Live monitoring of data pipeline and exchange connections</p>
+                        <div style="margin-top: 20px; padding: 12px; background: #fef3c7; border-radius: 8px;">
+                            <small><strong>WebView URL:</strong> https://bitorzo.netlify.app/system-dashboard.html</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wallet Screen -->
+            <div class="screen" id="wallet-screen">
+                <div class="screen-content">
+                    <div id="wallet-auth" class="auth-container">
+                        <div class="auth-icon">🔒</div>
+                        <div class="auth-text">Authentication Required</div>
+                        <button class="auth-button" onclick="authenticateWallet()">
+                            <i class="fas fa-fingerprint"></i> Authenticate
+                        </button>
+                    </div>
+
+                    <div id="wallet-content" style="display: none;">
+                        <div class="header-card">
+                            <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">Multi-Chain Wallet</div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; display: inline-block; font-size: 12px;">
+                                0x1234...5678 <i class="fas fa-copy"></i>
+                            </div>
+                            <div class="total-balance">
+                                <div class="total-label">Total Balance</div>
+                                <div class="total-value">$10,438</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">Assets</div>
+                        
+                        <div class="wallet-balance">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="icon-circle">E</div>
+                                    <div>
+                                        <div class="symbol">ETH</div>
+                                        <div class="volume">2.5</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="price">$5,700</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wallet-balance">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="icon-circle">B</div>
+                                    <div>
+                                        <div class="symbol">BTC</div>
+                                        <div class="volume">0.05</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="price">$2,162</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wallet-balance">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center;">
+                                    <div class="icon-circle">U</div>
+                                    <div>
+                                        <div class="symbol">USDT</div>
+                                        <div class="volume">1000</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="price">$1,000</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div class="screen" id="settings-screen">
+                <div class="screen-content">
+                    <div class="settings-section">
+                        <div class="settings-title">Security</div>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-fingerprint"></i>
+                                    </div>
+                                    <div class="setting-label">Biometric Auth</div>
+                                </div>
+                                <div class="toggle active" onclick="toggleSetting(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div class="setting-label">Change Passcode</div>
+                                </div>
+                                <i class="fas fa-chevron-right" style="color: #9ca3af;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title">Preferences</div>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-bell"></i>
+                                    </div>
+                                    <div class="setting-label">Notifications</div>
+                                </div>
+                                <div class="toggle active" onclick="toggleSetting(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-moon"></i>
+                                    </div>
+                                    <div class="setting-label">Dark Mode</div>
+                                </div>
+                                <div class="toggle" onclick="toggleSetting(this)">
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-title">About</div>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="setting-label">Version</div>
+                                </div>
+                                <span style="color: #6b7280;">1.0.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <div class="tab-item active" onclick="switchTab('home', this)">
+                    <div class="tab-icon"><i class="fas fa-home"></i></div>
+                    <div class="tab-label">Home</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('dashboard', this)">
+                    <div class="tab-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="tab-label">Analytics</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('monitor', this)">
+                    <div class="tab-icon"><i class="fas fa-server"></i></div>
+                    <div class="tab-label">Monitor</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('wallet', this)">
+                    <div class="tab-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="tab-label">Wallet</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('settings', this)">
+                    <div class="tab-icon"><i class="fas fa-cog"></i></div>
+                    <div class="tab-label">Settings</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 20px; color: #6b7280;">
+        <h2>📱 Bitorzo Mobile App Demo</h2>
+        <p>Interactive preview of the React Native Android application</p>
+        <p style="margin-top: 10px; font-size: 14px;">
+            <strong>Features:</strong> Real-time market data • Multi-chain wallet • System monitoring • Biometric security
+        </p>
+    </div>
+
+    <script>
+        function switchTab(tab, element) {
+            // Remove active class from all tabs and screens
+            document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            if (element) {
+                element.classList.add('active');
+            }
+            
+            // Show corresponding screen
+            const targetScreen = document.getElementById(tab + '-screen');
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+        }
+
+        function authenticateWallet() {
+            document.getElementById('wallet-auth').style.display = 'none';
+            document.getElementById('wallet-content').style.display = 'block';
+        }
+
+        function toggleSetting(toggle) {
+            toggle.classList.toggle('active');
+        }
+
+        // Simulate real-time price updates using requestAnimationFrame
+        function updatePrices() {
+            const prices = document.querySelectorAll('.price');
+            prices.forEach(price => {
+                if (price.textContent.includes('$')) {
+                    const currentPrice = parseFloat(price.textContent.replace('$', '').replace(',', ''));
+                    const change = (Math.random() - 0.5) * currentPrice * 0.001;
+                    const newPrice = currentPrice + change;
+                    price.textContent = '$' + newPrice.toLocaleString();
+                }
+            });
+            
+            // Schedule next update
+            setTimeout(updatePrices, 5000);
+        }
+        
+        // Start price updates
+        updatePrices();
+    </script>
+</body>
+</html>

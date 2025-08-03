@@ -109,6 +109,9 @@
                     <a href="system-dashboard.html" class="hover:text-yellow-300 transition flex items-center">
                         <i class="fas fa-server mr-2"></i>System Monitor
                     </a>
+                    <a href="mobile-demo.html" class="hover:text-yellow-300 transition flex items-center">
+                        <i class="fas fa-mobile-alt mr-2"></i>Mobile App
+                    </a>
                     <button onclick="showWalletModal()" class="hover:text-yellow-300 transition flex items-center">
                         <i class="fas fa-wallet mr-2"></i>Wallet
                     </button>
@@ -142,6 +145,9 @@
                 </button>
                 <a href="system-dashboard.html" class="block w-full text-left py-2">
                     <i class="fas fa-server mr-2"></i>System Monitor
+                </a>
+                <a href="mobile-demo.html" class="block w-full text-left py-2">
+                    <i class="fas fa-mobile-alt mr-2"></i>Mobile App
                 </a>
                 <button onclick="showWalletModal()" class="block w-full text-left py-2">
                     <i class="fas fa-wallet mr-2"></i>Wallet
@@ -423,6 +429,46 @@
                     <button onclick="showNetworks()" class="text-purple-600 font-semibold hover:underline">
                         View All Networks
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile App Showcase -->
+        <div class="bg-gradient-to-br from-blue-600 to-purple-700 rounded-xl p-8 text-white mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="md:w-2/3 mb-6 md:mb-0">
+                    <h2 class="text-3xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-mobile-alt mr-3"></i>
+                        Download Bitorzo Mobile
+                    </h2>
+                    <p class="text-blue-100 mb-6 text-lg">
+                        Take your blockchain analytics on the go with our powerful mobile app. Real-time market data, secure multi-chain wallet, and system monitoring in your pocket.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="mobile-demo.html" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition flex items-center">
+                            <i class="fas fa-eye mr-2"></i>Live Demo
+                        </a>
+                        <button onclick="showAppFeatures()" class="bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-900 transition flex items-center">
+                            <i class="fas fa-list mr-2"></i>Features
+                        </button>
+                        <button onclick="showDownloadOptions()" class="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition flex items-center">
+                            <i class="fas fa-download mr-2"></i>Download
+                        </button>
+                    </div>
+                </div>
+                <div class="md:w-1/3 text-center">
+                    <div class="bg-white/10 rounded-2xl p-6 backdrop-blur-sm">
+                        <i class="fas fa-mobile-alt text-6xl mb-4 text-blue-200"></i>
+                        <div class="text-sm text-blue-200">
+                            <div class="flex justify-center space-x-4 mb-4">
+                                <span>📱 iOS</span>
+                                <span>🤖 Android</span>
+                            </div>
+                            <div class="text-xs opacity-75">
+                                Real-time • Secure • Multi-chain
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2155,6 +2201,49 @@
             if (modal) {
                 modal.remove();
             }
+        }
+        
+        function showAppFeatures() {
+            const featuresInfo = `
+                <div style="text-align: left;">
+                <strong>📱 Mobile App Features:</strong><br><br>
+                • Real-time market data from 10+ exchanges<br>
+                • Multi-chain wallet with biometric security<br>
+                • System dashboard with pipeline monitoring<br>
+                • Push notifications for price alerts<br>
+                • Secure transaction sending/receiving<br>
+                • Portfolio tracking and analytics<br>
+                • Dark mode and customizable interface<br>
+                • Offline mode with data synchronization<br><br>
+                <strong>🔐 Security:</strong><br>
+                • Biometric authentication (fingerprint/face)<br>
+                • Encrypted local storage<br>
+                • No private keys stored on servers<br>
+                • End-to-end encrypted communications
+                </div>
+            `;
+            showToast('Mobile App Features', featuresInfo, 'info');
+        }
+
+        function showDownloadOptions() {
+            const downloadInfo = `
+                <div style="text-align: left;">
+                <strong>📱 Available Platforms:</strong><br><br>
+                <strong>Android:</strong><br>
+                • Google Play Store (Coming Soon)<br>
+                • Direct APK Download<br>
+                • Minimum: Android 8.0+<br><br>
+                <strong>iOS:</strong><br>
+                • App Store (Coming Soon)<br>
+                • TestFlight Beta<br>
+                • Minimum: iOS 13.0+<br><br>
+                <strong>Demo:</strong><br>
+                • <a href="mobile-demo.html" target="_blank" style="color: #3b82f6; text-decoration: underline;">Try Interactive Demo</a><br>
+                • Source code available on GitHub<br>
+                • React Native with Expo
+                </div>
+            `;
+            showToast('Download Options', downloadInfo, 'info');
         }
         
         // Transaction history management
