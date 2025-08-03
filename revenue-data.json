@@ -1,0 +1,39 @@
+{
+  "daily": {
+    "transactions": 0,
+    "volume": 0,
+    "fees": 0,
+    "arbitrageProfit": 0,
+    "premiumSubscriptions": 0,
+    "totalRevenue": 0,
+    "lastUpdated": 1754189283559
+  },
+  "weekly": {
+    "transactions": 0,
+    "volume": 0,
+    "fees": 125.5,
+    "arbitrageProfit": 450,
+    "premiumSubscriptions": 299,
+    "totalRevenue": 874.5
+  },
+  "monthly": {
+    "transactions": 0,
+    "volume": 0,
+    "fees": 125.5,
+    "arbitrageProfit": 450,
+    "premiumSubscriptions": 299,
+    "totalRevenue": 874.5
+  },
+  "history": [
+    {
+      "transactions": 0,
+      "volume": 0,
+      "fees": 125.5,
+      "arbitrageProfit": 450,
+      "premiumSubscriptions": 299,
+      "totalRevenue": 874.5,
+      "lastUpdated": 1754189279602,
+      "date": "2025-08-03"
+    }
+  ]
+}

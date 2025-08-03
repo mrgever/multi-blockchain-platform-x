@@ -50,6 +50,36 @@ export class MonetizationService extends EventEmitter {
             reliability: 99.9
         };
         
+        // Revenue tracking
+        this.revenueData = {
+            daily: {
+                transactions: 0,
+                volume: 0,
+                fees: 0,
+                arbitrageProfit: 0,
+                premiumSubscriptions: 0,
+                totalRevenue: 0,
+                lastUpdated: Date.now()
+            },
+            weekly: {
+                transactions: 0,
+                volume: 0,
+                fees: 0,
+                arbitrageProfit: 0,
+                premiumSubscriptions: 0,
+                totalRevenue: 0
+            },
+            monthly: {
+                transactions: 0,
+                volume: 0,
+                fees: 0,
+                arbitrageProfit: 0,
+                premiumSubscriptions: 0,
+                totalRevenue: 0
+            },
+            history: []
+        };
+        
         this.initialize();
     }
 
@@ -60,6 +90,8 @@ export class MonetizationService extends EventEmitter {
         this.startArbitrageMonitoring();
         this.startFeeOptimization();
         this.startMetricsCollection();
+        this.startRevenueTracking();
+        this.scheduleDailyRevenueUpdate();
         
         console.log('✅ Monetization Service initialized');
     }
@@ -477,13 +509,271 @@ export class MonetizationService extends EventEmitter {
         }, 1000); // Every second
     }
 
+    // Revenue Tracking Methods
+    updateRevenueData(source, amount) {
+        const now = Date.now();
+        
+        // Update daily revenue
+        this.revenueData.daily[source] += amount;
+        this.revenueData.daily.totalRevenue = 
+            this.revenueData.daily.fees +
+            this.revenueData.daily.arbitrageProfit +
+            this.revenueData.daily.premiumSubscriptions;
+        this.revenueData.daily.lastUpdated = now;
+        
+        // Update weekly and monthly
+        this.revenueData.weekly[source] += amount;
+        this.revenueData.weekly.totalRevenue = 
+            this.revenueData.weekly.fees +
+            this.revenueData.weekly.arbitrageProfit +
+            this.revenueData.weekly.premiumSubscriptions;
+            
+        this.revenueData.monthly[source] += amount;
+        this.revenueData.monthly.totalRevenue = 
+            this.revenueData.monthly.fees +
+            this.revenueData.monthly.arbitrageProfit +
+            this.revenueData.monthly.premiumSubscriptions;
+        
+        this.emit('revenue_updated', {
+            source,
+            amount,
+            daily: this.revenueData.daily.totalRevenue,
+            timestamp: now
+        });
+    }
+    
+    async fetchExternalRevenueData() {
+        // Simulate fetching revenue data from various sources
+        const sources = [
+            { type: 'fees', amount: Math.random() * 1000 },
+            { type: 'arbitrageProfit', amount: Math.random() * 500 },
+            { type: 'premiumSubscriptions', amount: Math.random() * 300 }
+        ];
+        
+        for (const source of sources) {
+            this.updateRevenueData(source.type, source.amount);
+        }
+        
+        // Track transaction volume
+        const volumeData = await this.salesDataService.getTotalVolume();
+        this.revenueData.daily.volume = volumeData;
+        this.revenueData.daily.transactions += Math.floor(Math.random() * 100);
+    }
+    
+    performDailyRevenueUpdate() {
+        console.log('📊 Performing daily revenue update...');
+        
+        // Store current daily data in history
+        const dailySnapshot = {
+            ...this.revenueData.daily,
+            date: new Date().toISOString().split('T')[0]
+        };
+        this.revenueData.history.push(dailySnapshot);
+        
+        // Keep only last 365 days of history
+        if (this.revenueData.history.length > 365) {
+            this.revenueData.history.shift();
+        }
+        
+        // Reset daily counters
+        this.revenueData.daily = {
+            transactions: 0,
+            volume: 0,
+            fees: 0,
+            arbitrageProfit: 0,
+            premiumSubscriptions: 0,
+            totalRevenue: 0,
+            lastUpdated: Date.now()
+        };
+        
+        // Reset weekly counters if it's been 7 days
+        const weeklyResetNeeded = this.revenueData.history.length % 7 === 0;
+        if (weeklyResetNeeded) {
+            this.revenueData.weekly = {
+                transactions: 0,
+                volume: 0,
+                fees: 0,
+                arbitrageProfit: 0,
+                premiumSubscriptions: 0,
+                totalRevenue: 0
+            };
+        }
+        
+        // Reset monthly counters if it's been 30 days
+        const monthlyResetNeeded = this.revenueData.history.length % 30 === 0;
+        if (monthlyResetNeeded) {
+            this.revenueData.monthly = {
+                transactions: 0,
+                volume: 0,
+                fees: 0,
+                arbitrageProfit: 0,
+                premiumSubscriptions: 0,
+                totalRevenue: 0
+            };
+        }
+        
+        console.log('✅ Daily revenue update completed');
+        
+        this.emit('daily_revenue_reset', {
+            previousDay: dailySnapshot,
+            timestamp: Date.now()
+        });
+        
+        // Save to persistent storage (in production, use database)
+        this.saveRevenueDataToPersistentStorage();
+    }
+    
+    async saveRevenueDataToPersistentStorage() {
+        // In production, this would save to a database
+        // For now, we'll just log it
+        console.log('💾 Saving revenue data to persistent storage');
+        
+        // You could also write to a JSON file for persistence
+        if (typeof window === 'undefined') {
+            // Node.js environment
+            try {
+                const fs = await import('fs');
+                const dataPath = './revenue-data.json';
+                fs.writeFileSync(dataPath, JSON.stringify(this.revenueData, null, 2));
+            } catch (err) {
+                console.error('Error saving revenue data:', err);
+            }
+        }
+    }
+    
+    async loadRevenueDataFromStorage() {
+        // Load historical revenue data on startup
+        if (typeof window === 'undefined') {
+            try {
+                const fs = await import('fs');
+                const dataPath = './revenue-data.json';
+                if (fs.existsSync(dataPath)) {
+                    const data = fs.readFileSync(dataPath, 'utf8');
+                    const loadedData = JSON.parse(data);
+                    this.revenueData = { ...this.revenueData, ...loadedData };
+                    console.log('📈 Loaded historical revenue data');
+                }
+            } catch (err) {
+                console.error('Error loading revenue data:', err);
+            }
+        }
+    }
+    
+    scheduleDailyRevenueUpdate() {
+        // Calculate milliseconds until next midnight UTC
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+        tomorrow.setUTCHours(0, 0, 0, 0);
+        const msUntilMidnight = tomorrow - now;
+        
+        console.log(`⏰ Daily revenue update scheduled in ${Math.floor(msUntilMidnight / 1000 / 60)} minutes`);
+        
+        // Schedule first update at midnight
+        setTimeout(() => {
+            this.performDailyRevenueUpdate();
+            
+            // Then schedule updates every 24 hours
+            setInterval(() => {
+                this.performDailyRevenueUpdate();
+            }, 24 * 60 * 60 * 1000); // 24 hours
+        }, msUntilMidnight);
+    }
+    
+    startRevenueTracking() {
+        // Load historical data on startup
+        this.loadRevenueDataFromStorage();
+        
+        // Track revenue from arbitrage opportunities
+        this.on('arbitrage_detected', (opportunities) => {
+            opportunities.forEach(opp => {
+                if (opp.expectedProfit > 0) {
+                    // Simulate successful arbitrage execution (10% success rate)
+                    if (Math.random() < 0.1) {
+                        this.updateRevenueData('arbitrageProfit', opp.expectedProfit);
+                    }
+                }
+            });
+        });
+        
+        // Track fee optimization savings as revenue
+        this.on('fee_optimized', (optimization) => {
+            if (optimization.estimatedSavings > 0) {
+                this.updateRevenueData('fees', optimization.estimatedSavings * 0.1); // 10% of savings as fee
+            }
+        });
+        
+        // Simulate premium subscription revenue
+        setInterval(() => {
+            const dailySubscriptionRevenue = 299 * Math.floor(Math.random() * 5); // 0-5 new subscriptions
+            if (dailySubscriptionRevenue > 0) {
+                this.updateRevenueData('premiumSubscriptions', dailySubscriptionRevenue / 30); // Daily portion
+            }
+        }, 60 * 60 * 1000); // Every hour
+        
+        // Fetch external revenue data periodically
+        setInterval(() => {
+            this.fetchExternalRevenueData();
+        }, 5 * 60 * 1000); // Every 5 minutes
+    }
+    
+    getRevenueReport() {
+        const report = {
+            current: {
+                daily: this.revenueData.daily,
+                weekly: this.revenueData.weekly,
+                monthly: this.revenueData.monthly
+            },
+            history: {
+                last7Days: this.revenueData.history.slice(-7),
+                last30Days: this.revenueData.history.slice(-30),
+                trend: this.calculateRevenueTrend()
+            },
+            projections: {
+                dailyAverage: this.calculateAverageRevenue('daily'),
+                monthlyProjection: this.calculateAverageRevenue('daily') * 30,
+                annualProjection: this.calculateAverageRevenue('daily') * 365
+            }
+        };
+        
+        return report;
+    }
+    
+    calculateRevenueTrend() {
+        if (this.revenueData.history.length < 2) return 'insufficient_data';
+        
+        const recent = this.revenueData.history.slice(-7);
+        const previous = this.revenueData.history.slice(-14, -7);
+        
+        if (previous.length === 0) return 'insufficient_data';
+        
+        const recentAvg = recent.reduce((sum, day) => sum + day.totalRevenue, 0) / recent.length;
+        const previousAvg = previous.reduce((sum, day) => sum + day.totalRevenue, 0) / previous.length;
+        
+        const change = ((recentAvg - previousAvg) / previousAvg) * 100;
+        
+        if (change > 10) return 'growing';
+        if (change < -10) return 'declining';
+        return 'stable';
+    }
+    
+    calculateAverageRevenue(period) {
+        const days = period === 'daily' ? 1 : period === 'weekly' ? 7 : 30;
+        const relevantHistory = this.revenueData.history.slice(-days);
+        
+        if (relevantHistory.length === 0) return 0;
+        
+        return relevantHistory.reduce((sum, day) => sum + day.totalRevenue, 0) / relevantHistory.length;
+    }
+    
     // Public API
     getSystemMetrics() {
         return {
             ...this.metrics,
             uptime: Date.now() - this.metrics.uptime,
             dataVolumeFormatted: this.formatDataVolume(this.metrics.dataVolume),
-            savingsTracker: this.feeOptimizer.savingsTracker
+            savingsTracker: this.feeOptimizer.savingsTracker,
+            revenueData: this.revenueData
         };
     }
 
