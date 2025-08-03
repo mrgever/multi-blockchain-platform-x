@@ -144,26 +144,40 @@ class WalletConnector {
     }
 
     async connectMetaMask() {
-        const accounts = await window.ethereum.request({
-            method: 'eth_requestAccounts'
-        });
+        try {
+            if (!window.ethereum || !window.ethereum.isMetaMask) {
+                throw new Error('MetaMask extension not found');
+            }
 
-        const chainId = await window.ethereum.request({
-            method: 'eth_chainId'
-        });
+            const accounts = await window.ethereum.request({
+                method: 'eth_requestAccounts'
+            });
 
-        const balance = await window.ethereum.request({
-            method: 'eth_getBalance',
-            params: [accounts[0], 'latest']
-        });
+            if (!accounts || accounts.length === 0) {
+                throw new Error('No accounts available in MetaMask');
+            }
 
-        return {
-            address: accounts[0],
-            chainId: parseInt(chainId, 16),
-            balance: parseFloat(window.Web3.utils.fromWei(balance, 'ether')),
-            provider: window.ethereum,
-            type: 'metamask'
-        };
+            const chainId = await window.ethereum.request({
+                method: 'eth_chainId'
+            });
+
+            const balance = await window.ethereum.request({
+                method: 'eth_getBalance',
+                params: [accounts[0], 'latest']
+            });
+
+            return {
+                address: accounts[0],
+                chainId: parseInt(chainId, 16),
+                balance: parseFloat(window.Web3.utils.fromWei(balance, 'ether')),
+                provider: window.ethereum,
+                type: 'metamask'
+            };
+        } catch (error) {
+            console.warn('MetaMask connection failed:', error.message);
+            // Don't throw the error to prevent uncaught promise rejection
+            return null;
+        }
     }
 
     async connectWalletConnect() {

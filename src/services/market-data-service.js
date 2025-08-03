@@ -4,6 +4,9 @@
  * Designed for 24/7 continuous operation without manual intervention
  */
 
+// Browser environment - axios loaded via CDN
+const axios = window.axios;
+
 // Browser-compatible EventEmitter implementation
 class EventEmitter {
     constructor() {

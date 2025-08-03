@@ -4,7 +4,8 @@
  * Operates 24/7 without manual intervention
  */
 
-import axios from 'axios';
+// Browser environment - axios loaded via CDN
+const axios = window.axios || (typeof require !== 'undefined' ? require('axios') : null);
 import { EventEmitter } from 'events';
 import { execSync } from 'child_process';
 import fs from 'fs/promises';
