@@ -4,8 +4,31 @@
  * Designed for 24/7 continuous operation without manual intervention
  */
 
-import axios from 'axios';
-import { EventEmitter } from 'events';
+// Browser-compatible EventEmitter implementation
+class EventEmitter {
+    constructor() {
+        this.events = {};
+    }
+    
+    on(event, listener) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+        this.events[event].push(listener);
+    }
+    
+    emit(event, ...args) {
+        if (this.events[event]) {
+            this.events[event].forEach(listener => listener(...args));
+        }
+    }
+    
+    removeListener(event, listenerToRemove) {
+        if (this.events[event]) {
+            this.events[event] = this.events[event].filter(listener => listener !== listenerToRemove);
+        }
+    }
+}
 
 export class MarketDataService extends EventEmitter {
     constructor() {
